@@ -28,31 +28,36 @@ export default function AdminRegister() {
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/admin`,
+          data: {
+            name: formData.name,
+            organization: formData.organization,
+          },
         },
       });
 
       if (authError) throw authError;
 
       if (authData.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from("users")
-          .insert([
-            {
-              id: authData.user.id,
-              email: formData.email,
-              name: formData.name,
-              organization_name: formData.organization,
-            },
-          ]);
-
-        if (profileError) throw profileError;
-
         toast.success("Account created successfully!");
         navigate("/admin");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to create account");
+      console.error("Registration error:", error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = "Failed to create account";
+      
+      if (error.message?.includes("already registered")) {
+        errorMessage = "This email is already registered. Please sign in instead.";
+      } else if (error.message?.includes("Invalid email")) {
+        errorMessage = "Please enter a valid email address.";
+      } else if (error.message?.includes("Password")) {
+        errorMessage = "Password must be at least 6 characters long.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
