@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Download, ZoomIn } from "lucide-react";
+import { Upload, Download, ZoomIn, Move } from "lucide-react";
 import { toast } from "sonner";
 
 interface Template {
@@ -40,29 +40,270 @@ export default function ImageEditor({
   helperText,
   eventSlug,
 }: ImageEditorProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userImageElement, setUserImageElement] = useState<HTMLImageElement | null>(null);
+  const [templateImageElement, setTemplateImageElement] = useState<HTMLImageElement | null>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [initialScale, setInitialScale] = useState(1);
+
+  // Load template image
+  useEffect(() => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => setTemplateImageElement(img);
+    img.onerror = () => {
+      console.error("Failed to load template image");
+      toast.error("Failed to load template");
+    };
+    img.src = template.image_url;
+  }, [template.image_url]);
+
+  // Load user image
+  useEffect(() => {
+    if (userImage) {
+      const img = new Image();
+      img.onload = () => {
+        setUserImageElement(img);
+        
+        // Calculate initial scale to fill frame
+        const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+        const frameWidth = template.photo_frame_width * dimensions.width;
+        const frameHeight = template.photo_frame_height * dimensions.height;
+        
+        const scaleToFitWidth = frameWidth / img.width;
+        const scaleToFitHeight = frameHeight / img.height;
+        const minScale = Math.max(scaleToFitWidth, scaleToFitHeight);
+        
+        setInitialScale(minScale);
+        setScale(minScale);
+        
+        // Center the image
+        const scaledWidth = img.width * minScale;
+        const scaledHeight = img.height * minScale;
+        setPosition({
+          x: (frameWidth - scaledWidth) / 2,
+          y: (frameHeight - scaledHeight) / 2,
+        });
+      };
+      img.src = userImage;
+    } else {
+      setUserImageElement(null);
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }
+  }, [userImage, template]);
+
+  // Draw preview
+  useEffect(() => {
+    if (previewCanvasRef.current && templateImageElement && userImageElement) {
+      drawPreview();
+    }
+  }, [templateImageElement, userImageElement, scale, position]);
+
+  const drawPreview = () => {
+    const canvas = previewCanvasRef.current;
+    if (!canvas || !templateImageElement || !userImageElement) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+    
+    // Set canvas to display size (fit container)
+    const container = canvas.parentElement;
+    if (!container) return;
+    
+    const containerWidth = container.clientWidth;
+    const displayScale = containerWidth / dimensions.width;
+    
+    canvas.width = containerWidth;
+    canvas.height = dimensions.height * displayScale;
+
+    // Calculate frame position on canvas
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw user image clipped to frame
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(frameX, frameY, frameWidth, frameHeight);
+    ctx.clip();
+    
+    const scaledUserWidth = userImageElement.width * scale * displayScale;
+    const scaledUserHeight = userImageElement.height * scale * displayScale;
+    
+    ctx.drawImage(
+      userImageElement,
+      frameX + position.x * displayScale,
+      frameY + position.y * displayScale,
+      scaledUserWidth,
+      scaledUserHeight
+    );
+    ctx.restore();
+
+    // Draw template overlay
+    ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!userImageElement) return;
+    
+    const canvas = previewCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    // Check if click is inside frame
+    if (x >= frameX && x <= frameX + frameWidth && y >= frameY && y <= frameY + frameHeight) {
+      setIsDragging(true);
+      
+      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+      const displayScale = canvas.width / dimensions.width;
+      
+      setDragStart({
+        x: x - frameX - position.x * displayScale,
+        y: y - frameY - position.y * displayScale,
+      });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDragging || !userImageElement) return;
+
+    const canvas = previewCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+    const displayScale = canvas.width / dimensions.width;
+
+    let newX = (x - frameX - dragStart.x) / displayScale;
+    let newY = (y - frameY - dragStart.y) / displayScale;
+
+    // Constrain to keep frame filled
+    const scaledUserWidth = userImageElement.width * scale;
+    const scaledUserHeight = userImageElement.height * scale;
+    const actualFrameWidth = frameWidth / displayScale;
+    const actualFrameHeight = frameHeight / displayScale;
+
+    newX = Math.min(0, Math.max(newX, actualFrameWidth - scaledUserWidth));
+    newY = Math.min(0, Math.max(newY, actualFrameHeight - scaledUserHeight));
+
+    setPosition({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!userImageElement || e.touches.length !== 1) return;
+    
+    const canvas = previewCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    if (x >= frameX && x <= frameX + frameWidth && y >= frameY && y <= frameY + frameHeight) {
+      setIsDragging(true);
+      
+      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+      const displayScale = canvas.width / dimensions.width;
+      
+      setDragStart({
+        x: x - frameX - position.x * displayScale,
+        y: y - frameY - position.y * displayScale,
+      });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDragging || !userImageElement || e.touches.length !== 1) return;
+
+    const canvas = previewCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+    const displayScale = canvas.width / dimensions.width;
+
+    let newX = (x - frameX - dragStart.x) / displayScale;
+    let newY = (y - frameY - dragStart.y) / displayScale;
+
+    const scaledUserWidth = userImageElement.width * scale;
+    const scaledUserHeight = userImageElement.height * scale;
+    const actualFrameWidth = frameWidth / displayScale;
+    const actualFrameHeight = frameHeight / displayScale;
+
+    newX = Math.min(0, Math.max(newX, actualFrameWidth - scaledUserWidth));
+    newY = Math.min(0, Math.max(newY, actualFrameHeight - scaledUserHeight));
+
+    setPosition({ x: newX, y: newY });
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image too large. Please use an image under 10MB.");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       onImageUpload(dataUrl);
-      setScale(1);
-      setPosition({ x: 0, y: 0 });
     };
     reader.readAsDataURL(file);
   };
 
   const handleDownloadClick = () => {
-    if (!userImage || !canvasRef.current) return;
+    if (!userImageElement || !templateImageElement) {
+      toast.error("Please upload a photo first");
+      return;
+    }
 
     const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
     const canvas = document.createElement("canvas");
@@ -71,60 +312,91 @@ export default function ImageEditor({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Draw user image in frame area
+    // Calculate frame position at full resolution
     const frameX = template.photo_frame_x * dimensions.width;
     const frameY = template.photo_frame_y * dimensions.height;
     const frameWidth = template.photo_frame_width * dimensions.width;
     const frameHeight = template.photo_frame_height * dimensions.height;
 
-    const img = new Image();
-    img.onload = () => {
-      ctx.save();
-      ctx.rect(frameX, frameY, frameWidth, frameHeight);
-      ctx.clip();
-      
-      const scaledWidth = frameWidth * scale;
-      const scaledHeight = (img.height / img.width) * scaledWidth;
-      ctx.drawImage(img, frameX + position.x, frameY + position.y, scaledWidth, scaledHeight);
-      ctx.restore();
+    // Draw user image clipped to frame
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(frameX, frameY, frameWidth, frameHeight);
+    ctx.clip();
 
-      // Draw template overlay
-      const templateImg = new Image();
-      templateImg.crossOrigin = "anonymous";
-      templateImg.onload = () => {
-        ctx.drawImage(templateImg, 0, 0, dimensions.width, dimensions.height);
-        
-        // Download
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `${eventSlug}-${template.name.replace(/\s+/g, "-").toLowerCase()}.png`;
-            a.click();
-            URL.revokeObjectURL(url);
-            toast.success("Visual downloaded!");
-            onDownload();
-          }
-        }, "image/png");
-      };
-      templateImg.src = template.image_url;
-    };
-    img.src = userImage;
+    const scaledUserWidth = userImageElement.width * scale;
+    const scaledUserHeight = userImageElement.height * scale;
+
+    ctx.drawImage(
+      userImageElement,
+      frameX + position.x,
+      frameY + position.y,
+      scaledUserWidth,
+      scaledUserHeight
+    );
+    ctx.restore();
+
+    // Draw template overlay
+    ctx.drawImage(templateImageElement, 0, 0, dimensions.width, dimensions.height);
+
+    // Download
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const filename = `${eventSlug}-${template.name.replace(/\s+/g, "-").toLowerCase()}-meetme.png`;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast.success("Visual downloaded! Time to post 🎉");
+        onDownload();
+      }
+    }, "image/png", 1.0);
+  };
+
+  const handleScaleChange = (values: number[]) => {
+    const newScale = values[0];
+    setScale(newScale);
+
+    // Adjust position to keep image constrained
+    if (userImageElement) {
+      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+      const frameWidth = template.photo_frame_width * dimensions.width;
+      const frameHeight = template.photo_frame_height * dimensions.height;
+
+      const scaledUserWidth = userImageElement.width * newScale;
+      const scaledUserHeight = userImageElement.height * newScale;
+
+      let newX = position.x;
+      let newY = position.y;
+
+      newX = Math.min(0, Math.max(newX, frameWidth - scaledUserWidth));
+      newY = Math.min(0, Math.max(newY, frameHeight - scaledUserHeight));
+
+      setPosition({ x: newX, y: newY });
+    }
   };
 
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Create Your Visual</h2>
-      
+
       {helperText && (
-        <p className="text-sm text-muted-foreground mb-4">{helperText}</p>
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
+          <p className="text-sm text-primary">{helperText}</p>
+        </div>
       )}
 
       {!userImage ? (
-        <div className="border-2 border-dashed rounded-lg p-12 text-center">
-          <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground mb-4">Upload your photo</p>
+        <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary transition-colors">
+          <Upload className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <p className="text-lg font-medium mb-2">Upload your photo</p>
+          <p className="text-sm text-muted-foreground mb-4">
+            JPG, PNG or WEBP (max 10MB)
+          </p>
           <input
             ref={fileInputRef}
             type="file"
@@ -132,38 +404,59 @@ export default function ImageEditor({
             onChange={handleFileUpload}
             className="hidden"
           />
-          <Button onClick={() => fileInputRef.current?.click()}>
+          <Button onClick={() => fileInputRef.current?.click()} size="lg">
             Choose Photo
           </Button>
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="border rounded-lg overflow-hidden bg-muted aspect-square">
-            <canvas ref={canvasRef} className="w-full h-full" />
+          <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
+            <canvas
+              ref={previewCanvasRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleMouseUp}
+              className="w-full cursor-move touch-none"
+              style={{ display: "block" }}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+            <Move className="h-4 w-4" />
+            <span>Drag to position • Zoom to adjust</span>
           </div>
 
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium mb-2 flex items-center gap-2">
                 <ZoomIn className="h-4 w-4" />
-                Zoom
+                Zoom: {scale.toFixed(1)}x
               </label>
               <Slider
                 value={[scale]}
-                onValueChange={([v]) => setScale(v)}
-                min={1}
-                max={3}
+                onValueChange={handleScaleChange}
+                min={initialScale}
+                max={initialScale * 3}
                 step={0.1}
+                className="mt-2"
               />
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={() => fileInputRef.current?.click()} variant="outline" className="flex-1">
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                variant="outline"
+                className="flex-1"
+              >
                 Change Photo
               </Button>
               <Button onClick={handleDownloadClick} className="flex-1">
                 <Download className="mr-2 h-4 w-4" />
-                Download Visual
+                Download
               </Button>
             </div>
           </div>
