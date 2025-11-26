@@ -255,27 +255,26 @@ export default function EventParticipantPage() {
             </div>
 
             {/* Right Column: Image Editor */}
-<div className="lg:sticky lg:top-8 lg:self-start flex justify-center items-center overflow-hidden">
-  {!selectedTemplate ? (
-    <Card className="p-12 text-center">
-      <p className="text-muted-foreground mb-2">Choose your frame first</p>
-      <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
-    </Card>
-  ) : (
-    <div className="relative w-full h-full flex justify-center items-center">
-      <div className="relative w-full max-w-[95vw] max-h-[90vh] flex justify-center items-center overflow-hidden">
-        <ImageEditor
-          template={selectedTemplate}
-          userImage={userImage}
-          onImageUpload={handleImageUpload}
-          onDownload={handleDownload}
-          helperText={event.helper_text}
-          eventSlug={slug || ""}
-        />
-      </div>
-    </div>
-  )}
-</div>
+            <div className="lg:sticky lg:top-8 lg:self-start flex justify-center items-center overflow-hidden">
+              {!selectedTemplate ? (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground mb-2">Choose your frame first</p>
+                  <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
+                </Card>
+              ) : (
+                <div className="relative w-full h-full flex justify-center items-center">
+                  <div className="relative w-full max-w-[95vw] max-h-[90vh] flex justify-center items-center overflow-hidden">
+                    <ImageEditor
+                      template={selectedTemplate}
+                      userImage={userImage}
+                      onImageUpload={handleImageUpload}
+                      onDownload={handleDownload}
+                      helperText={event.helper_text}
+                      eventSlug={slug || ""}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
