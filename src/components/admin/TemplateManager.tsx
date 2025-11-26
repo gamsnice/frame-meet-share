@@ -456,13 +456,13 @@ export default function TemplateManager() {
                 <TemplatePreview template={template} className="w-full h-full object-contain" />
               </div>
               {/* Note about image resolution */}
-              <div className="text-center text-xs text-muted-foreground mt-2">
+              <div className="text-center text-xs text-muted-foreground mt-2 mb-6">
                 <p>
                   Please note that the resolution displayed here is lower for preview purposes. The final download will
                   be in full quality.
                 </p>
               </div>
-              <div <h3 className="font-semibold mb-1">{template.name}</h3>
+              <h3 className="font-semibold mb-1">{template.name}</h3>
               <div className="flex gap-2 text-xs mb-3">
                 <span className="px-2 py-1 bg-primary/10 text-primary rounded">{template.type}</span>
                 <span className="px-2 py-1 bg-secondary/10 text-secondary rounded">
