@@ -278,6 +278,13 @@ export default function EventParticipantPage() {
             </div>
           </div>
         )}
+        {/* Note about image resolution */}
+        <div className="text-center text-sm text-muted-foreground mt-4">
+          <p>
+            Please note that the resolution displayed here is lower for preview purposes. The final download will be in
+            full quality.
+          </p>
+        </div>
       </main>
 
       {/* Footer */}
