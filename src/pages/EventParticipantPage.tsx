@@ -262,8 +262,8 @@ export default function EventParticipantPage() {
                   <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
                 </Card>
               ) : (
-                <div className="relative w-full h-full flex justify-center items-center">
-                  <div className="relative w-full max-w-[98vw] max-h-[95vh] flex justify-center items-center overflow-hidden">
+                <div className="relative w-full h-full flex justify-center items-center overflow-hidden">
+                  <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex justify-center items-center">
                     <ImageEditor
                       template={selectedTemplate}
                       userImage={userImage}
