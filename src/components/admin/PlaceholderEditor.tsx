@@ -170,10 +170,11 @@ export const PlaceholderEditor = ({
         Drag to position • Use slider to zoom
       </div>
       
-      <div className="max-h-[400px] overflow-hidden">
+      <div className="flex justify-center">
         <canvas
           ref={canvasRef}
-          className="w-full cursor-move touch-none rounded-lg"
+          className="max-w-full cursor-move touch-none rounded-lg"
+          style={{ maxWidth: '350px' }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}

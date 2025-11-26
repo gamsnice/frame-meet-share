@@ -64,6 +64,7 @@ export default function TemplateManager() {
   const [placeholderPreview, setPlaceholderPreview] = useState<string>("");
   const [placeholderScale, setPlaceholderScale] = useState(1);
   const [placeholderPosition, setPlaceholderPosition] = useState({ x: 0, y: 0 });
+  const [savingPlaceholder, setSavingPlaceholder] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -348,7 +349,8 @@ export default function TemplateManager() {
 
   const savePlaceholder = async () => {
     if (!placeholderTemplate) return;
-
+    
+    setSavingPlaceholder(true);
     try {
       let placeholderUrl = placeholderTemplate.placeholder_image_url || "";
 
@@ -387,8 +389,10 @@ export default function TemplateManager() {
       setShowPlaceholderDialog(false);
       loadTemplates();
     } catch (error: any) {
-      toast.error("Failed to save placeholder");
-      console.error(error);
+      console.error("Placeholder save error:", error);
+      toast.error(error.message || "Failed to save placeholder");
+    } finally {
+      setSavingPlaceholder(false);
     }
   };
 
@@ -621,7 +625,7 @@ export default function TemplateManager() {
 
       {/* Placeholder Dialog */}
       <Dialog open={showPlaceholderDialog} onOpenChange={setShowPlaceholderDialog}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>Manage Placeholder - {placeholderTemplate?.name}</DialogTitle>
           </DialogHeader>
@@ -666,8 +670,8 @@ export default function TemplateManager() {
               <Button variant="outline" onClick={() => setShowPlaceholderDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={savePlaceholder} disabled={!placeholderPreview}>
-                Save Placeholder
+              <Button onClick={savePlaceholder} disabled={!placeholderPreview || savingPlaceholder}>
+                {savingPlaceholder ? "Saving..." : "Save Placeholder"}
               </Button>
             </div>
           </div>
