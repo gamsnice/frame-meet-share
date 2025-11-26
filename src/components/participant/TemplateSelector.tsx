@@ -45,10 +45,7 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
       <h2 className="text-xl font-semibold mb-4">Choose Your Frame</h2>
       {/* Note about image resolution */}
       <div className="text-center text-sm text-muted-foreground mt-4">
-        <p>
-          Please note that the resolution displayed here is lower for preview purposes. The final download will be in
-          full quality.
-        </p>
+        <p>Please note that the resolution displayed here is lower only for preview purposes.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {templates.map((template) => {
