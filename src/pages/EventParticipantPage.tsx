@@ -21,6 +21,9 @@ interface Event {
   brand_primary_color: string;
   brand_secondary_color: string;
   brand_text_color: string;
+  logo_url?: string;
+  secondary_logo_url?: string;
+  favicon_url?: string;
   hero_title: string;
   hero_subtitle: string;
   helper_text: string;
@@ -55,6 +58,18 @@ export default function EventParticipantPage() {
       loadEventData();
     }
   }, [slug]);
+
+  // Set dynamic favicon
+  useEffect(() => {
+    if (event?.favicon_url) {
+      const link = document.querySelector("link[rel='icon']") as HTMLLinkElement || document.createElement('link');
+      link.rel = 'icon';
+      link.href = event.favicon_url;
+      if (!document.querySelector("link[rel='icon']")) {
+        document.head.appendChild(link);
+      }
+    }
+  }, [event?.favicon_url]);
 
   const loadEventData = async () => {
     try {
@@ -147,12 +162,23 @@ export default function EventParticipantPage() {
         style={{ backgroundColor: event.brand_primary_color, color: event.brand_text_color }}
       >
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl md:text-5xl font-bold mb-3 animate-fade-in">{event.hero_title}</h1>
-          {event.hero_subtitle && (
-            <p className="text-lg md:text-xl opacity-90 mb-4 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              {event.hero_subtitle}
-            </p>
-          )}
+          <div className="flex items-start gap-4 md:gap-6 mb-6">
+            {event.logo_url && (
+              <img
+                src={event.logo_url}
+                alt={event.name}
+                className="h-12 md:h-16 w-auto object-contain animate-fade-in"
+              />
+            )}
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-5xl font-bold mb-3 animate-fade-in">{event.hero_title}</h1>
+              {event.hero_subtitle && (
+                <p className="text-lg md:text-xl opacity-90 mb-4 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+                  {event.hero_subtitle}
+                </p>
+              )}
+            </div>
+          </div>
           <div className="flex flex-wrap gap-4 text-sm md:text-base animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
@@ -217,8 +243,19 @@ export default function EventParticipantPage() {
 
       {/* Footer */}
       <footer className="border-t mt-16 py-8 bg-card">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Powered by MeetMeFrame</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {event.secondary_logo_url && (
+              <img
+                src={event.secondary_logo_url}
+                alt="Partner logo"
+                className="h-8 w-auto object-contain"
+              />
+            )}
+            <p className="text-sm text-muted-foreground text-center md:text-left flex-1">
+              Powered by MeetMeFrame
+            </p>
+          </div>
         </div>
       </footer>
     </div>
