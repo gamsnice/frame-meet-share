@@ -57,6 +57,8 @@ export default function TemplateManager() {
     photo_frame_width: 0.6,
     photo_frame_height: 0.6,
   });
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   useEffect(() => {
     if (eventId) {
@@ -108,6 +110,7 @@ export default function TemplateManager() {
       photo_frame_width: 0.6,
       photo_frame_height: 0.6,
     });
+    setUploadedFile(null);
     setShowDialog(true);
   };
 
@@ -123,20 +126,87 @@ export default function TemplateManager() {
       photo_frame_width: template.photo_frame_width,
       photo_frame_height: template.photo_frame_height,
     });
+    setUploadedFile(null);
     setShowDialog(true);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/png') && !file.type.startsWith('image/svg')) {
+      toast.error("Please upload a PNG or SVG file");
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
+    setUploadedFile(file);
+    
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setFormData({ ...formData, image_url: previewUrl });
   };
 
   const handleSubmit = async () => {
     try {
-      if (!formData.image_url) {
-        toast.error("Please provide a template image URL");
+      if (!uploadedFile && !editingTemplate) {
+        toast.error("Please upload a template image");
         return;
       }
+
+      if (!editingTemplate && !uploadedFile) {
+        toast.error("Please upload a template image");
+        return;
+      }
+
+      setUploadingFile(true);
+      let imageUrl = formData.image_url;
+
+      // Upload new file if provided
+      if (uploadedFile) {
+        const fileExt = uploadedFile.name.split('.').pop();
+        const fileName = `${eventId}/${crypto.randomUUID()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('event-assets')
+          .upload(fileName, uploadedFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('event-assets')
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrl;
+
+        // Delete old file if editing
+        if (editingTemplate?.image_url) {
+          const oldPath = editingTemplate.image_url.split('/event-assets/')[1];
+          if (oldPath) {
+            await supabase.storage.from('event-assets').remove([oldPath]);
+          }
+        }
+      }
+
+      const templateData = {
+        ...formData,
+        image_url: imageUrl
+      };
 
       if (editingTemplate) {
         const { error } = await supabase
           .from("templates")
-          .update(formData)
+          .update(templateData)
           .eq("id", editingTemplate.id);
 
         if (error) throw error;
@@ -144,17 +214,20 @@ export default function TemplateManager() {
       } else {
         const { error } = await supabase
           .from("templates")
-          .insert([{ ...formData, event_id: eventId }]);
+          .insert([{ ...templateData, event_id: eventId }]);
 
         if (error) throw error;
         toast.success("Template created!");
       }
 
       setShowDialog(false);
+      setUploadedFile(null);
       loadTemplates();
     } catch (error: any) {
       toast.error("Failed to save template");
       console.error(error);
+    } finally {
+      setUploadingFile(false);
     }
   };
 
@@ -162,8 +235,21 @@ export default function TemplateManager() {
     if (!confirm("Delete this template?")) return;
 
     try {
+      // Get template to find image URL
+      const template = templates.find(t => t.id === id);
+      
+      // Delete from database
       const { error } = await supabase.from("templates").delete().eq("id", id);
       if (error) throw error;
+
+      // Delete image from storage
+      if (template?.image_url) {
+        const path = template.image_url.split('/event-assets/')[1];
+        if (path) {
+          await supabase.storage.from('event-assets').remove([path]);
+        }
+      }
+
       toast.success("Template deleted");
       loadTemplates();
     } catch (error: any) {
@@ -330,15 +416,21 @@ export default function TemplateManager() {
             </div>
 
             <div>
-              <Label>Template Image URL</Label>
+              <Label>Template Image (PNG or SVG)</Label>
               <Input
-                value={formData.image_url}
-                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                placeholder="https://..."
+                type="file"
+                accept=".png,.svg,image/png,image/svg+xml"
+                onChange={handleFileUpload}
+                className="cursor-pointer"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Upload your template PNG to cloud storage and paste the public URL
+                Upload a PNG or SVG template image (max 10MB)
               </p>
+              {editingTemplate && !uploadedFile && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leave empty to keep existing image
+                </p>
+              )}
             </div>
 
             {formData.image_url && (
@@ -355,11 +447,11 @@ export default function TemplateManager() {
             )}
 
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowDialog(false)}>
+              <Button variant="outline" onClick={() => setShowDialog(false)} disabled={uploadingFile}>
                 Cancel
               </Button>
-              <Button onClick={handleSubmit}>
-                {editingTemplate ? "Save Changes" : "Create Template"}
+              <Button onClick={handleSubmit} disabled={uploadingFile}>
+                {uploadingFile ? "Uploading..." : editingTemplate ? "Save Changes" : "Create Template"}
               </Button>
             </div>
           </div>
