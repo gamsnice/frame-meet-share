@@ -62,8 +62,8 @@ export default function EventParticipantPage() {
   // Set dynamic favicon
   useEffect(() => {
     if (event?.favicon_url) {
-      const link = document.querySelector("link[rel='icon']") as HTMLLinkElement || document.createElement('link');
-      link.rel = 'icon';
+      const link = (document.querySelector("link[rel='icon']") as HTMLLinkElement) || document.createElement("link");
+      link.rel = "icon";
       link.href = event.favicon_url;
       if (!document.querySelector("link[rel='icon']")) {
         document.head.appendChild(link);
@@ -158,41 +158,78 @@ export default function EventParticipantPage() {
     >
       {/* Header */}
       <header
-        className="py-8 md:py-12"
-        style={{ backgroundColor: event.brand_primary_color, color: event.brand_text_color }}
+        className="relative overflow-hidden py-6 sm:py-8 md:py-10 lg:py-12"
+        style={{ color: event.brand_text_color }}
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-start gap-4 md:gap-6 mb-6">
-            {event.logo_url && (
-              <img
-                src={event.logo_url}
-                alt={event.name}
-                className="h-12 md:h-16 w-auto object-contain animate-fade-in"
-              />
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-5xl font-bold mb-3 animate-fade-in">{event.hero_title}</h1>
-              {event.hero_subtitle && (
-                <p className="text-lg md:text-xl opacity-90 mb-4 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-                  {event.hero_subtitle}
+        {/* Gradient background using brand colors */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(135deg, ${event.brand_primary_color}, ${
+              event.brand_secondary_color || event.brand_primary_color
+            })`,
+          }}
+        />
+        {/* Soft overlay for a modern look */}
+        <div className="pointer-events-none absolute inset-0 opacity-20 mix-blend-soft-light bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
+
+        <div className="relative container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6">
+            {/* Logo + titles */}
+            <div className="flex items-center gap-4 md:gap-6 w-full lg:w-auto">
+              {event.logo_url && (
+                <div className="flex-shrink-0 rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3 md:px-5 md:py-4 shadow-sm">
+                  <img
+                    src={event.logo_url}
+                    alt={event.name}
+                    className="h-12 sm:h-14 md:h-18 lg:h-20 xl:h-24 w-auto max-w-[55vw] md:max-w-[260px] object-contain animate-fade-in"
+                  />
+                </div>
+              )}
+
+              <div className="w-full text-center lg:text-left">
+                <p className="text-[0.65rem] sm:text-xs uppercase tracking-[0.25em] opacity-80 mb-1 animate-fade-in">
+                  Create your event visual
                 </p>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2 md:mb-3 animate-fade-in">
+                  {event.hero_title}
+                </h1>
+                {event.hero_subtitle && (
+                  <p
+                    className="text-sm sm:text-base md:text-lg opacity-90 max-w-2xl mx-auto lg:mx-0 animate-fade-in"
+                    style={{ animationDelay: "0.1s" }}
+                  >
+                    {event.hero_subtitle}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Event meta: date + location */}
+            <div
+              className="flex flex-wrap items-center justify-center lg:justify-end gap-3 text-xs sm:text-sm md:text-base animate-fade-in"
+              style={{ animationDelay: "0.2s" }}
+            >
+              <Badge
+                variant="outline"
+                className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
+              >
+                <Calendar className="h-4 w-4" />
+                <span>
+                  {new Date(event.start_date).toLocaleDateString()} – {new Date(event.end_date).toLocaleDateString()}
+                </span>
+              </Badge>
+
+              {event.location && (
+                <Badge
+                  variant="outline"
+                  className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span>{event.location}</span>
+                </Badge>
               )}
             </div>
-          </div>
-          <div className="flex flex-wrap gap-4 text-sm md:text-base animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              <span>
-                {new Date(event.start_date).toLocaleDateString()} -{" "}
-                {new Date(event.end_date).toLocaleDateString()}
-              </span>
-            </div>
-            {event.location && (
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                <span>{event.location}</span>
-              </div>
-            )}
           </div>
         </div>
       </header>
@@ -214,9 +251,7 @@ export default function EventParticipantPage() {
                 onSelect={handleTemplateSelect}
               />
 
-              {selectedTemplate && (
-                <CaptionsPanel templateId={selectedTemplate.id} eventId={event.id} />
-              )}
+              {selectedTemplate && <CaptionsPanel templateId={selectedTemplate.id} eventId={event.id} />}
             </div>
 
             {/* Right Column: Image Editor */}
@@ -246,15 +281,9 @@ export default function EventParticipantPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {event.secondary_logo_url && (
-              <img
-                src={event.secondary_logo_url}
-                alt="Partner logo"
-                className="h-8 w-auto object-contain"
-              />
+              <img src={event.secondary_logo_url} alt="Partner logo" className="h-8 w-auto object-contain" />
             )}
-            <p className="text-sm text-muted-foreground text-center md:text-left flex-1">
-              Powered by MeetMeFrame
-            </p>
+            <p className="text-sm text-muted-foreground text-center md:text-left flex-1">Powered by MeetMeFrame</p>
           </div>
         </div>
       </footer>
