@@ -263,7 +263,7 @@ export default function EventParticipantPage() {
                 </Card>
               ) : (
                 <div className="relative w-full h-full flex justify-center items-center">
-                  <div className="relative w-full max-w-[95vw] max-h-[90vh] flex justify-center items-center overflow-hidden">
+                  <div className="relative w-full max-w-[98vw] max-h-[95vh] flex justify-center items-center overflow-hidden">
                     <ImageEditor
                       template={selectedTemplate}
                       userImage={userImage}
