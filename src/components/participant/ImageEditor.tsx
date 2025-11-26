@@ -396,51 +396,29 @@ export default function ImageEditor({
       )}
 
       {!userImage ? (
-        <>
-          {template.placeholder_image_url ? (
-            <div className="relative group">
-              <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
-                <TemplatePreview template={template} className="w-full" />
-              </div>
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="text-center">
-                  <Upload className="h-10 w-10 mx-auto text-primary mb-2" />
-                  <Button 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="shadow-lg"
-                  >
-                    Upload Your Photo
-                  </Button>
-                </div>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </div>
-          ) : (
-            <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors">
-              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-base font-medium mb-1">Upload your photo</p>
-              <p className="text-xs text-muted-foreground mb-3">
-                JPG, PNG or WEBP (max 10MB)
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <Button onClick={() => fileInputRef.current?.click()}>
-                Choose Photo
+        <div className="relative group">
+          <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
+            <TemplatePreview template={template} className="w-full" />
+          </div>
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="text-center">
+              <Upload className="h-10 w-10 mx-auto text-primary mb-2" />
+              <Button 
+                onClick={() => fileInputRef.current?.click()}
+                className="shadow-lg"
+              >
+                Upload Your Photo
               </Button>
             </div>
-          )}
-        </>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+        </div>
       ) : (
         <div className="space-y-3">
           <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
