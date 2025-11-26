@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ArrowLeft, Plus, Pencil, Trash2, Image as ImageIcon, X, User } from "lucide-react";
 import { toast } from "sonner";
 import PhotoFrameMapper from "./PhotoFrameMapper";
+import { PlaceholderEditor } from "./PlaceholderEditor";
 
 interface Template {
   id: string;
@@ -639,17 +640,15 @@ export default function TemplateManager() {
             </div>
 
             {placeholderPreview && placeholderTemplate && (
-              <PhotoFrameMapper
-                imageUrl={placeholderPreview}
-                initialFrame={{
-                  x: placeholderPosition.x,
-                  y: placeholderPosition.y,
-                  width: placeholderScale,
-                  height: placeholderScale,
-                }}
-                onFrameChange={(x, y, width, height) => {
+              <PlaceholderEditor
+                template={placeholderTemplate}
+                placeholderImage={placeholderPreview}
+                initialScale={placeholderScale}
+                initialX={placeholderPosition.x}
+                initialY={placeholderPosition.y}
+                onPositionChange={(x, y, scale) => {
                   setPlaceholderPosition({ x, y });
-                  setPlaceholderScale(width);
+                  setPlaceholderScale(scale);
                 }}
               />
             )}
