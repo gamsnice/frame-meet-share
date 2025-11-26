@@ -123,7 +123,7 @@ export default function TemplatePreview({ template, className = "" }: TemplatePr
   return (
     <canvas
       ref={canvasRef}
-      className={`w-full h-full object-contain ${className}`}
+      className={`w-full h-full object-contain pointer-events-none ${className}`}
     />
   );
 }
