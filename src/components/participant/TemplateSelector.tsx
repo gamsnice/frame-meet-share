@@ -39,15 +39,18 @@ const FORMAT_ASPECT_RATIOS = {
   portrait: "aspect-[4/5]",
 };
 
-export default function TemplateSelector({
-  templates,
-  selectedTemplate,
-  onSelect,
-}: TemplateSelectorProps) {
+export default function TemplateSelector({ templates, selectedTemplate, onSelect }: TemplateSelectorProps) {
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Choose Your Frame</h2>
       <div className="grid gap-4 sm:grid-cols-2">
+        {/* Note about image resolution */}
+        <div className="text-center text-sm text-muted-foreground mt-4">
+          <p>
+            Please note that the resolution displayed here is lower for preview purposes. The final download will be in
+            full quality.
+          </p>
+        </div>
         {templates.map((template) => {
           const isSelected = selectedTemplate?.id === template.id;
           return (
@@ -58,7 +61,9 @@ export default function TemplateSelector({
                 isSelected ? "border-primary ring-2 ring-primary" : "border-border"
               }`}
             >
-              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}>
+              <div
+                className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}
+              >
                 <TemplatePreview template={template} />
               </div>
               {isSelected && (
