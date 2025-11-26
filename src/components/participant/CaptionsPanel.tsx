@@ -57,7 +57,7 @@ export default function CaptionsPanel({ templateId, eventId }: CaptionsPanelProp
       <div className="space-y-3">
         {captions.map((caption) => (
           <div key={caption.id} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
-            <p className="flex-1 text-sm">{caption.caption_text}</p>
+            <p className="flex-1 text-sm whitespace-pre-wrap">{caption.caption_text}</p>
             <Button
               size="sm"
               variant="ghost"
