@@ -255,23 +255,21 @@ export default function EventParticipantPage() {
             </div>
 
             {/* Right Column: Image Editor */}
-            <div className="lg:sticky lg:top-8 lg:self-start flex justify-center items-center max-h-[90vh]">
+            <div className="lg:sticky lg:top-8 lg:self-start">
               {!selectedTemplate ? (
                 <Card className="p-12 text-center">
                   <p className="text-muted-foreground mb-2">Choose your frame first</p>
                   <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
                 </Card>
               ) : (
-                <div className="relative w-full max-w-full h-full">
-                  <ImageEditor
-                    template={selectedTemplate}
-                    userImage={userImage}
-                    onImageUpload={handleImageUpload}
-                    onDownload={handleDownload}
-                    helperText={event.helper_text}
-                    eventSlug={slug || ""}
-                  />
-                </div>
+                <ImageEditor
+                  template={selectedTemplate}
+                  userImage={userImage}
+                  onImageUpload={handleImageUpload}
+                  onDownload={handleDownload}
+                  helperText={event.helper_text}
+                  eventSlug={slug || ""}
+                />
               )}
             </div>
           </div>
