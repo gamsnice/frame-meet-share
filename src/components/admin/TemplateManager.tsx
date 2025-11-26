@@ -621,11 +621,11 @@ export default function TemplateManager() {
 
       {/* Placeholder Dialog */}
       <Dialog open={showPlaceholderDialog} onOpenChange={setShowPlaceholderDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>Manage Placeholder - {placeholderTemplate?.name}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto flex-1 pr-2">
             <div>
               <Label>Placeholder Photo</Label>
               <Input
@@ -653,22 +653,22 @@ export default function TemplateManager() {
               />
             )}
 
-            <div className="flex justify-between gap-2">
-              <Button 
-                variant="outline" 
-                onClick={removePlaceholder}
-                disabled={!placeholderTemplate?.placeholder_image_url}
-              >
-                Remove Placeholder
+          </div>
+          <div className="flex justify-between gap-2 pt-4 border-t sticky bottom-0 bg-background">
+            <Button 
+              variant="outline" 
+              onClick={removePlaceholder}
+              disabled={!placeholderTemplate?.placeholder_image_url}
+            >
+              Remove Placeholder
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowPlaceholderDialog(false)}>
+                Cancel
               </Button>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowPlaceholderDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={savePlaceholder} disabled={!placeholderPreview}>
-                  Save Placeholder
-                </Button>
-              </div>
+              <Button onClick={savePlaceholder} disabled={!placeholderPreview}>
+                Save Placeholder
+              </Button>
             </div>
           </div>
         </DialogContent>
