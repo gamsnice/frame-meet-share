@@ -386,12 +386,12 @@ export default function ImageEditor({
   };
 
   return (
-    <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Create Your Visual</h2>
+    <Card className="p-4">
+      <h2 className="text-lg font-semibold mb-3">Create Your Visual</h2>
 
       {helperText && (
-        <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
-          <p className="text-sm text-primary">{helperText}</p>
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-2 mb-3">
+          <p className="text-xs text-primary leading-tight">{helperText}</p>
         </div>
       )}
 
@@ -404,10 +404,9 @@ export default function ImageEditor({
               </div>
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="text-center">
-                  <Upload className="h-12 w-12 mx-auto text-primary mb-3" />
+                  <Upload className="h-10 w-10 mx-auto text-primary mb-2" />
                   <Button 
-                    onClick={() => fileInputRef.current?.click()} 
-                    size="lg"
+                    onClick={() => fileInputRef.current?.click()}
                     className="shadow-lg"
                   >
                     Upload Your Photo
@@ -423,10 +422,10 @@ export default function ImageEditor({
               />
             </div>
           ) : (
-            <div className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary transition-colors">
-              <Upload className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <p className="text-lg font-medium mb-2">Upload your photo</p>
-              <p className="text-sm text-muted-foreground mb-4">
+            <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors">
+              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+              <p className="text-base font-medium mb-1">Upload your photo</p>
+              <p className="text-xs text-muted-foreground mb-3">
                 JPG, PNG or WEBP (max 10MB)
               </p>
               <input
@@ -436,14 +435,14 @@ export default function ImageEditor({
                 onChange={handleFileUpload}
                 className="hidden"
               />
-              <Button onClick={() => fileInputRef.current?.click()} size="lg">
+              <Button onClick={() => fileInputRef.current?.click()}>
                 Choose Photo
               </Button>
             </div>
           )}
         </>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
             <canvas
               ref={previewCanvasRef}
@@ -459,15 +458,15 @@ export default function ImageEditor({
             />
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
-            <Move className="h-4 w-4" />
+          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
+            <Move className="h-3 w-3" />
             <span>Drag to position • Zoom to adjust</span>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div>
-              <label className="text-sm font-medium mb-2 flex items-center gap-2">
-                <ZoomIn className="h-4 w-4" />
+              <label className="text-xs font-medium mb-1 flex items-center gap-1.5">
+                <ZoomIn className="h-3 w-3" />
                 Zoom: {scale.toFixed(1)}x
               </label>
               <Slider
@@ -476,7 +475,7 @@ export default function ImageEditor({
                 min={initialScale}
                 max={initialScale * 3}
                 step={0.1}
-                className="mt-2"
+                className="mt-1"
               />
             </div>
 
@@ -484,12 +483,13 @@ export default function ImageEditor({
               <Button
                 onClick={() => fileInputRef.current?.click()}
                 variant="outline"
+                size="sm"
                 className="flex-1"
               >
                 Change Photo
               </Button>
-              <Button onClick={handleDownloadClick} className="flex-1">
-                <Download className="mr-2 h-4 w-4" />
+              <Button onClick={handleDownloadClick} size="sm" className="flex-1">
+                <Download className="mr-1.5 h-3.5 w-3.5" />
                 Download
               </Button>
             </div>
