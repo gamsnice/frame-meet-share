@@ -23,6 +23,13 @@ const FORMAT_LABELS = {
   portrait: "Portrait",
 };
 
+const FORMAT_ASPECT_RATIOS = {
+  square: "aspect-square",
+  story: "aspect-[9/16]",
+  landscape: "aspect-[1200/630]",
+  portrait: "aspect-[4/5]",
+};
+
 export default function TemplateSelector({
   templates,
   selectedTemplate,
@@ -42,11 +49,11 @@ export default function TemplateSelector({
                 isSelected ? "border-primary ring-2 ring-primary" : "border-border"
               }`}
             >
-              <div className="aspect-video bg-muted">
+              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted`}>
                 <img
                   src={template.image_url}
                   alt={template.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
               {isSelected && (
