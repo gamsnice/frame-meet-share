@@ -36,6 +36,10 @@ interface Template {
   photo_frame_y: number;
   photo_frame_width: number;
   photo_frame_height: number;
+  placeholder_image_url?: string;
+  placeholder_scale?: number;
+  placeholder_x?: number;
+  placeholder_y?: number;
 }
 
 export default function EventParticipantPage() {

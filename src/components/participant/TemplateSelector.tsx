@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
+import TemplatePreview from "./TemplatePreview";
 
 interface Template {
   id: string;
@@ -8,6 +9,14 @@ interface Template {
   type: string;
   format: string;
   image_url: string;
+  photo_frame_x: number;
+  photo_frame_y: number;
+  photo_frame_width: number;
+  photo_frame_height: number;
+  placeholder_image_url?: string;
+  placeholder_scale?: number;
+  placeholder_x?: number;
+  placeholder_y?: number;
 }
 
 interface TemplateSelectorProps {
@@ -49,12 +58,8 @@ export default function TemplateSelector({
                 isSelected ? "border-primary ring-2 ring-primary" : "border-border"
               }`}
             >
-              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted`}>
-                <img
-                  src={template.image_url}
-                  alt={template.name}
-                  className="w-full h-full object-contain"
-                />
+              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}>
+                <TemplatePreview template={template} />
               </div>
               {isSelected && (
                 <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">

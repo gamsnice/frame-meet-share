@@ -199,6 +199,10 @@ export type Database = {
           photo_frame_width: number
           photo_frame_x: number
           photo_frame_y: number
+          placeholder_image_url: string | null
+          placeholder_scale: number | null
+          placeholder_x: number | null
+          placeholder_y: number | null
           type: string
         }
         Insert: {
@@ -213,6 +217,10 @@ export type Database = {
           photo_frame_width: number
           photo_frame_x: number
           photo_frame_y: number
+          placeholder_image_url?: string | null
+          placeholder_scale?: number | null
+          placeholder_x?: number | null
+          placeholder_y?: number | null
           type: string
         }
         Update: {
@@ -227,6 +235,10 @@ export type Database = {
           photo_frame_width?: number
           photo_frame_x?: number
           photo_frame_y?: number
+          placeholder_image_url?: string | null
+          placeholder_scale?: number | null
+          placeholder_x?: number | null
+          placeholder_y?: number | null
           type?: string
         }
         Relationships: [
