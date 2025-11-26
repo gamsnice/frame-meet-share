@@ -68,7 +68,6 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
                 </div>
               )}
               <div className="p-3 bg-card">
-                <p className="font-medium text-sm mb-2">{template.name}</p>
                 <div className="flex gap-2">
                   <Badge variant="secondary" className="text-xs">
                     {template.type}
