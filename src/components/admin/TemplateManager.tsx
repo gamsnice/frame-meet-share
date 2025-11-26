@@ -456,7 +456,7 @@ export default function TemplateManager() {
                 <TemplatePreview template={template} className="w-full h-full object-contain" />
               </div>
               {/* Note about image resolution */}
-              <div className="text-center text-xs text-muted-foreground mt-2 mb-6">
+              <div className="text-center text-xs text-muted-foreground mt-2 mb-4">
                 <p>
                   Please note that the resolution displayed here is lower for preview purposes. The final download will
                   be in full quality.
