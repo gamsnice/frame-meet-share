@@ -170,17 +170,19 @@ export const PlaceholderEditor = ({
         Drag to position • Use slider to zoom
       </div>
       
-      <canvas
-        ref={canvasRef}
-        className="w-full cursor-move touch-none rounded-lg"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleMouseUp}
-      />
+      <div className="max-h-[400px] overflow-hidden">
+        <canvas
+          ref={canvasRef}
+          className="w-full cursor-move touch-none rounded-lg"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleMouseUp}
+        />
+      </div>
 
       <div className="flex items-center gap-3">
         <ZoomIn className="h-4 w-4 text-muted-foreground" />
