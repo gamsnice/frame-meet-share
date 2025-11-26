@@ -98,10 +98,18 @@ export default function TemplatePreview({ template, className = "" }: TemplatePr
       const scaledWidth = placeholderImg.width * scale * displayScale;
       const scaledHeight = placeholderImg.height * scale * displayScale;
 
+      // Calculate center of frame (same logic as PlaceholderEditor)
+      const centerX = frameX + frameWidth / 2;
+      const centerY = frameY + frameHeight / 2;
+
+      // Position image centered, then apply offset
+      const imgX = centerX - scaledWidth / 2 + posX * displayScale;
+      const imgY = centerY - scaledHeight / 2 + posY * displayScale;
+
       ctx.drawImage(
         placeholderImg,
-        frameX + posX * displayScale,
-        frameY + posY * displayScale,
+        imgX,
+        imgY,
         scaledWidth,
         scaledHeight
       );
