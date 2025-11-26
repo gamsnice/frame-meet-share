@@ -43,14 +43,14 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Choose Your Frame</h2>
+      {/* Note about image resolution */}
+      <div className="text-center text-sm text-muted-foreground mt-4">
+        <p>
+          Please note that the resolution displayed here is lower for preview purposes. The final download will be in
+          full quality.
+        </p>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* Note about image resolution */}
-        <div className="text-center text-sm text-muted-foreground mt-4">
-          <p>
-            Please note that the resolution displayed here is lower for preview purposes. The final download will be in
-            full quality.
-          </p>
-        </div>
         {templates.map((template) => {
           const isSelected = selectedTemplate?.id === template.id;
           return (
