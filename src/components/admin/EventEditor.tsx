@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Save } from "lucide-react";
 import { toast } from "sonner";
+import BrandAssetUploader from "./BrandAssetUploader";
 
 interface EventFormData {
   name: string;
@@ -19,6 +20,9 @@ interface EventFormData {
   brand_primary_color: string;
   brand_secondary_color: string;
   brand_text_color: string;
+  logo_url: string;
+  secondary_logo_url: string;
+  favicon_url: string;
   hero_title: string;
   hero_subtitle: string;
   helper_text: string;
@@ -39,6 +43,9 @@ export default function EventEditor({ userId }: { userId: string }) {
     brand_primary_color: "#2563EB",
     brand_secondary_color: "#F97316",
     brand_text_color: "#FFFFFF",
+    logo_url: "",
+    secondary_logo_url: "",
+    favicon_url: "",
     hero_title: "",
     hero_subtitle: "",
     helper_text: "Tip: use a bright, close-up selfie for best results.",
@@ -71,6 +78,9 @@ export default function EventEditor({ userId }: { userId: string }) {
           brand_primary_color: data.brand_primary_color,
           brand_secondary_color: data.brand_secondary_color,
           brand_text_color: data.brand_text_color,
+          logo_url: data.logo_url || "",
+          secondary_logo_url: data.secondary_logo_url || "",
+          favicon_url: data.favicon_url || "",
           hero_title: data.hero_title,
           hero_subtitle: data.hero_subtitle || "",
           helper_text: data.helper_text || "",
@@ -235,58 +245,109 @@ export default function EventEditor({ userId }: { userId: string }) {
 
         {/* Branding */}
         <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Event Branding</h2>
-          <div className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="primary_color">Primary Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="primary_color"
-                    type="color"
-                    value={formData.brand_primary_color}
-                    onChange={(e) => setFormData({ ...formData, brand_primary_color: e.target.value })}
-                    className="w-16 h-10 p-1"
-                  />
-                  <Input
-                    value={formData.brand_primary_color}
-                    onChange={(e) => setFormData({ ...formData, brand_primary_color: e.target.value })}
-                    placeholder="#2563EB"
-                  />
-                </div>
+          <h2 className="text-xl font-semibold mb-6">Event Branding</h2>
+          
+          {/* Brand Assets */}
+          <div className="space-y-6">
+            <div className="rounded-xl bg-primary/5 p-6 border border-primary/10">
+              <h3 className="text-lg font-semibold mb-1 flex items-center gap-2">
+                <span>📸</span> Brand Assets
+              </h3>
+              <p className="text-sm text-muted-foreground mb-6">
+                Upload logos and favicon to customize your event page
+              </p>
+              
+              <div className="grid md:grid-cols-3 gap-6">
+                {eventId && (
+                  <>
+                    <BrandAssetUploader
+                      eventId={eventId}
+                      assetType="logo"
+                      currentUrl={formData.logo_url}
+                      onUploadComplete={(url) => setFormData({ ...formData, logo_url: url })}
+                      recommendedSize="200x60px"
+                    />
+                    <BrandAssetUploader
+                      eventId={eventId}
+                      assetType="secondary-logo"
+                      currentUrl={formData.secondary_logo_url}
+                      onUploadComplete={(url) => setFormData({ ...formData, secondary_logo_url: url })}
+                      recommendedSize="120x40px"
+                    />
+                    <BrandAssetUploader
+                      eventId={eventId}
+                      assetType="favicon"
+                      currentUrl={formData.favicon_url}
+                      onUploadComplete={(url) => setFormData({ ...formData, favicon_url: url })}
+                      recommendedSize="32x32px"
+                      acceptedFormats=".png,.ico"
+                    />
+                  </>
+                )}
+                {!eventId && (
+                  <div className="col-span-3 text-center py-8 text-muted-foreground text-sm">
+                    Save the event first to upload brand assets
+                  </div>
+                )}
               </div>
-              <div>
-                <Label htmlFor="secondary_color">Secondary Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="secondary_color"
-                    type="color"
-                    value={formData.brand_secondary_color}
-                    onChange={(e) => setFormData({ ...formData, brand_secondary_color: e.target.value })}
-                    className="w-16 h-10 p-1"
-                  />
-                  <Input
-                    value={formData.brand_secondary_color}
-                    onChange={(e) => setFormData({ ...formData, brand_secondary_color: e.target.value })}
-                    placeholder="#F97316"
-                  />
+            </div>
+
+            {/* Brand Colors */}
+            <div className="rounded-xl bg-card p-6 border">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>🎨</span> Brand Colors
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="primary_color">Primary Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="primary_color"
+                      type="color"
+                      value={formData.brand_primary_color}
+                      onChange={(e) => setFormData({ ...formData, brand_primary_color: e.target.value })}
+                      className="w-16 h-10 p-1"
+                    />
+                    <Input
+                      value={formData.brand_primary_color}
+                      onChange={(e) => setFormData({ ...formData, brand_primary_color: e.target.value })}
+                      placeholder="#2563EB"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="text_color">Text Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="text_color"
-                    type="color"
-                    value={formData.brand_text_color}
-                    onChange={(e) => setFormData({ ...formData, brand_text_color: e.target.value })}
-                    className="w-16 h-10 p-1"
-                  />
-                  <Input
-                    value={formData.brand_text_color}
-                    onChange={(e) => setFormData({ ...formData, brand_text_color: e.target.value })}
-                    placeholder="#FFFFFF"
-                  />
+                <div>
+                  <Label htmlFor="secondary_color">Secondary Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="secondary_color"
+                      type="color"
+                      value={formData.brand_secondary_color}
+                      onChange={(e) => setFormData({ ...formData, brand_secondary_color: e.target.value })}
+                      className="w-16 h-10 p-1"
+                    />
+                    <Input
+                      value={formData.brand_secondary_color}
+                      onChange={(e) => setFormData({ ...formData, brand_secondary_color: e.target.value })}
+                      placeholder="#F97316"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="text_color">Text Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="text_color"
+                      type="color"
+                      value={formData.brand_text_color}
+                      onChange={(e) => setFormData({ ...formData, brand_text_color: e.target.value })}
+                      className="w-16 h-10 p-1"
+                    />
+                    <Input
+                      value={formData.brand_text_color}
+                      onChange={(e) => setFormData({ ...formData, brand_text_color: e.target.value })}
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

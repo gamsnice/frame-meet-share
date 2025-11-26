@@ -94,6 +94,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           end_date: string | null
+          favicon_url: string | null
           helper_text: string | null
           hero_subtitle: string | null
           hero_title: string
@@ -114,6 +115,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           end_date?: string | null
+          favicon_url?: string | null
           helper_text?: string | null
           hero_subtitle?: string | null
           hero_title: string
@@ -134,6 +136,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           end_date?: string | null
+          favicon_url?: string | null
           helper_text?: string | null
           hero_subtitle?: string | null
           hero_title?: string
