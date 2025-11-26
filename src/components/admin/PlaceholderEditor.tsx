@@ -28,6 +28,9 @@ const FORMAT_DIMENSIONS: Record<string, { width: number; height: number }> = {
   landscape: { width: 1200, height: 630 },
 };
 
+const MAX_CANVAS_WIDTH = 300;
+const MAX_CANVAS_HEIGHT = 320;
+
 export const PlaceholderEditor = ({
   template,
   placeholderImage,
@@ -85,13 +88,21 @@ export const PlaceholderEditor = ({
     if (!ctx) return;
 
     const dimensions = FORMAT_DIMENSIONS[template.format] || FORMAT_DIMENSIONS.square;
-    const containerWidth = canvas.offsetWidth;
     const aspectRatio = dimensions.height / dimensions.width;
-    const displayHeight = containerWidth * aspectRatio;
+    
+    // Calculate display dimensions to fit within max constraints
+    let displayWidth = MAX_CANVAS_WIDTH;
+    let displayHeight = displayWidth * aspectRatio;
+    
+    // If height exceeds max, scale down based on height constraint
+    if (displayHeight > MAX_CANVAS_HEIGHT) {
+      displayHeight = MAX_CANVAS_HEIGHT;
+      displayWidth = displayHeight / aspectRatio;
+    }
 
     canvas.width = dimensions.width;
     canvas.height = dimensions.height;
-    canvas.style.width = `${containerWidth}px`;
+    canvas.style.width = `${displayWidth}px`;
     canvas.style.height = `${displayHeight}px`;
 
     // Clear canvas
@@ -165,7 +176,7 @@ export const PlaceholderEditor = ({
   };
 
   return (
-    <Card className="p-4 space-y-4">
+    <Card className="p-3 space-y-3">
       <div className="text-sm text-muted-foreground text-center">
         Drag to position • Use slider to zoom
       </div>
@@ -173,8 +184,7 @@ export const PlaceholderEditor = ({
       <div className="flex justify-center">
         <canvas
           ref={canvasRef}
-          className="max-w-full cursor-move touch-none rounded-lg"
-          style={{ maxWidth: '350px' }}
+          className="cursor-move touch-none rounded-lg"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
