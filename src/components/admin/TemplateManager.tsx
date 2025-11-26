@@ -88,11 +88,7 @@ export default function TemplateManager() {
 
   const loadTemplates = async () => {
     try {
-      const { data, error } = await supabase
-        .from("templates")
-        .select("*")
-        .eq("event_id", eventId)
-        .order("created_at");
+      const { data, error } = await supabase.from("templates").select("*").eq("event_id", eventId).order("created_at");
 
       if (error) throw error;
       setTemplates(data || []);
@@ -106,10 +102,7 @@ export default function TemplateManager() {
 
   const loadCaptions = async (templateId: string) => {
     try {
-      const { data, error } = await supabase
-        .from("template_captions")
-        .select("*")
-        .eq("template_id", templateId);
+      const { data, error } = await supabase.from("template_captions").select("*").eq("template_id", templateId);
 
       if (error) throw error;
       setCaptions(data || []);
@@ -155,7 +148,7 @@ export default function TemplateManager() {
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/png') && !file.type.startsWith('image/svg')) {
+    if (!file.type.startsWith("image/png") && !file.type.startsWith("image/svg")) {
       toast.error("Please upload a PNG or SVG file");
       return;
     }
@@ -167,7 +160,7 @@ export default function TemplateManager() {
     }
 
     setUploadedFile(file);
-    
+
     // Create preview URL
     const previewUrl = URL.createObjectURL(file);
     setFormData({ ...formData, image_url: previewUrl });
@@ -190,51 +183,46 @@ export default function TemplateManager() {
 
       // Upload new file if provided
       if (uploadedFile) {
-        const fileExt = uploadedFile.name.split('.').pop();
+        const fileExt = uploadedFile.name.split(".").pop();
         const fileName = `${eventId}/${crypto.randomUUID()}.${fileExt}`;
-        
+
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('event-assets')
+          .from("event-assets")
           .upload(fileName, uploadedFile, {
-            cacheControl: '3600',
-            upsert: false
+            cacheControl: "3600",
+            upsert: false,
           });
 
         if (uploadError) throw uploadError;
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('event-assets')
-          .getPublicUrl(fileName);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-assets").getPublicUrl(fileName);
 
         imageUrl = publicUrl;
 
         // Delete old file if editing
         if (editingTemplate?.image_url) {
-          const oldPath = editingTemplate.image_url.split('/event-assets/')[1];
+          const oldPath = editingTemplate.image_url.split("/event-assets/")[1];
           if (oldPath) {
-            await supabase.storage.from('event-assets').remove([oldPath]);
+            await supabase.storage.from("event-assets").remove([oldPath]);
           }
         }
       }
 
       const templateData = {
         ...formData,
-        image_url: imageUrl
+        image_url: imageUrl,
       };
 
       if (editingTemplate) {
-        const { error } = await supabase
-          .from("templates")
-          .update(templateData)
-          .eq("id", editingTemplate.id);
+        const { error } = await supabase.from("templates").update(templateData).eq("id", editingTemplate.id);
 
         if (error) throw error;
         toast.success("Template updated!");
       } else {
-        const { error } = await supabase
-          .from("templates")
-          .insert([{ ...templateData, event_id: eventId }]);
+        const { error } = await supabase.from("templates").insert([{ ...templateData, event_id: eventId }]);
 
         if (error) throw error;
         toast.success("Template created!");
@@ -256,17 +244,17 @@ export default function TemplateManager() {
 
     try {
       // Get template to find image URL
-      const template = templates.find(t => t.id === id);
-      
+      const template = templates.find((t) => t.id === id);
+
       // Delete from database
       const { error } = await supabase.from("templates").delete().eq("id", id);
       if (error) throw error;
 
       // Delete image from storage
       if (template?.image_url) {
-        const path = template.image_url.split('/event-assets/')[1];
+        const path = template.image_url.split("/event-assets/")[1];
         if (path) {
-          await supabase.storage.from('event-assets').remove([path]);
+          await supabase.storage.from("event-assets").remove([path]);
         }
       }
 
@@ -333,7 +321,7 @@ export default function TemplateManager() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file");
       return;
     }
@@ -350,27 +338,25 @@ export default function TemplateManager() {
 
   const savePlaceholder = async () => {
     if (!placeholderTemplate) return;
-    
+
     setSavingPlaceholder(true);
     try {
       let placeholderUrl = placeholderTemplate.placeholder_image_url || "";
 
       if (placeholderFile) {
-        const fileExt = placeholderFile.name.split('.').pop();
+        const fileExt = placeholderFile.name.split(".").pop();
         const fileName = `${eventId}/placeholders/${placeholderTemplate.id}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('event-assets')
-          .upload(fileName, placeholderFile, {
-            cacheControl: '3600',
-            upsert: true
-          });
+
+        const { error: uploadError } = await supabase.storage.from("event-assets").upload(fileName, placeholderFile, {
+          cacheControl: "3600",
+          upsert: true,
+        });
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('event-assets')
-          .getPublicUrl(fileName);
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("event-assets").getPublicUrl(fileName);
 
         placeholderUrl = publicUrl;
       }
@@ -402,9 +388,9 @@ export default function TemplateManager() {
 
     try {
       if (placeholderTemplate.placeholder_image_url) {
-        const path = placeholderTemplate.placeholder_image_url.split('/event-assets/')[1];
+        const path = placeholderTemplate.placeholder_image_url.split("/event-assets/")[1];
         if (path) {
-          await supabase.storage.from('event-assets').remove([path]);
+          await supabase.storage.from("event-assets").remove([path]);
         }
       }
 
@@ -464,11 +450,17 @@ export default function TemplateManager() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <Card key={template.id} className="p-4 group hover:shadow-hover transition-shadow">
-              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} rounded-lg bg-muted mb-4 relative overflow-hidden`}>
-                <TemplatePreview
-                  template={template}
-                  className="w-full h-full object-contain"
-                />
+              <div
+                className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} rounded-lg bg-muted mb-4 relative overflow-hidden`}
+              >
+                <TemplatePreview template={template} className="w-full h-full object-contain" />
+              </div>
+              {/* Note about image resolution */}
+              <div className="text-center text-xs text-muted-foreground mt-2">
+                <p>
+                  Please note that the resolution displayed here is lower for preview purposes. The final download will
+                  be in full quality.
+                </p>
               </div>
               <h3 className="font-semibold mb-1">{template.name}</h3>
               <div className="flex gap-2 text-xs mb-3">
@@ -555,13 +547,9 @@ export default function TemplateManager() {
                 onChange={handleFileUpload}
                 className="cursor-pointer"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Upload a PNG or SVG template image (max 10MB)
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Upload a PNG or SVG template image (max 10MB)</p>
               {editingTemplate && !uploadedFile && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Leave empty to keep existing image
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">Leave empty to keep existing image</p>
               )}
             </div>
 
@@ -632,15 +620,8 @@ export default function TemplateManager() {
           <div className="space-y-3 overflow-y-auto flex-1 pr-2">
             <div>
               <Label>Placeholder Photo</Label>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handlePlaceholderFileUpload}
-                className="cursor-pointer"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                Upload a sample photo to show in previews (max 10MB)
-              </p>
+              <Input type="file" accept="image/*" onChange={handlePlaceholderFileUpload} className="cursor-pointer" />
+              <p className="text-xs text-muted-foreground mt-1">Upload a sample photo to show in previews (max 10MB)</p>
             </div>
 
             {placeholderPreview && placeholderTemplate && (
@@ -656,11 +637,10 @@ export default function TemplateManager() {
                 }}
               />
             )}
-
           </div>
           <div className="flex justify-between gap-2 pt-4 border-t sticky bottom-0 bg-background">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={removePlaceholder}
               disabled={!placeholderTemplate?.placeholder_image_url}
             >
