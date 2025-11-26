@@ -12,6 +12,7 @@ import { ArrowLeft, Plus, Pencil, Trash2, Image as ImageIcon, X, User } from "lu
 import { toast } from "sonner";
 import PhotoFrameMapper from "./PhotoFrameMapper";
 import { PlaceholderEditor } from "./PlaceholderEditor";
+import TemplatePreview from "@/components/participant/TemplatePreview";
 
 interface Template {
   id: string;
@@ -464,9 +465,8 @@ export default function TemplateManager() {
           {templates.map((template) => (
             <Card key={template.id} className="p-4 group hover:shadow-hover transition-shadow">
               <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} rounded-lg bg-muted mb-4 relative overflow-hidden`}>
-                <img
-                  src={template.image_url}
-                  alt={template.name}
+                <TemplatePreview
+                  template={template}
                   className="w-full h-full object-contain"
                 />
               </div>
