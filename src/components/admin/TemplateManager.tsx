@@ -69,7 +69,7 @@ export default function TemplateManager() {
 
   const [formData, setFormData] = useState({
     name: "",
-    type: "ATTENDEE",
+    type: "Attendee",
     format: "square",
     image_url: "",
     photo_frame_x: 0.2,
@@ -77,6 +77,7 @@ export default function TemplateManager() {
     photo_frame_width: 0.6,
     photo_frame_height: 0.6,
   });
+  const [customType, setCustomType] = useState("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
 
@@ -115,7 +116,7 @@ export default function TemplateManager() {
     setEditingTemplate(null);
     setFormData({
       name: "",
-      type: "ATTENDEE",
+      type: "Attendee",
       format: "square",
       image_url: "",
       photo_frame_x: 0.2,
@@ -123,15 +124,19 @@ export default function TemplateManager() {
       photo_frame_width: 0.6,
       photo_frame_height: 0.6,
     });
+    setCustomType("");
     setUploadedFile(null);
     setShowDialog(true);
   };
 
   const openEditDialog = (template: Template) => {
     setEditingTemplate(template);
+    const predefinedTypes = ["Startup", "Investor", "Attendee", "Corporate", "Sponsor", "Partner", "Speaker", "Ecosystem"];
+    const isCustomType = !predefinedTypes.includes(template.type);
+    
     setFormData({
       name: template.name,
-      type: template.type,
+      type: isCustomType ? "custom" : template.type,
       format: template.format,
       image_url: template.image_url,
       photo_frame_x: template.photo_frame_x,
@@ -139,6 +144,7 @@ export default function TemplateManager() {
       photo_frame_width: template.photo_frame_width,
       photo_frame_height: template.photo_frame_height,
     });
+    setCustomType(isCustomType ? template.type : "");
     setUploadedFile(null);
     setShowDialog(true);
   };
@@ -213,6 +219,7 @@ export default function TemplateManager() {
 
       const templateData = {
         ...formData,
+        type: formData.type === "custom" ? customType : formData.type,
         image_url: imageUrl,
       };
 
@@ -510,17 +517,33 @@ export default function TemplateManager() {
               </div>
               <div>
                 <Label>Type</Label>
-                <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}>
+                <Select value={formData.type} onValueChange={(v) => {
+                  setFormData({ ...formData, type: v });
+                  if (v !== "custom") setCustomType("");
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="SPEAKER">Speaker</SelectItem>
-                    <SelectItem value="ATTENDEE">Attendee</SelectItem>
-                    <SelectItem value="SPONSOR">Sponsor</SelectItem>
-                    <SelectItem value="CUSTOM">Custom</SelectItem>
+                    <SelectItem value="Startup">Startup</SelectItem>
+                    <SelectItem value="Investor">Investor</SelectItem>
+                    <SelectItem value="Attendee">Attendee</SelectItem>
+                    <SelectItem value="Corporate">Corporate</SelectItem>
+                    <SelectItem value="Sponsor">Sponsor</SelectItem>
+                    <SelectItem value="Partner">Partner</SelectItem>
+                    <SelectItem value="Speaker">Speaker</SelectItem>
+                    <SelectItem value="Ecosystem">Ecosystem</SelectItem>
+                    <SelectItem value="custom">Custom...</SelectItem>
                   </SelectContent>
                 </Select>
+                {formData.type === "custom" && (
+                  <Input
+                    value={customType}
+                    onChange={(e) => setCustomType(e.target.value)}
+                    placeholder="Enter custom type"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
 

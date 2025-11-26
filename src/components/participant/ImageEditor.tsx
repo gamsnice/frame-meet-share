@@ -227,6 +227,68 @@ export default function ImageEditor({
     setIsDragging(false);
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!userImageElement || e.touches.length !== 1) return;
+
+    const canvas = previewCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    if (x >= frameX && x <= frameX + frameWidth && y >= frameY && y <= frameY + frameHeight) {
+      setIsDragging(true);
+
+      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+      const displayScale = canvas.width / dimensions.width;
+
+      setDragStart({
+        x: x - frameX - position.x * displayScale,
+        y: y - frameY - position.y * displayScale,
+      });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDragging || !userImageElement || e.touches.length !== 1) return;
+
+    const canvas = previewCanvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    const frameX = template.photo_frame_x * canvas.width;
+    const frameY = template.photo_frame_y * canvas.height;
+    const frameWidth = template.photo_frame_width * canvas.width;
+    const frameHeight = template.photo_frame_height * canvas.height;
+
+    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+    const displayScale = canvas.width / dimensions.width;
+
+    let newX = (x - frameX - dragStart.x) / displayScale;
+    let newY = (y - frameY - dragStart.y) / displayScale;
+
+    const scaledUserWidth = userImageElement.width * scale;
+    const scaledUserHeight = userImageElement.height * scale;
+    const actualFrameWidth = frameWidth / displayScale;
+    const actualFrameHeight = frameHeight / displayScale;
+
+    newX = Math.min(0, Math.max(newX, actualFrameWidth - scaledUserWidth));
+    newY = Math.min(0, Math.max(newY, actualFrameHeight - scaledUserHeight));
+
+    setPosition({ x: newX, y: newY });
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
