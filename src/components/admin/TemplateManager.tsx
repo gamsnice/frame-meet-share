@@ -629,7 +629,7 @@ export default function TemplateManager() {
           <DialogHeader>
             <DialogTitle>Manage Placeholder - {placeholderTemplate?.name}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 overflow-y-auto flex-1 pr-2">
+          <div className="space-y-3 overflow-y-auto flex-1 pr-2">
             <div>
               <Label>Placeholder Photo</Label>
               <Input
