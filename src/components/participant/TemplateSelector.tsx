@@ -17,10 +17,10 @@ interface TemplateSelectorProps {
 }
 
 const FORMAT_LABELS = {
-  square: "Square",
-  story: "Story",
-  landscape: "Landscape",
-  portrait: "Portrait",
+  square: "Square (1080x1080)",
+  story: "Story (1080x1920)",
+  landscape: "Landscape (1200x630)",
+  portrait: "Portrait (1080x1350)",
 };
 
 const FORMAT_ASPECT_RATIOS = {

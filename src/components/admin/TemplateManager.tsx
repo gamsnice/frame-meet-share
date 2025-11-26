@@ -36,6 +36,13 @@ const FORMAT_DIMENSIONS = {
   portrait: { width: 1080, height: 1350, label: "Portrait (1080x1350)" },
 };
 
+const FORMAT_ASPECT_RATIOS = {
+  square: "aspect-square",
+  story: "aspect-[9/16]",
+  landscape: "aspect-[1200/630]",
+  portrait: "aspect-[4/5]",
+};
+
 export default function TemplateManager() {
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -337,18 +344,18 @@ export default function TemplateManager() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <Card key={template.id} className="p-4 group hover:shadow-hover transition-shadow">
-              <div className="aspect-video rounded-lg bg-muted mb-4 relative overflow-hidden">
+              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} rounded-lg bg-muted mb-4 relative overflow-hidden`}>
                 <img
                   src={template.image_url}
                   alt={template.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <h3 className="font-semibold mb-1">{template.name}</h3>
               <div className="flex gap-2 text-xs mb-3">
                 <span className="px-2 py-1 bg-primary/10 text-primary rounded">{template.type}</span>
                 <span className="px-2 py-1 bg-secondary/10 text-secondary rounded">
-                  {FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS]?.label.split(" ")[0]}
+                  {FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS]?.label}
                 </span>
               </div>
               <div className="flex gap-2">
