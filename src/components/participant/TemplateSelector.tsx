@@ -37,40 +37,31 @@ export default function TemplateSelector({
 }: TemplateSelectorProps) {
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-6">Choose Your Frame</h2>
-      <div className="space-y-8">
+      <h2 className="text-xl font-semibold mb-4">Choose Your Frame</h2>
+      <div className="grid gap-4 sm:grid-cols-2">
         {templates.map((template) => {
           const isSelected = selectedTemplate?.id === template.id;
-          const aspectRatio = FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS];
-          
           return (
             <button
               key={template.id}
               onClick={() => onSelect(template)}
-              className={`w-full text-left transition-all group ${
-                isSelected ? "opacity-100" : "opacity-70 hover:opacity-100"
+              className={`relative rounded-lg border-2 overflow-hidden transition-all hover:shadow-lg ${
+                isSelected ? "border-primary ring-2 ring-primary" : "border-border"
               }`}
             >
-              <div className={`relative rounded-lg border-2 overflow-hidden transition-all ${
-                isSelected 
-                  ? "border-primary ring-2 ring-primary shadow-lg" 
-                  : "border-border hover:border-primary/50 hover:shadow-md"
-              }`}>
-                <div className={`${aspectRatio} bg-muted w-full max-w-md mx-auto relative`}>
-                  <img
-                    src={template.image_url}
-                    alt={template.name}
-                    className="w-full h-full object-contain"
-                  />
-                  {isSelected && (
-                    <div className="absolute top-3 right-3 h-7 w-7 rounded-full bg-primary flex items-center justify-center shadow-lg">
-                      <Check className="h-4 w-4 text-primary-foreground" />
-                    </div>
-                  )}
-                </div>
+              <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted`}>
+                <img
+                  src={template.image_url}
+                  alt={template.name}
+                  className="w-full h-full object-contain"
+                />
               </div>
-              
-              <div className="mt-3 px-2">
+              {isSelected && (
+                <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="h-4 w-4 text-white" />
+                </div>
+              )}
+              <div className="p-3 bg-card">
                 <p className="font-medium text-sm mb-2">{template.name}</p>
                 <div className="flex gap-2">
                   <Badge variant="secondary" className="text-xs">
