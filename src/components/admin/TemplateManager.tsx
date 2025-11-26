@@ -462,7 +462,7 @@ export default function TemplateManager() {
                   be in full quality.
                 </p>
               </div>
-              <h3 className="font-semibold mb-1">{template.name}</h3>
+              <div <h3 className="font-semibold mb-1">{template.name}</h3>
               <div className="flex gap-2 text-xs mb-3">
                 <span className="px-2 py-1 bg-primary/10 text-primary rounded">{template.type}</span>
                 <span className="px-2 py-1 bg-secondary/10 text-secondary rounded">
