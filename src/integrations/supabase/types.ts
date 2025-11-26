@@ -268,7 +268,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_event_stat: {
+        Args: { p_event_id: string; p_stat_type: string; p_template_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
