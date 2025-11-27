@@ -170,7 +170,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center animate-slide-up">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">Everything you need to boost your event</h2>
-            <p className="text-lg text-muted-foreground">From backend to buzz, everything in one place</p>
+            <p className="text-lg text-muted-foreground">From backend to buzz, all in one place</p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
