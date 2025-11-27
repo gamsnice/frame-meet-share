@@ -178,11 +178,11 @@ export default function EventParticipantPage() {
             {/* Logo + titles */}
             <div className="flex items-center gap-4 md:gap-6 w-full lg:w-auto">
               {event.logo_url && (
-                <div className="flex-shrink-0 rounded-2xl bg-white/10 backdrop-blur-sm px-6 py-5 md:px-8 md:py-6 shadow-lg max-w-[70vw] sm:max-w-[300px] flex justify-center items-center">
+                <div className="flex-shrink-0 rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3 md:px-5 md:py-4 shadow-sm">
                   <img
                     src={event.logo_url}
                     alt={event.name}
-                    className="h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 w-auto object-contain animate-fade-in"
+                    className="h-24 sm:h-32 md:h-36 lg:h-40 xl:h-44 w-auto object-contain animate-fade-in"
                   />
                 </div>
               )}
