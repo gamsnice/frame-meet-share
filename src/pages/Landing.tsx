@@ -6,16 +6,16 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { 
-  Sparkles, 
-  Users, 
-  LayoutTemplate, 
+import {
+  Sparkles,
+  Users,
+  LayoutTemplate,
   BarChart3,
   Check,
   ArrowRight,
   Instagram,
   Linkedin,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 import meetmeLogo from "@/assets/meetme-logo.png";
 import exampleSkinnovation from "@/assets/example-skinnovation.jpg";
@@ -28,11 +28,7 @@ export default function Landing() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeExample, setActiveExample] = useState(0);
 
-  const examples = [
-    { image: exampleSkinnovation, label: "Skinnovation" },
-    { image: exampleBitsAndPretzels, label: "Bits&Pretzels" },
-    { image: exampleSlush, label: "Slush" }
-  ];
+  const examples = [{ image: exampleSkinnovation }, { image: exampleBitsAndPretzels }, { image: exampleSlush }];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -45,9 +41,7 @@ export default function Landing() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { error } = await supabase
-      .from("contact_messages")
-      .insert([contactForm]);
+    const { error } = await supabase.from("contact_messages").insert([contactForm]);
 
     if (error) {
       toast.error("Failed to send message");
@@ -69,14 +63,10 @@ export default function Landing() {
               <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
             </div>
             <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate("/admin/login")}
-                className="hover:bg-muted"
-              >
+              <Button variant="ghost" onClick={() => navigate("/admin/login")} className="hover:bg-muted">
                 Login
               </Button>
-              <Button 
+              <Button
                 onClick={() => navigate("/admin/register")}
                 className="bg-gradient-accent text-primary-foreground hover:opacity-90"
               >
@@ -91,37 +81,38 @@ export default function Landing() {
       <section className="relative overflow-hidden bg-gradient-hero py-20 md:py-32">
         <div className="absolute inset-0 bg-gradient-glow opacity-50"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAzIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
-        
+
         <div className="container relative z-10 mx-auto px-4">
           <div className="grid gap-12 md:grid-cols-2 md:items-center">
             {/* Left: Copy */}
             <div className="text-foreground">
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl animate-fade-in">
-                Branded{" "}
-                <span className="bg-gradient-accent bg-clip-text text-transparent">
-                  'Meet me at...'
-                </span>{" "}
+                Branded <span className="bg-gradient-accent bg-clip-text text-transparent">'Meet me at...'</span>{" "}
                 visuals for your event
               </h1>
-              <p className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in" style={{ animationDelay: "0.1s" }}>
+              <p
+                className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
+                style={{ animationDelay: "0.1s" }}
+              >
                 <span className="inline-flex items-center gap-2">
                   <img src={meetmeLogo} alt="meetme" className="h-5 w-auto inline" />
                   <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
-                </span>
-                {" "}gives your event a shareable visuals page. You design the frames, your attendees drop in their selfie, and their feeds do the marketing.
+                </span>{" "}
+                gives your event a shareable visuals page. You design the frames, your attendees drop in their selfie,
+                and their feeds do the marketing.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="bg-gradient-accent text-primary-foreground hover:opacity-90 font-semibold shadow-glow"
                   onClick={() => navigate("/admin/register")}
                 >
                   Create my event visuals
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+                <Button
+                  size="lg"
+                  variant="outline"
                   className="border-border hover:bg-muted"
                   onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
                 >
@@ -137,7 +128,7 @@ export default function Landing() {
                 {examples.map((example, index) => {
                   const isActive = index === activeExample;
                   const offset = (index - activeExample + examples.length) % examples.length;
-                  
+
                   return (
                     <div
                       key={index}
@@ -149,9 +140,11 @@ export default function Landing() {
                       }}
                       onClick={() => setActiveExample(index)}
                     >
-                      <div className={`relative rounded-2xl overflow-hidden shadow-hover ${isActive ? 'animate-glow-pulse' : ''}`}>
-                        <img 
-                          src={example.image} 
+                      <div
+                        className={`relative rounded-2xl overflow-hidden shadow-hover ${isActive ? "animate-glow-pulse" : ""}`}
+                      >
+                        <img
+                          src={example.image}
                           alt={example.label}
                           className="h-[400px] w-auto object-cover rounded-2xl"
                         />
@@ -165,7 +158,7 @@ export default function Landing() {
                   );
                 })}
               </div>
-              
+
               {/* Floating decoration circles */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-float"></div>
               <div className="absolute bottom-0 left-0 w-40 h-40 bg-secondary/20 rounded-full blur-3xl animate-float-delayed"></div>
@@ -189,7 +182,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">A backend for your event visuals</h3>
               <p className="text-muted-foreground">
-                Create events, upload frames, define where the guest's photo goes, and control everything from one place.
+                Create events, upload frames, define where the guest's photo goes, and control everything from one
+                place.
               </p>
             </Card>
 
@@ -235,8 +229,8 @@ export default function Landing() {
               <span className="inline-flex items-center gap-2">
                 <img src={meetmeLogo} alt="meetme" className="h-8 w-auto inline" />
                 <span className="bg-gradient-accent bg-clip-text text-transparent">meetme</span>
-              </span>
-              {" "}works
+              </span>{" "}
+              works
             </h2>
             <p className="text-lg text-muted-foreground">Three steps to social proof</p>
           </div>
@@ -258,7 +252,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Share your event link</h3>
               <p className="text-muted-foreground">
-                Each event gets a unique URL like <code className="text-sm bg-muted/50 px-2 py-1 rounded text-primary">/e/skinnovation-2026</code>
+                Each event gets a unique URL like{" "}
+                <code className="text-sm bg-muted/50 px-2 py-1 rounded text-primary">/e/skinnovation-2026</code>
               </p>
             </div>
 
@@ -303,11 +298,7 @@ export default function Landing() {
                   <span>Basic analytics</span>
                 </li>
               </ul>
-              <Button 
-                className="w-full" 
-                variant="outline"
-                onClick={() => navigate("/admin/register")}
-              >
+              <Button className="w-full" variant="outline" onClick={() => navigate("/admin/register")}>
                 Get Started
               </Button>
             </Card>
@@ -339,7 +330,7 @@ export default function Landing() {
                   <span>Custom branding</span>
                 </li>
               </ul>
-              <Button 
+              <Button
                 className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90"
                 onClick={() => navigate("/admin/register")}
               >
@@ -370,8 +361,8 @@ export default function Landing() {
                   <span>Dedicated account manager</span>
                 </li>
               </ul>
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 variant="outline"
                 onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
               >
@@ -397,17 +388,24 @@ export default function Landing() {
 
             <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
               <h3 className="mb-2 font-semibold text-lg">Is there really an admin backend?</h3>
-              <p className="text-muted-foreground">Yes. You control events, templates, and branding from a complete dashboard.</p>
+              <p className="text-muted-foreground">
+                Yes. You control events, templates, and branding from a complete dashboard.
+              </p>
             </Card>
 
             <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
               <h3 className="mb-2 font-semibold text-lg">Do you store attendee photos?</h3>
-              <p className="text-muted-foreground">No, photos stay in the browser and the downloaded image. We never store participant photos.</p>
+              <p className="text-muted-foreground">
+                No, photos stay in the browser and the downloaded image. We never store participant photos.
+              </p>
             </Card>
 
             <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
               <h3 className="mb-2 font-semibold text-lg">What image formats do you support?</h3>
-              <p className="text-muted-foreground">Square (1080x1080), Story (1080x1920), Landscape (1200x630), and Portrait (1080x1350) – optimized for all major social platforms.</p>
+              <p className="text-muted-foreground">
+                Square (1080x1080), Story (1080x1920), Landscape (1200x630), and Portrait (1080x1350) – optimized for
+                all major social platforms.
+              </p>
             </Card>
           </div>
         </div>
@@ -424,7 +422,9 @@ export default function Landing() {
           <Card className="p-8 bg-gradient-card border-border/50">
             <form onSubmit={handleContactSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">Name</label>
+                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                  Name
+                </label>
                 <Input
                   id="name"
                   value={contactForm.name}
@@ -434,7 +434,9 @@ export default function Landing() {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">Email</label>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email
+                </label>
                 <Input
                   id="email"
                   type="email"
@@ -445,7 +447,9 @@ export default function Landing() {
                 />
               </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-2">Message</label>
+                <label htmlFor="message" className="block text-sm font-medium mb-2">
+                  Message
+                </label>
                 <Textarea
                   id="message"
                   rows={5}
@@ -455,9 +459,9 @@ export default function Landing() {
                   className="bg-background/50 border-border/50 focus:border-primary"
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90 shadow-glow" 
+              <Button
+                type="submit"
+                className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90 shadow-glow"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
