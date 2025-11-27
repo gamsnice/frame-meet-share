@@ -93,7 +93,7 @@ export default function Landing() {
               <p
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
                 style={{ animationDelay: "0.1s" }}
-              >
+              
                
                   <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
                 </span>{" "}
