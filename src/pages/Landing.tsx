@@ -33,7 +33,7 @@ export default function Landing() {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveExample((prev) => (prev + 1) % examples.length);
-    }, 4000);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
