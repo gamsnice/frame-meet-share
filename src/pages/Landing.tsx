@@ -206,7 +206,7 @@ export default function Landing() {
               <h3 className="mb-2 text-xl font-semibold">Built for social sharing</h3>
               <p className="text-muted-foreground">
                 Perfect formats for every platform - square, story, landscape, portrait - optimized for LinkedIn,
-                Instagram, Twitter and more.
+                Instagram, Twitter & more.
               </p>
             </Card>
 
@@ -216,7 +216,7 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Analytics that speak hype</h3>
               <p className="text-muted-foreground">
-                Track how many people view, upload, and share your visuals—then see which frames get the most attention!
+                Track how many people view, upload, and share your visuals - see which frames get the most attention!
               </p>
             </Card>
           </div>
