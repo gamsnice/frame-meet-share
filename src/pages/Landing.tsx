@@ -93,11 +93,12 @@ export default function Landing() {
               <p
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
                 style={{ animationDelay: "0.1s" }}
-              
-               
+              >
+                <span className="inline-flex items-center gap-2">
                   <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
                 </span>{" "}
-                is you ultimate event marketing tool. Create stunning visuals and let your participants share them. With just a few clicks, your event reaches millions.
+                is you ultimate event marketing tool. Create stunning visuals and let your participants share them. With
+                just a few clicks, your event reaches millions.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <Button
