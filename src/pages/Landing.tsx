@@ -96,8 +96,8 @@ export default function Landing() {
                 <span className="inline-flex items-center gap-2">
                   <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
                 </span>{" "}
-                is you ultimate event marketing tool. Create stunning visuals and let your participants share them. With
-                just a few clicks, your event reaches millions.
+                is your ultimate event marketing tool. Create stunning visuals, let your participants share them and
+                with just a few clicks, your event reaches millions.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <Button
@@ -189,7 +189,10 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <Sparkles className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Personalized 'Meet me at...' posts in seconds</h3>
+              <h3 className="mb-2 text-xl font-semibold">
+                <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
+                posts in seconds
+              </h3>
               <p className="text-muted-foreground">
                 Attendees select a template, add their photo, and download shareable visuals - boosting your event’s
                 reach. Caption suggestions included.
