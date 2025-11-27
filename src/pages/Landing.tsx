@@ -87,8 +87,8 @@ export default function Landing() {
             {/* Left: Copy */}
             <div className="text-foreground">
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl animate-fade-in">
-                Branded <span className="bg-gradient-accent bg-clip-text text-transparent">'Meet me at...'</span>{" "}
-                visuals for your event
+                <span className="bg-gradient-accent bg-clip-text text-transparent">'Meet me at...'</span> visuals for
+                your event - in seconds
               </h1>
               <p
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
