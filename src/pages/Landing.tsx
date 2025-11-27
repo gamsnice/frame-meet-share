@@ -88,18 +88,16 @@ export default function Landing() {
             <div className="text-foreground">
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl animate-fade-in">
                 <span className="bg-gradient-accent bg-clip-text text-transparent">'Meet me at...'</span> visuals for
-                your event - in seconds
+                your event: in seconds
               </h1>
               <p
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
                 style={{ animationDelay: "0.1s" }}
               >
-                <span className="inline-flex items-center gap-2">
-                  <img src={meetmeLogo} alt="meetme" className="h-5 w-auto inline" />
+               
                   <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
                 </span>{" "}
-                gives your event a shareable visuals page. You design the frames, your attendees drop in their selfie,
-                and their feeds do the marketing.
+                is you ultimate event marketing tool. Create stunning visuals and let your participants share them. With just a few clicks, your event reaches millions.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <Button
