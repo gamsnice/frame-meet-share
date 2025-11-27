@@ -182,7 +182,7 @@ export default function EventParticipantPage() {
                   <img
                     src={event.logo_url}
                     alt={event.name}
-                    className="h-12 sm:h-14 md:h-18 lg:h-20 xl:h-24 w-auto max-w-[55vw] md:max-w-[260px] object-contain animate-fade-in"
+                    className="h-12 sm:h-14 md:h-18 lg:h-20 xl:h-24 w-auto max-w-[80vw] md:max-w-[260px] object-contain animate-fade-in"
                   />
                 </div>
               )}
