@@ -169,8 +169,8 @@ export default function Landing() {
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center animate-slide-up">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Everything you need to frame your event</h2>
-            <p className="text-lg text-muted-foreground">From backend to brand to buzz</p>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Everything you need to boost your event</h2>
+            <p className="text-lg text-muted-foreground">From backend to buzz, everything in one place</p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -178,10 +178,10 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <LayoutTemplate className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">A backend for your event visuals</h3>
+              <h3 className="mb-2 text-xl font-semibold">Event visuals at your fingertips</h3>
               <p className="text-muted-foreground">
-                Create events, upload frames, define where the guest's photo goes, and control everything from one
-                place.
+                Create events, upload templates, and control everything easy-peasy. Simplify your event's visual
+                branding.
               </p>
             </Card>
 
@@ -191,7 +191,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Personalized 'Meet me at...' posts</h3>
               <p className="text-muted-foreground">
-                Attendees open your link, pick a frame, drop their photo, and download a share-ready visual.
+                Attendees pick a template, drop their photo, and instantly download share-ready visuals—boosting your
+                event’s exposure. Text caption suggestions included.
               </p>
             </Card>
 
@@ -199,9 +200,10 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <Users className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Built for social formats</h3>
+              <h3 className="mb-2 text-xl font-semibold">Built for social sharing</h3>
               <p className="text-muted-foreground">
-                Square, story, landscape, portrait – optimized sizes for Instagram, LinkedIn, and more.
+                Perfect formats for every platform - square, story, landscape, portrait - optimized for LinkedIn,
+                Instagram, Twitter and more.
               </p>
             </Card>
 
@@ -209,9 +211,9 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <BarChart3 className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Analytics that speak 'hype'</h3>
+              <h3 className="mb-2 text-xl font-semibold">Analytics that speak hype</h3>
               <p className="text-muted-foreground">
-                See how many people open, upload, and download – and which frames perform best.
+                Track how many people view, upload, and share your visuals—then see which frames get the most attention!
               </p>
             </Card>
           </div>
