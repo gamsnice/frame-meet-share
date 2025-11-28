@@ -3,8 +3,16 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Eye, Download, Copy, Plus, ExternalLink } from "lucide-react";
+import { Calendar, Plus, Copy, ExternalLink, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
+import { subDays, format, getDay, parseISO } from "date-fns";
+import DateRangePicker from "./analytics/DateRangePicker";
+import EventFilter from "./analytics/EventFilter";
+import StatsCards from "./analytics/StatsCards";
+import DailyTrendChart from "./analytics/DailyTrendChart";
+import HourlyHeatmap from "./analytics/HourlyHeatmap";
+import WeekdayChart from "./analytics/WeekdayChart";
+import ResetStatsDialog from "./analytics/ResetStatsDialog";
 
 interface Event {
   id: string;
@@ -16,25 +24,51 @@ interface Event {
   location: string;
 }
 
-interface DashboardStats {
-  totalEvents: number;
-  totalViews: number;
-  totalDownloads: number;
+interface DailyData {
+  date: string;
+  views: number;
+  uploads: number;
+  downloads: number;
+}
+
+interface HourlyData {
+  hour: number;
+  views: number;
+  uploads: number;
+  downloads: number;
+}
+
+interface WeekdayData {
+  day: string;
+  views: number;
+  uploads: number;
+  downloads: number;
 }
 
 export default function DashboardHome({ userId }: { userId: string }) {
   const [events, setEvents] = useState<Event[]>([]);
-  const [stats, setStats] = useState<DashboardStats>({ totalEvents: 0, totalViews: 0, totalDownloads: 0 });
   const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [dailyData, setDailyData] = useState<DailyData[]>([]);
+  const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
+  const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
+  const [stats, setStats] = useState({ totalViews: 0, totalUploads: 0, totalDownloads: 0, conversionRate: 0 });
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadData();
+    loadEvents();
   }, [userId]);
 
-  const loadData = async () => {
+  useEffect(() => {
+    if (events.length > 0) {
+      loadAnalytics();
+    }
+  }, [events, startDate, endDate, selectedEventId]);
+
+  const loadEvents = async () => {
     try {
-      // Load events
       const { data: eventsData, error: eventsError } = await supabase
         .from("events")
         .select("*")
@@ -43,32 +77,95 @@ export default function DashboardHome({ userId }: { userId: string }) {
 
       if (eventsError) throw eventsError;
       setEvents(eventsData || []);
-
-      // Load aggregate stats
-      if (eventsData && eventsData.length > 0) {
-        const eventIds = eventsData.map(e => e.id);
-        const { data: statsData, error: statsError } = await supabase
-          .from("event_stats_daily")
-          .select("views_count, downloads_count")
-          .in("event_id", eventIds);
-
-        if (!statsError && statsData) {
-          const totalViews = statsData.reduce((sum, s) => sum + (s.views_count || 0), 0);
-          const totalDownloads = statsData.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
-          setStats({
-            totalEvents: eventsData.length,
-            totalViews,
-            totalDownloads,
-          });
-        }
-      } else {
-        setStats({ totalEvents: 0, totalViews: 0, totalDownloads: 0 });
-      }
     } catch (error: any) {
-      toast.error("Failed to load dashboard data");
+      toast.error("Failed to load events");
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const eventIds = selectedEventId ? [selectedEventId] : events.map((e) => e.id);
+      
+      if (eventIds.length === 0) return;
+
+      // Build date filter
+      let dailyQuery = supabase.from("event_stats_daily").select("*").in("event_id", eventIds);
+      if (startDate) dailyQuery = dailyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
+      if (endDate) dailyQuery = dailyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
+
+      const { data: dailyStats } = await dailyQuery;
+
+      // Build hourly query
+      let hourlyQuery = supabase.from("event_stats_hourly").select("*").in("event_id", eventIds);
+      if (startDate) hourlyQuery = hourlyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
+      if (endDate) hourlyQuery = hourlyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
+
+      const { data: hourlyStats } = await hourlyQuery;
+
+      // Calculate overall stats
+      if (dailyStats) {
+        const totalViews = dailyStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
+        const totalUploads = dailyStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
+        const totalDownloads = dailyStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
+        const conversionRate = totalViews > 0 ? (totalDownloads / totalViews) * 100 : 0;
+        
+        setStats({ totalViews, totalUploads, totalDownloads, conversionRate });
+
+        // Process daily trend data
+        const dailyMap = new Map<string, DailyData>();
+        dailyStats.forEach((stat) => {
+          const dateStr = stat.date;
+          const existing = dailyMap.get(dateStr) || { date: dateStr, views: 0, uploads: 0, downloads: 0 };
+          dailyMap.set(dateStr, {
+            date: dateStr,
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
+        });
+        setDailyData(Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date)));
+
+        // Process weekday data
+        const weekdayMap = new Map<number, WeekdayData>();
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        dailyStats.forEach((stat) => {
+          const dayOfWeek = getDay(parseISO(stat.date));
+          const existing = weekdayMap.get(dayOfWeek) || { day: dayNames[dayOfWeek], views: 0, uploads: 0, downloads: 0 };
+          weekdayMap.set(dayOfWeek, {
+            day: dayNames[dayOfWeek],
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
+        });
+        const sortedWeekdays = Array.from(weekdayMap.entries())
+          .sort(([a], [b]) => a - b)
+          .map(([, data]) => data);
+        setWeekdayData(sortedWeekdays);
+      }
+
+      // Process hourly data
+      if (hourlyStats) {
+        const hourlyMap = new Map<number, HourlyData>();
+        for (let i = 0; i < 24; i++) {
+          hourlyMap.set(i, { hour: i, views: 0, uploads: 0, downloads: 0 });
+        }
+        hourlyStats.forEach((stat) => {
+          const existing = hourlyMap.get(stat.hour)!;
+          hourlyMap.set(stat.hour, {
+            hour: stat.hour,
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
+        });
+        setHourlyData(Array.from(hourlyMap.values()));
+      }
+    } catch (error: any) {
+      console.error("Failed to load analytics:", error);
     }
   };
 
@@ -84,10 +181,11 @@ export default function DashboardHome({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-8 animate-fade-in">
+      {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Welcome back! 👋</h1>
-          <p className="text-muted-foreground">Let's frame your next event.</p>
+          <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">Track performance across all your events</p>
         </div>
         <Button onClick={() => navigate("/admin/events/new")} size="lg">
           <Plus className="mr-2 h-5 w-5" />
@@ -95,64 +193,62 @@ export default function DashboardHome({ userId }: { userId: string }) {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Events</p>
-              <p className="text-3xl font-bold mt-2">{stats.totalEvents}</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Calendar className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Page Views</p>
-              <p className="text-3xl font-bold mt-2">{stats.totalViews}</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">
-              <Eye className="h-6 w-6 text-secondary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Downloads</p>
-              <p className="text-3xl font-bold mt-2">{stats.totalDownloads}</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Download className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-        </Card>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 items-center">
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onDateChange={(start, end) => {
+            setStartDate(start);
+            setEndDate(end);
+          }}
+        />
+        <EventFilter
+          events={events}
+          selectedEventId={selectedEventId}
+          onEventChange={setSelectedEventId}
+        />
+        <ResetStatsDialog
+          eventId={selectedEventId || undefined}
+          startDate={startDate}
+          endDate={endDate}
+          onSuccess={loadAnalytics}
+        />
       </div>
 
-      {/* Recent Events */}
-      <div>
+      {/* Stats Cards */}
+      <StatsCards stats={stats} />
+
+      {/* Charts */}
+      {dailyData.length > 0 && (
+        <>
+          <DailyTrendChart data={dailyData} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <WeekdayChart data={weekdayData} />
+            <HourlyHeatmap data={hourlyData} />
+          </div>
+        </>
+      )}
+
+      {/* Top Events */}
+      <Card className="p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Your Events</h2>
+          <h2 className="text-xl font-semibold">Your Events</h2>
           <Button variant="outline" onClick={() => navigate("/admin/events")}>
             View All
           </Button>
         </div>
 
         {events.length === 0 ? (
-          <Card className="p-12 text-center">
+          <div className="text-center py-12">
             <Calendar className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No events yet</h3>
-            <p className="text-muted-foreground mb-6">Create your first event visuals page to get started</p>
+            <p className="text-muted-foreground mb-6">Create your first event to get started</p>
             <Button onClick={() => navigate("/admin/events/new")}>
               <Plus className="mr-2 h-4 w-4" />
               Create Your First Event
             </Button>
-          </Card>
+          </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {events.slice(0, 4).map((event) => (
@@ -176,37 +272,25 @@ export default function DashboardHome({ userId }: { userId: string }) {
                   <Button size="sm" variant="ghost" onClick={() => copyEventLink(event.slug)}>
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={() => window.open(`/e/${event.slug}`, "_blank")}
-                  >
+                  <Button size="sm" variant="ghost" onClick={() => window.open(`/e/${event.slug}`, "_blank")}>
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="flex-1"
-                    onClick={() => navigate(`/admin/events/${event.id}/edit`)}
-                  >
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/admin/events/${event.id}/edit`)}>
                     Edit Event
                   </Button>
-                  <Button 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => navigate(`/admin/events/${event.id}/templates`)}
-                  >
-                    Manage Templates
+                  <Button size="sm" className="flex-1" onClick={() => navigate(`/admin/events/${event.id}/analytics`)}>
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Analytics
                   </Button>
                 </div>
               </Card>
             ))}
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
