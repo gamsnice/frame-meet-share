@@ -143,14 +143,9 @@ export default function Landing() {
                       >
                         <img
                           src={example.image}
-                          alt={example.label}
+                          alt="meetme example"
                           className="h-[400px] w-auto object-cover rounded-2xl"
                         />
-                        {isActive && (
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent p-4">
-                            <p className="text-foreground font-semibold text-center">{example.label}</p>
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
@@ -229,10 +224,7 @@ export default function Landing() {
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
               How{" "}
-              <span className="inline-flex items-center gap-2">
-                <img src={meetmeLogo} alt="meetme" className="h-8 w-auto inline" />
-                <span className="bg-gradient-accent bg-clip-text text-transparent">meetme</span>
-              </span>{" "}
+              <span className="bg-gradient-accent bg-clip-text text-transparent">meetme</span>{" "}
               works
             </h2>
             <p className="text-lg text-muted-foreground">Three steps to social proof</p>
