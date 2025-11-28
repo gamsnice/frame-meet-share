@@ -1,91 +1,174 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Download, Upload, Copy } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { subDays, format, getDay, parseISO } from "date-fns";
+import DateRangePicker from "./analytics/DateRangePicker";
+import StatsCards from "./analytics/StatsCards";
+import DailyTrendChart from "./analytics/DailyTrendChart";
+import HourlyHeatmap from "./analytics/HourlyHeatmap";
+import WeekdayChart from "./analytics/WeekdayChart";
+import TemplatePerformanceTable from "./analytics/TemplatePerformanceTable";
+import ResetStatsDialog from "./analytics/ResetStatsDialog";
 
-interface Stats {
-  totalViews: number;
-  totalUploads: number;
-  totalDownloads: number;
-  totalCaptionCopies: number;
+interface DailyData {
+  date: string;
+  views: number;
+  uploads: number;
+  downloads: number;
+}
+
+interface HourlyData {
+  hour: number;
+  views: number;
+  uploads: number;
+  downloads: number;
+}
+
+interface WeekdayData {
+  day: string;
+  views: number;
+  uploads: number;
+  downloads: number;
 }
 
 interface TemplateStats {
-  template_id: string;
-  template_name: string;
+  id: string;
+  name: string;
+  type: string;
   views: number;
+  uploads: number;
   downloads: number;
+  conversion: number;
 }
 
 export default function EventAnalytics() {
   const { eventId } = useParams();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<Stats>({
-    totalViews: 0,
-    totalUploads: 0,
-    totalDownloads: 0,
-    totalCaptionCopies: 0,
-  });
-  const [templateStats, setTemplateStats] = useState<TemplateStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [dailyData, setDailyData] = useState<DailyData[]>([]);
+  const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
+  const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
+  const [templateStats, setTemplateStats] = useState<TemplateStats[]>([]);
+  const [stats, setStats] = useState({ totalViews: 0, totalUploads: 0, totalDownloads: 0, conversionRate: 0 });
 
   useEffect(() => {
     if (eventId) {
       loadAnalytics();
     }
-  }, [eventId]);
+  }, [eventId, startDate, endDate]);
 
   const loadAnalytics = async () => {
+    setLoading(true);
     try {
-      // Load aggregate stats
-      const { data: statsData, error: statsError } = await supabase
-        .from("event_stats_daily")
-        .select("views_count, uploads_count, downloads_count, caption_copies_count, template_id")
-        .eq("event_id", eventId);
+      // Build date filter for daily stats
+      let dailyQuery = supabase.from("event_stats_daily").select("*").eq("event_id", eventId);
+      if (startDate) dailyQuery = dailyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
+      if (endDate) dailyQuery = dailyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
 
-      if (statsError) throw statsError;
+      const { data: dailyStats } = await dailyQuery;
 
-      if (statsData) {
-        const totals = statsData.reduce(
-          (acc, row) => ({
-            totalViews: acc.totalViews + (row.views_count || 0),
-            totalUploads: acc.totalUploads + (row.uploads_count || 0),
-            totalDownloads: acc.totalDownloads + (row.downloads_count || 0),
-            totalCaptionCopies: acc.totalCaptionCopies + (row.caption_copies_count || 0),
-          }),
-          { totalViews: 0, totalUploads: 0, totalDownloads: 0, totalCaptionCopies: 0 }
-        );
-        setStats(totals);
+      // Build date filter for hourly stats
+      let hourlyQuery = supabase.from("event_stats_hourly").select("*").eq("event_id", eventId);
+      if (startDate) hourlyQuery = hourlyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
+      if (endDate) hourlyQuery = hourlyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
 
-        // Aggregate by template
-        const templateMap = new Map<string, { views: number; downloads: number }>();
-        statsData.forEach((row) => {
-          if (row.template_id) {
-            const existing = templateMap.get(row.template_id) || { views: 0, downloads: 0 };
-            templateMap.set(row.template_id, {
-              views: existing.views + (row.views_count || 0),
-              downloads: existing.downloads + (row.downloads_count || 0),
+      const { data: hourlyStats } = await hourlyQuery;
+
+      // Calculate overall stats
+      if (dailyStats) {
+        const totalViews = dailyStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
+        const totalUploads = dailyStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
+        const totalDownloads = dailyStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
+        const conversionRate = totalViews > 0 ? (totalDownloads / totalViews) * 100 : 0;
+
+        setStats({ totalViews, totalUploads, totalDownloads, conversionRate });
+
+        // Process daily trend data
+        const dailyMap = new Map<string, DailyData>();
+        dailyStats.forEach((stat) => {
+          const dateStr = stat.date;
+          const existing = dailyMap.get(dateStr) || { date: dateStr, views: 0, uploads: 0, downloads: 0 };
+          dailyMap.set(dateStr, {
+            date: dateStr,
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
+        });
+        setDailyData(Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date)));
+
+        // Process weekday data
+        const weekdayMap = new Map<number, WeekdayData>();
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        dailyStats.forEach((stat) => {
+          const dayOfWeek = getDay(parseISO(stat.date));
+          const existing = weekdayMap.get(dayOfWeek) || { day: dayNames[dayOfWeek], views: 0, uploads: 0, downloads: 0 };
+          weekdayMap.set(dayOfWeek, {
+            day: dayNames[dayOfWeek],
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
+        });
+        const sortedWeekdays = Array.from(weekdayMap.entries())
+          .sort(([a], [b]) => a - b)
+          .map(([, data]) => data);
+        setWeekdayData(sortedWeekdays);
+
+        // Process template stats
+        const templateMap = new Map<string, { views: number; uploads: number; downloads: number }>();
+        dailyStats.forEach((stat) => {
+          if (stat.template_id) {
+            const existing = templateMap.get(stat.template_id) || { views: 0, uploads: 0, downloads: 0 };
+            templateMap.set(stat.template_id, {
+              views: existing.views + (stat.views_count || 0),
+              uploads: existing.uploads + (stat.uploads_count || 0),
+              downloads: existing.downloads + (stat.downloads_count || 0),
             });
           }
         });
 
-        // Load template names
-        const { data: templates } = await supabase
-          .from("templates")
-          .select("id, name")
-          .eq("event_id", eventId);
+        // Load template names and types
+        const { data: templates } = await supabase.from("templates").select("id, name, type").eq("event_id", eventId);
 
         if (templates) {
-          const templateStatsArray: TemplateStats[] = templates.map((t) => ({
-            template_id: t.id,
-            template_name: t.name,
-            views: templateMap.get(t.id)?.views || 0,
-            downloads: templateMap.get(t.id)?.downloads || 0,
-          }));
+          const templateStatsArray: TemplateStats[] = templates.map((t) => {
+            const stats = templateMap.get(t.id) || { views: 0, uploads: 0, downloads: 0 };
+            const conversion = stats.views > 0 ? (stats.downloads / stats.views) * 100 : 0;
+            return {
+              id: t.id,
+              name: t.name,
+              type: t.type,
+              views: stats.views,
+              uploads: stats.uploads,
+              downloads: stats.downloads,
+              conversion,
+            };
+          });
           setTemplateStats(templateStatsArray);
         }
+      }
+
+      // Process hourly data
+      if (hourlyStats) {
+        const hourlyMap = new Map<number, HourlyData>();
+        for (let i = 0; i < 24; i++) {
+          hourlyMap.set(i, { hour: i, views: 0, uploads: 0, downloads: 0 });
+        }
+        hourlyStats.forEach((stat) => {
+          const existing = hourlyMap.get(stat.hour)!;
+          hourlyMap.set(stat.hour, {
+            hour: stat.hour,
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
+        });
+        setHourlyData(Array.from(hourlyMap.values()));
       }
     } catch (error: any) {
       console.error("Failed to load analytics:", error);
@@ -98,105 +181,51 @@ export default function EventAnalytics() {
     return <div className="text-center py-12">Loading analytics...</div>;
   }
 
-  const conversionRate = stats.totalViews > 0 ? (stats.totalDownloads / stats.totalViews) * 100 : 0;
-
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate("/admin/events")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Events
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Event Analytics</h1>
-          <p className="text-muted-foreground">Track performance and engagement</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={() => navigate("/admin/events")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Events
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Event Analytics</h1>
+            <p className="text-muted-foreground">Track performance and engagement</p>
+          </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-4">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Page Views</p>
-              <p className="text-3xl font-bold mt-2">{stats.totalViews}</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Eye className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Photo Uploads</p>
-              <p className="text-3xl font-bold mt-2">{stats.totalUploads}</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">
-              <Upload className="h-6 w-6 text-secondary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Downloads</p>
-              <p className="text-3xl font-bold mt-2">{stats.totalDownloads}</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Download className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
-              <p className="text-3xl font-bold mt-2">{conversionRate.toFixed(1)}%</p>
-            </div>
-            <div className="h-12 w-12 rounded-full bg-secondary/10 flex items-center justify-center">
-              <Copy className="h-6 w-6 text-secondary" />
-            </div>
-          </div>
-        </Card>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 items-center">
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onDateChange={(start, end) => {
+            setStartDate(start);
+            setEndDate(end);
+          }}
+        />
+        <ResetStatsDialog eventId={eventId} startDate={startDate} endDate={endDate} onSuccess={loadAnalytics} />
       </div>
 
-      {/* Template Performance */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Template Performance</h2>
-        {templateStats.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">No template data yet</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Template Name</th>
-                  <th className="text-right py-3 px-4 font-medium">Views</th>
-                  <th className="text-right py-3 px-4 font-medium">Downloads</th>
-                  <th className="text-right py-3 px-4 font-medium">Conversion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {templateStats.map((t) => {
-                  const conversion = t.views > 0 ? (t.downloads / t.views) * 100 : 0;
-                  return (
-                    <tr key={t.template_id} className="border-b">
-                      <td className="py-3 px-4">{t.template_name}</td>
-                      <td className="text-right py-3 px-4">{t.views}</td>
-                      <td className="text-right py-3 px-4">{t.downloads}</td>
-                      <td className="text-right py-3 px-4">{conversion.toFixed(1)}%</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {/* Stats Cards */}
+      <StatsCards stats={stats} />
+
+      {/* Charts */}
+      {dailyData.length > 0 && (
+        <>
+          <DailyTrendChart data={dailyData} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <WeekdayChart data={weekdayData} />
+            <HourlyHeatmap data={hourlyData} />
           </div>
-        )}
-      </Card>
+        </>
+      )}
+
+      {/* Template Performance */}
+      {templateStats.length > 0 && <TemplatePerformanceTable data={templateStats} />}
     </div>
   );
 }
