@@ -21,7 +21,7 @@ export default function HourlyHeatmap({ data }: HourlyHeatmapProps) {
     },
     uploads: {
       label: "Uploads",
-      color: "hsl(var(--secondary))",
+      color: "hsl(var(--chart-uploads))",
     },
     downloads: {
       label: "Downloads",
@@ -49,7 +49,7 @@ export default function HourlyHeatmap({ data }: HourlyHeatmapProps) {
               <YAxis className="text-xs" />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="views" fill="hsl(var(--primary))" name="Views" />
-              <Bar dataKey="uploads" fill="hsl(var(--secondary))" name="Uploads" />
+              <Bar dataKey="uploads" fill="hsl(var(--chart-uploads))" name="Uploads" />
               <Bar dataKey="downloads" fill="hsl(var(--accent))" name="Downloads" />
             </BarChart>
           </ResponsiveContainer>
