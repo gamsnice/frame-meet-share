@@ -108,9 +108,14 @@ export default function EventParticipantPage() {
     }
   };
 
-  const handleTemplateSelect = (template: Template) => {
+  const handleTemplateSelect = async (template: Template) => {
     setSelectedTemplate(template);
     setUserImage(null); // Reset image when changing templates
+    
+    // Track template view
+    if (event) {
+      await trackEvent(event.id, template.id, "view");
+    }
   };
 
   const handleImageUpload = async (imageDataUrl: string) => {
