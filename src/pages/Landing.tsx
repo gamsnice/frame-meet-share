@@ -24,6 +24,8 @@ import exampleSlush from "@/assets/example-slush.jpg";
 import TrustSignals from "@/components/landing/TrustSignals";
 import ProcessFlow from "@/components/landing/ProcessFlow";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
+import FAQSection from "@/components/landing/FAQSection";
+import AnalyticsPreview from "@/components/landing/AnalyticsPreview";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -271,6 +273,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Analytics Preview */}
+      <AnalyticsPreview />
+
       {/* Testimonials & Social Proof */}
       <TestimonialsSection />
 
@@ -394,42 +399,7 @@ export default function Landing() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 bg-gradient-card">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Frequently asked questions</h2>
-          </div>
-
-          <div className="space-y-4">
-            <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
-              <h3 className="mb-2 font-semibold text-lg">Do my attendees need an account?</h3>
-              <p className="text-muted-foreground">No. They just open the link, upload, download.</p>
-            </Card>
-
-            <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
-              <h3 className="mb-2 font-semibold text-lg">Is there really an admin backend?</h3>
-              <p className="text-muted-foreground">
-                Yes. You control events, templates, and branding from a complete dashboard.
-              </p>
-            </Card>
-
-            <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
-              <h3 className="mb-2 font-semibold text-lg">Do you store attendee photos?</h3>
-              <p className="text-muted-foreground">
-                No, photos stay in the browser and the downloaded image. We never store participant photos.
-              </p>
-            </Card>
-
-            <Card className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 transition-colors">
-              <h3 className="mb-2 font-semibold text-lg">What image formats do you support?</h3>
-              <p className="text-muted-foreground">
-                Square (1080x1080), Story (1080x1920), Landscape (1200x630), and Portrait (1080x1350) – optimized for
-                all major social platforms.
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
+      <FAQSection />
 
       {/* Contact */}
       <section id="contact" className="py-20 bg-background">
