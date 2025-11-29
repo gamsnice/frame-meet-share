@@ -223,9 +223,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              How{" "}
-              <span className="bg-gradient-accent bg-clip-text text-transparent">meetme</span>{" "}
-              works
+              How <span className="bg-gradient-accent bg-clip-text text-transparent">meetme</span> works
             </h2>
             <p className="text-lg text-muted-foreground">Three steps to social proof</p>
           </div>
@@ -472,7 +470,6 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                <img src={meetmeLogo} alt="meetme" className="h-8 w-auto" />
                 <span className="text-2xl font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
               </div>
               <p className="text-sm text-muted-foreground">© 2024 meetme. All rights reserved.</p>
