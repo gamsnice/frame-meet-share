@@ -26,6 +26,7 @@ import ProcessFlow from "@/components/landing/ProcessFlow";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FAQSection from "@/components/landing/FAQSection";
 import AnalyticsPreview from "@/components/landing/AnalyticsPreview";
+import FeaturesShowcase from "@/components/landing/FeaturesShowcase";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -275,6 +276,9 @@ export default function Landing() {
 
       {/* Analytics Preview */}
       <AnalyticsPreview />
+
+      {/* Features Showcase */}
+      <FeaturesShowcase />
 
       {/* Testimonials & Social Proof */}
       <TestimonialsSection />
