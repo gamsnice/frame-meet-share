@@ -21,6 +21,8 @@ import meetmeLogo from "@/assets/meetme-logo.png";
 import exampleSkinnovation from "@/assets/example-skinnovation.jpg";
 import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.jpg";
 import exampleSlush from "@/assets/example-slush.jpg";
+import TrustSignals from "@/components/landing/TrustSignals";
+import ProcessFlow from "@/components/landing/ProcessFlow";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -60,6 +62,8 @@ export default function Landing() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
+              <span className="hidden md:inline text-xs text-muted-foreground/60">|</span>
+              <span className="hidden md:inline text-xs text-muted-foreground">Visual Creator for Event Marketing</span>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" onClick={() => navigate("/admin/login")} className="hover:bg-muted">
@@ -86,32 +90,28 @@ export default function Landing() {
             {/* Left: Copy */}
             <div className="text-foreground">
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl animate-fade-in">
-                <span className="bg-gradient-accent bg-clip-text text-transparent">'Meet me at...'</span> visuals for
-                your event: in seconds
+                Turn Every Attendee Into Your Event's{" "}
+                <span className="bg-gradient-accent bg-clip-text text-transparent">Marketing Ambassador</span>
               </h1>
               <p
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
                 style={{ animationDelay: "0.1s" }}
               >
-                <span className="inline-flex items-center gap-2">
-                  <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
-                </span>{" "}
-                is your ultimate event marketing tool. Create stunning visuals, let your participants share them and
-                with just a few clicks, your event reaches millions.
+                Create stunning visuals in seconds. Let your attendees amplify your reach to millions. The most cost-efficient way to boost your event's visibility.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <Button
                   size="lg"
-                  className="bg-gradient-accent text-primary-foreground hover:opacity-90 font-semibold shadow-glow"
+                  className="bg-gradient-accent text-primary-foreground hover:opacity-90 font-semibold shadow-glow animate-pulse-glow"
                   onClick={() => navigate("/admin/register")}
                 >
-                  Create my event visuals
+                  🚀 Start Boosting Your Event's Reach
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-border hover:bg-muted"
+                  className="border-border hover:bg-muted hover:border-primary/50 transition-colors"
                   onClick={() => document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })}
                 >
                   See how it works
@@ -160,6 +160,12 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Trust Signals Bar */}
+      <TrustSignals />
+
+      {/* Process Flow Section */}
+      <ProcessFlow />
+
       {/* Features Section */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
@@ -173,11 +179,11 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <LayoutTemplate className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Event visuals at your fingertips</h3>
-              <p className="text-muted-foreground">
-                Create events, upload templates, and control everything easy-peasy. Simplify your event's visual
-                branding.
+              <h3 className="mb-2 text-xl font-semibold">Launch in 5 Minutes, Not 5 Days</h3>
+              <p className="text-muted-foreground mb-3">
+                Create events, upload branded templates, and control everything from one simple dashboard. No design skills required.
               </p>
+              <p className="text-xs text-primary font-semibold">⚡ Average setup: 5 minutes • Save 100+ hours vs. traditional marketing</p>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
@@ -198,22 +204,22 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <Users className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Built for social sharing</h3>
-              <p className="text-muted-foreground">
-                Perfect formats for every platform - square, story, landscape, portrait - optimized for LinkedIn,
-                Instagram, X & more.
+              <h3 className="mb-2 text-xl font-semibold">Perfect for Every Platform</h3>
+              <p className="text-muted-foreground mb-3">
+                Square, story, landscape, portrait—all formats optimized for LinkedIn, Instagram, X, and more. One click to share everywhere.
               </p>
+              <p className="text-xs text-primary font-semibold">📱 Direct share buttons • Pre-optimized formats • Caption suggestions included</p>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <BarChart3 className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Analytics that speak hype</h3>
-              <p className="text-muted-foreground">
-                Track how many people view, upload, and share your visuals - see which frames get the most attention and
-                when!
+              <h3 className="mb-2 text-xl font-semibold">Know What's Working, Instantly</h3>
+              <p className="text-muted-foreground mb-3">
+                Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See which templates perform best.
               </p>
+              <p className="text-xs text-secondary font-semibold">📊 Live dashboard • Template performance tracking • Identify peak engagement times</p>
             </Card>
           </div>
         </div>
@@ -224,9 +230,9 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              How <span className="bg-gradient-accent bg-clip-text text-transparent">meetme</span> works
+              Maximize Your Event's Visibility—<span className="bg-gradient-accent bg-clip-text text-transparent">No Design Skills Required</span>
             </h2>
-            <p className="text-lg text-muted-foreground">Three steps to social proof</p>
+            <p className="text-lg text-muted-foreground">Three simple steps to amplify your reach</p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
@@ -234,9 +240,9 @@ export default function Landing() {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-2xl shadow-glow">
                 1
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Create your event</h3>
+              <h3 className="mb-2 text-xl font-semibold">Set Up in Minutes</h3>
               <p className="text-muted-foreground">
-                Sign up, add your event details, upload your templates, define the face area, and set captions.
+                Add your event, upload branded templates, and you're ready. The system guides you through every step—no technical expertise needed.
               </p>
             </div>
 
@@ -244,9 +250,9 @@ export default function Landing() {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-2xl shadow-glow">
                 2
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Share your event link</h3>
+              <h3 className="mb-2 text-xl font-semibold">One Link, Unlimited Shares</h3>
               <p className="text-muted-foreground">
-                Each event gets a unique URL like{" "}
+                Send your unique link via email, social media, or QR code. Each event gets a memorable URL like{" "}
                 <code className="text-sm bg-muted/50 px-2 py-1 rounded text-primary">/e/skinnovation-2026</code>
               </p>
             </div>
@@ -255,9 +261,9 @@ export default function Landing() {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-2xl shadow-glow">
                 3
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Your attendees make the magic</h3>
+              <h3 className="mb-2 text-xl font-semibold">Watch Your Reach Multiply</h3>
               <p className="text-muted-foreground">
-                They choose a frame, fit their photo into your design, download, and share 'Meet me at [Event]' posts.
+                Attendees personalize and share instantly—no account needed. Every share amplifies your event's visibility across their networks.
               </p>
             </div>
           </div>
