@@ -22,7 +22,7 @@ export default function DailyTrendChart({ data }: DailyTrendChartProps) {
     },
     uploads: {
       label: "Uploads",
-      color: "hsl(var(--secondary))",
+      color: "hsl(var(--chart-uploads))",
     },
     downloads: {
       label: "Downloads",
@@ -45,8 +45,8 @@ export default function DailyTrendChart({ data }: DailyTrendChartProps) {
                   <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--secondary))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--secondary))" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(var(--chart-uploads))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--chart-uploads))" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorDownloads" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
@@ -73,7 +73,7 @@ export default function DailyTrendChart({ data }: DailyTrendChartProps) {
               <Area
                 type="monotone"
                 dataKey="uploads"
-                stroke="hsl(var(--secondary))"
+                stroke="hsl(var(--chart-uploads))"
                 fillOpacity={1}
                 fill="url(#colorUploads)"
                 name="Uploads"

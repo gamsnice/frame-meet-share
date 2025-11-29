@@ -109,8 +109,11 @@ export default function TemplatePerformanceTable({ data }: TemplatePerformanceTa
                     <div className="text-sm">{template.uploads.toLocaleString()}</div>
                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-secondary"
-                        style={{ width: `${maxValues.uploads > 0 ? (template.uploads / maxValues.uploads) * 100 : 0}%` }}
+                        className="h-full"
+                        style={{ 
+                          width: `${maxValues.uploads > 0 ? (template.uploads / maxValues.uploads) * 100 : 0}%`,
+                          backgroundColor: "hsl(55 85% 55%)"
+                        }}
                       />
                     </div>
                   </div>

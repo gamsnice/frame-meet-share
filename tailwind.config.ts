@@ -56,6 +56,9 @@ export default {
           navy: "hsl(var(--dark-navy))",
           surface: "hsl(var(--dark-surface))",
         },
+        chart: {
+          uploads: "hsl(var(--chart-uploads))",
+        },
       },
       backgroundImage: {
         'gradient-hero': 'var(--gradient-hero)',
