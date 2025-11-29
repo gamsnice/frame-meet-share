@@ -27,6 +27,9 @@ interface EventFormData {
   hero_subtitle: string;
   helper_text: string;
   layout_preset: "A" | "B" | "C";
+  homepage_url: string;
+  instagram_url: string;
+  linkedin_url: string;
 }
 
 export default function EventEditor({ userId }: { userId: string }) {
@@ -50,6 +53,9 @@ export default function EventEditor({ userId }: { userId: string }) {
     hero_subtitle: "",
     helper_text: "Tip: use a bright, close-up selfie for best results.",
     layout_preset: "A",
+    homepage_url: "",
+    instagram_url: "",
+    linkedin_url: "",
   });
 
   useEffect(() => {
@@ -85,6 +91,9 @@ export default function EventEditor({ userId }: { userId: string }) {
           hero_subtitle: data.hero_subtitle || "",
           helper_text: data.helper_text || "",
           layout_preset: (data.layout_preset as "A" | "B" | "C") || "A",
+          homepage_url: data.homepage_url || "",
+          instagram_url: data.instagram_url || "",
+          linkedin_url: data.linkedin_url || "",
         });
       }
     } catch (error: any) {
@@ -346,6 +355,50 @@ export default function EventEditor({ userId }: { userId: string }) {
                       value={formData.brand_text_color}
                       onChange={(e) => setFormData({ ...formData, brand_text_color: e.target.value })}
                       placeholder="#FFFFFF"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Media & Homepage Links */}
+            <div className="rounded-xl bg-card p-6 border">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span>🔗</span> Links & Social Media
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Add your social media and homepage links. They'll appear as icons in your event page header.
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="homepage_url">Homepage URL</Label>
+                  <Input
+                    id="homepage_url"
+                    value={formData.homepage_url}
+                    onChange={(e) => setFormData({ ...formData, homepage_url: e.target.value })}
+                    placeholder="https://yourwebsite.com"
+                    type="url"
+                  />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="instagram_url">Instagram URL</Label>
+                    <Input
+                      id="instagram_url"
+                      value={formData.instagram_url}
+                      onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })}
+                      placeholder="https://instagram.com/youraccount"
+                      type="url"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="linkedin_url">LinkedIn URL</Label>
+                    <Input
+                      id="linkedin_url"
+                      value={formData.linkedin_url}
+                      onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
+                      placeholder="https://linkedin.com/company/yourcompany"
+                      type="url"
                     />
                   </div>
                 </div>

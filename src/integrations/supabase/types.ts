@@ -149,8 +149,11 @@ export type Database = {
           helper_text: string | null
           hero_subtitle: string | null
           hero_title: string
+          homepage_url: string | null
           id: string
+          instagram_url: string | null
           layout_preset: string | null
+          linkedin_url: string | null
           location: string | null
           logo_url: string | null
           name: string
@@ -170,8 +173,11 @@ export type Database = {
           helper_text?: string | null
           hero_subtitle?: string | null
           hero_title: string
+          homepage_url?: string | null
           id?: string
+          instagram_url?: string | null
           layout_preset?: string | null
+          linkedin_url?: string | null
           location?: string | null
           logo_url?: string | null
           name: string
@@ -191,8 +197,11 @@ export type Database = {
           helper_text?: string | null
           hero_subtitle?: string | null
           hero_title?: string
+          homepage_url?: string | null
           id?: string
+          instagram_url?: string | null
           layout_preset?: string | null
+          linkedin_url?: string | null
           location?: string | null
           logo_url?: string | null
           name?: string
