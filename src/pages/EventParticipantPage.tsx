@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Copy, Download } from "lucide-react";
+import { Calendar, MapPin, Copy, Download, Globe, Instagram, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import TemplateSelector from "@/components/participant/TemplateSelector";
 import ImageEditor from "@/components/participant/ImageEditor";
@@ -27,6 +27,9 @@ interface Event {
   hero_title: string;
   hero_subtitle: string;
   helper_text: string;
+  homepage_url?: string;
+  instagram_url?: string;
+  linkedin_url?: string;
 }
 
 interface Template {
@@ -210,29 +213,70 @@ export default function EventParticipantPage() {
               </div>
             </div>
 
-            {/* Event meta: date + location */}
+            {/* Event meta: date + location + social icons */}
             <div
-              className="flex flex-wrap items-center justify-center lg:justify-end gap-3 text-xs sm:text-sm md:text-base animate-fade-in"
+              className="flex flex-col items-center lg:items-end gap-3 animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
-              <Badge
-                variant="outline"
-                className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
-              >
-                <Calendar className="h-4 w-4" />
-                <span>
-                  {new Date(event.start_date).toLocaleDateString()} – {new Date(event.end_date).toLocaleDateString()}
-                </span>
-              </Badge>
-
-              {event.location && (
+              <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 text-xs sm:text-sm md:text-base">
                 <Badge
                   variant="outline"
                   className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
                 >
-                  <MapPin className="h-4 w-4" />
-                  <span>{event.location}</span>
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {new Date(event.start_date).toLocaleDateString()} – {new Date(event.end_date).toLocaleDateString()}
+                  </span>
                 </Badge>
+
+                {event.location && (
+                  <Badge
+                    variant="outline"
+                    className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    <span>{event.location}</span>
+                  </Badge>
+                )}
+              </div>
+
+              {/* Social Media Icons */}
+              {(event.homepage_url || event.instagram_url || event.linkedin_url) && (
+                <div className="flex items-center gap-2">
+                  {event.homepage_url && (
+                    <a
+                      href={event.homepage_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 transition-all hover:scale-110"
+                      aria-label="Visit homepage"
+                    >
+                      <Globe className="h-4 w-4" />
+                    </a>
+                  )}
+                  {event.instagram_url && (
+                    <a
+                      href={event.instagram_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 transition-all hover:scale-110"
+                      aria-label="Follow on Instagram"
+                    >
+                      <Instagram className="h-4 w-4" />
+                    </a>
+                  )}
+                  {event.linkedin_url && (
+                    <a
+                      href={event.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 transition-all hover:scale-110"
+                      aria-label="Connect on LinkedIn"
+                    >
+                      <Linkedin className="h-4 w-4" />
+                    </a>
+                  )}
+                </div>
               )}
             </div>
           </div>
