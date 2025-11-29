@@ -23,6 +23,7 @@ import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.jpg";
 import exampleSlush from "@/assets/example-slush.jpg";
 import TrustSignals from "@/components/landing/TrustSignals";
 import ProcessFlow from "@/components/landing/ProcessFlow";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -270,19 +271,30 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Testimonials & Social Proof */}
+      <TestimonialsSection />
+
       {/* Pricing */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Simple, transparent pricing</h2>
-            <p className="text-lg text-muted-foreground">Choose the plan that fits your event</p>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Invest in <span className="bg-gradient-accent bg-clip-text text-transparent">Results</span>, Not Overhead
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Traditional marketing agencies: $2,000+ per campaign • With meetme: Starting at Free
+            </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
             <Card className="p-8 bg-gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
-              <h3 className="mb-2 text-2xl font-bold">Starter Event</h3>
+              <div className="mb-2">
+                <h3 className="text-2xl font-bold">Just Getting Started</h3>
+                <p className="text-sm text-muted-foreground">Perfect for trying out meetme</p>
+              </div>
               <div className="mb-4">
                 <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">Free</span>
+                <p className="text-xs text-muted-foreground mt-1">Forever • No credit card required</p>
               </div>
               <ul className="mb-6 space-y-3">
                 <li className="flex items-start gap-2">
@@ -305,12 +317,16 @@ export default function Landing() {
 
             <Card className="p-8 bg-gradient-card border-primary/50 border-2 relative shadow-glow">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-accent text-primary-foreground px-6 py-1.5 rounded-full text-sm font-semibold shadow-glow">
-                Popular
+                Most Popular
               </div>
-              <h3 className="mb-2 text-2xl font-bold">Growing Events</h3>
+              <div className="mb-2">
+                <h3 className="text-2xl font-bold">Growing Events</h3>
+                <p className="text-sm text-muted-foreground">Save 100+ hours vs. traditional marketing</p>
+              </div>
               <div className="mb-4">
                 <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">Pro</span>
                 <span className="text-muted-foreground ml-2 text-sm">coming soon</span>
+                <p className="text-xs text-primary font-semibold mt-1">💰 Average ROI: 10x engagement increase</p>
               </div>
               <ul className="mb-6 space-y-3">
                 <li className="flex items-start gap-2">
@@ -339,9 +355,13 @@ export default function Landing() {
             </Card>
 
             <Card className="p-8 bg-gradient-card border-border/50 hover:border-secondary/30 transition-all duration-300">
-              <h3 className="mb-2 text-2xl font-bold">Big Show</h3>
+              <div className="mb-2">
+                <h3 className="text-2xl font-bold">Enterprise Scale</h3>
+                <p className="text-sm text-muted-foreground">For events with unlimited ambition</p>
+              </div>
               <div className="mb-4">
-                <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">Enterprise</span>
+                <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">Custom</span>
+                <p className="text-xs text-muted-foreground mt-1">Tailored to your needs</p>
               </div>
               <ul className="mb-6 space-y-3">
                 <li className="flex items-start gap-2">
