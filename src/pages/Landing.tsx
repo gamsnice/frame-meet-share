@@ -174,19 +174,14 @@ export default function Landing() {
 
       {/* Features Section */}
       <section className="py-20 bg-background">
-  <div className="container mx-auto px-4">
-    <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-      Powerful Features,{" "}
-      <span className="bg-gradient-accent bg-clip-text text-transparent">
-        Simple Setup
-      </span>
-    </h2>
+        <div className="container mx-auto px-4">
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+            Powerful Features, <span className="bg-gradient-accent bg-clip-text text-transparent">Simple Setup</span>
+          </h2>
 
-    <p className="text-lg text-muted-foreground">
-      Everything you need to create a viral event marketing campaign
-    </p>
-  </div>
-
+          <p className="text-lg text-muted-foreground mb-8">
+            Everything you need to create a viral event marketing campaign
+          </p>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-primary/50 hover:shadow-glow transition-all duration-300 group">
