@@ -94,14 +94,15 @@ export default function Landing() {
             {/* Left: Copy */}
             <div className="text-foreground">
               <h1 className="mb-6 text-4xl font-bold leading-tight md:text-5xl lg:text-6xl animate-fade-in">
-                Turn Every Attendee Into Your Event's{" "}
-                <span className="bg-gradient-accent bg-clip-text text-transparent">Marketing Ambassador</span>
+                Let Your Attendees Do Your{" "}
+                <span className="bg-gradient-accent bg-clip-text text-transparent"> Event Marketing</span>
               </h1>
               <p
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
                 style={{ animationDelay: "0.1s" }}
               >
-                Create stunning visuals in seconds. Let your attendees amplify your reach to millions. The most cost-efficient way to boost your event's visibility.
+                Create stunning visuals in seconds. Let your attendees amplify your reach to millions. The most
+                cost-efficient way to boost your event's visibility.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <Button
@@ -185,9 +186,12 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Launch in 5 Minutes, Not 5 Days</h3>
               <p className="text-muted-foreground mb-3">
-                Create events, upload branded templates, and control everything from one simple dashboard. No design skills required.
+                Create events, upload branded templates, and control everything from one simple dashboard. No design
+                skills required.
               </p>
-              <p className="text-xs text-primary font-semibold">⚡ Average setup: 5 minutes • Save 100+ hours vs. traditional marketing</p>
+              <p className="text-xs text-primary font-semibold">
+                ⚡ Average setup: 5 minutes • Save 100+ hours vs. traditional marketing
+              </p>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
@@ -210,9 +214,12 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Perfect for Every Platform</h3>
               <p className="text-muted-foreground mb-3">
-                Square, story, landscape, portrait—all formats optimized for LinkedIn, Instagram, X, and more. One click to share everywhere.
+                Square, story, landscape, portrait—all formats optimized for LinkedIn, Instagram, X, and more. One click
+                to share everywhere.
               </p>
-              <p className="text-xs text-primary font-semibold">📱 Direct share buttons • Pre-optimized formats • Caption suggestions included</p>
+              <p className="text-xs text-primary font-semibold">
+                📱 Direct share buttons • Pre-optimized formats • Caption suggestions included
+              </p>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
@@ -221,9 +228,12 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Know What's Working, Instantly</h3>
               <p className="text-muted-foreground mb-3">
-                Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See which templates perform best.
+                Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See which
+                templates perform best.
               </p>
-              <p className="text-xs text-secondary font-semibold">📊 Live dashboard • Template performance tracking • Identify peak engagement times</p>
+              <p className="text-xs text-secondary font-semibold">
+                📊 Live dashboard • Template performance tracking • Identify peak engagement times
+              </p>
             </Card>
           </div>
         </div>
@@ -234,7 +244,8 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Maximize Your Event's Visibility—<span className="bg-gradient-accent bg-clip-text text-transparent">No Design Skills Required</span>
+              Maximize Your Event's Visibility—
+              <span className="bg-gradient-accent bg-clip-text text-transparent">No Design Skills Required</span>
             </h2>
             <p className="text-lg text-muted-foreground">Three simple steps to amplify your reach</p>
           </div>
@@ -246,7 +257,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Set Up in Minutes</h3>
               <p className="text-muted-foreground">
-                Add your event, upload branded templates, and you're ready. The system guides you through every step—no technical expertise needed.
+                Add your event, upload branded templates, and you're ready. The system guides you through every step—no
+                technical expertise needed.
               </p>
             </div>
 
@@ -267,7 +279,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Watch Your Reach Multiply</h3>
               <p className="text-muted-foreground">
-                Attendees personalize and share instantly—no account needed. Every share amplifies your event's visibility across their networks.
+                Attendees personalize and share instantly—no account needed. Every share amplifies your event's
+                visibility across their networks.
               </p>
             </div>
           </div>
