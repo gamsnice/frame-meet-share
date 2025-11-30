@@ -43,27 +43,32 @@ All colors MUST be HSL.
     --ring: 175 70% 45%;
 
     --radius: 1rem;
-    
+
     /* Dark backgrounds */
     --dark-charcoal: 220 20% 8%;
     --dark-navy: 222 25% 10%;
     --dark-surface: 220 18% 12%;
-    
+
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(var(--dark-charcoal)) 0%, hsl(var(--dark-navy)) 50%, hsl(var(--dark-charcoal)) 100%);
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(var(--dark-charcoal)) 0%,
+      hsl(var(--dark-navy)) 50%,
+      hsl(var(--dark-charcoal)) 100%
+    );
     --gradient-accent: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
     --gradient-card: linear-gradient(135deg, hsl(var(--dark-surface)) 0%, hsl(var(--dark-navy)) 100%);
     --gradient-glow: radial-gradient(circle at 50% 0%, hsl(var(--primary-glow) / 0.15), transparent 70%);
-    
+
     /* Shadows */
     --shadow-card: 0 10px 30px -10px hsl(175 70% 45% / 0.2);
     --shadow-hover: 0 20px 40px -15px hsl(175 70% 45% / 0.3);
     --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.4);
     --shadow-glow-orange: 0 0 40px hsl(var(--secondary-glow) / 0.4);
-    
+
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* Chart-specific colors */
     --chart-uploads: 55 85% 55%;
 
@@ -134,4 +139,38 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* -------------------------------------- */
+/* Testimonial Slider Animations & Utility */
+/* -------------------------------------- */
+
+@keyframes fade-slide {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-slide {
+  animation: fade-slide 0.6s ease-out;
+}
+
+/* Mobile swipe helpers */
+.testimonial-slider {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.testimonial-slide {
+  scroll-snap-align: center;
+}
+
+/* Pause auto-rotation on hover (desktop) */
+.testimonial-slider:hover {
+  animation-play-state: paused;
 }
