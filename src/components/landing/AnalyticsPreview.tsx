@@ -2,76 +2,77 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp, Users, Download, CalendarDays, Activity, Clock, Eye, ArrowUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 export default function AnalyticsPreview() {
   const navigate = useNavigate();
 
-  // Mock data roughly matching your real dashboard
-  const dailyActivity = [{
-    label: "Nov 26",
-    views: 28,
-    uploads: 1,
-    downloads: 1
-  }, {
-    label: "Nov 27",
-    views: 7,
-    uploads: 2,
-    downloads: 1
-  }, {
-    label: "Nov 28",
-    views: 1,
-    uploads: 1,
-    downloads: 1
-  }, {
-    label: "Nov 29",
-    views: 4,
-    uploads: 3,
-    downloads: 2
-  }];
-  const activityByDay = [{
-    label: "Wed",
-    total: 28
-  }, {
-    label: "Thu",
-    total: 7
-  }, {
-    label: "Fri",
-    total: 7
-  }, {
-    label: "Sat",
-    total: 9
-  }];
-  const activityByHour = [{
-    label: "08:00",
-    total: 5
-  }, {
-    label: "09:00",
-    total: 3
-  }, {
-    label: "10:00",
-    total: 4
-  }, {
-    label: "11:00",
-    total: 2
-  }, {
-    label: "12:00",
-    total: 1
-  }];
-  const events = [{
-    name: "SKI26",
-    subtitle: "Pilot event",
-    range: "Nov 26 – Nov 29, 2025",
-    slug: "/e/ski26",
-    views: 40,
-    conversion: "17.5%"
-  }, {
-    name: "Skinnovation 2026",
-    subtitle: "Main conference",
-    range: "Dec 12 – Dec 14, 2026",
-    slug: "/e/skinnovation",
-    views: 73,
-    conversion: "22.1%"
-  }];
-  return <section className="py-20 bg-background relative overflow-hidden">
+  // Rich mock data: 7 days of activity
+  const dailyActivity = [
+    { label: "Nov 23", views: 520, uploads: 80, downloads: 65 },
+    { label: "Nov 24", views: 610, uploads: 90, downloads: 72 },
+    { label: "Nov 25", views: 430, uploads: 70, downloads: 55 },
+    { label: "Nov 26", views: 710, uploads: 120, downloads: 95 },
+    { label: "Nov 27", views: 580, uploads: 85, downloads: 68 },
+    { label: "Nov 28", views: 690, uploads: 110, downloads: 88 },
+    { label: "Nov 29", views: 690, uploads: 105, downloads: 82 },
+  ];
+
+  const activityByDay = [
+    { label: "Mon", total: 520 },
+    { label: "Tue", total: 610 },
+    { label: "Wed", total: 430 },
+    { label: "Thu", total: 710 },
+    { label: "Fri", total: 580 },
+    { label: "Sat", total: 690 },
+    { label: "Sun", total: 690 },
+  ];
+
+  const activityByHour = [
+    { label: "08:00", total: 40 },
+    { label: "09:00", total: 55 },
+    { label: "10:00", total: 65 },
+    { label: "11:00", total: 52 },
+    { label: "12:00", total: 38 },
+    { label: "13:00", total: 30 },
+    { label: "14:00", total: 27 },
+    { label: "15:00", total: 34 },
+    { label: "16:00", total: 22 },
+  ];
+
+  const events = [
+    {
+      name: "Founders Summit Europe",
+      subtitle: "Scale-up networking experience",
+      range: "Mar 04 – Mar 06, 2026",
+      slug: "/e/founders-summit-eu",
+      views: 2310,
+      conversion: "21.3%",
+    },
+    {
+      name: "ProductCon Remote",
+      subtitle: "Hybrid product launch series",
+      range: "Apr 18 – Apr 20, 2026",
+      slug: "/e/productcon-remote",
+      views: 1845,
+      conversion: "19.7%",
+    },
+    {
+      name: "AI Leaders Day",
+      subtitle: "Invite-only leadership meetup",
+      range: "May 09, 2026",
+      slug: "/e/ai-leaders-day",
+      views: 980,
+      conversion: "24.1%",
+    },
+  ];
+
+  // Max values for scaling charts
+  const maxDailyViews = Math.max(...dailyActivity.map((d) => d.views));
+  const maxDayTotal = Math.max(...activityByDay.map((d) => d.total));
+  const maxHourTotal = Math.max(...activityByHour.map((d) => d.total));
+
+  return (
+    <section className="py-20 bg-background relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
 
@@ -82,8 +83,8 @@ export default function AnalyticsPreview() {
             Real Time
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A compact version of your analytics dashboard – so you can show organizers exactly how every frame, upload
-            and download performs.
+            A compact version of your analytics dashboard – so event organizers instantly see how much reach their
+            content creates.
           </p>
         </div>
 
@@ -101,7 +102,7 @@ export default function AnalyticsPreview() {
               <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 border border-border/60">
                   <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                  <span>Nov 01, 2025 – Nov 30, 2025</span>
+                  <span>Nov 23 – Nov 29, 2025</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 border border-border/60">
                   <Activity className="h-4 w-4 text-muted-foreground" />
@@ -120,8 +121,8 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
-                <div className="text-2xl font-bold">40</div>
-                <div className="text-[11px] text-muted-foreground">+28 vs. last week</div>
+                <div className="text-2xl font-bold">4,230</div>
+                <div className="text-[11px] text-muted-foreground">+38% vs. last week</div>
               </Card>
 
               <Card className="p-4 bg-background/60 border-border/70 hover:border-chart-uploads/60 transition-colors">
@@ -132,8 +133,8 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-chart-uploads" />
                 </div>
-                <div className="text-2xl font-bold">10</div>
-                <div className="text-[11px] text-muted-foreground">6 unique participants</div>
+                <div className="text-2xl font-bold">960</div>
+                <div className="text-[11px] text-muted-foreground">140 participants created content</div>
               </Card>
 
               <Card className="p-4 bg-background/60 border-border/70 hover:border-secondary/60 transition-colors">
@@ -144,8 +145,8 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-secondary" />
                 </div>
-                <div className="text-2xl font-bold">7</div>
-                <div className="text-[11px] text-muted-foreground">70% of uploads get reused</div>
+                <div className="text-2xl font-bold">730</div>
+                <div className="text-[11px] text-muted-foreground">3 out of 4 uploads get reused</div>
               </Card>
 
               <Card className="p-4 bg-background/60 border-border/70 hover:border-primary/60 transition-colors">
@@ -156,8 +157,8 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
-                <div className="text-2xl font-bold">17.5%</div>
-                <div className="text-[11px] text-muted-foreground">From views → branded downloads</div>
+                <div className="text-2xl font-bold">18.4%</div>
+                <div className="text-[11px] text-muted-foreground">Views → branded downloads</div>
               </Card>
             </div>
 
@@ -168,30 +169,38 @@ export default function AnalyticsPreview() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <h4 className="text-sm font-semibold">Daily Activity Trend</h4>
-                    <p className="text-[11px] text-muted-foreground">Views, uploads & downloads over time</p>
+                    <p className="text-[11px] text-muted-foreground">Views, uploads & downloads over the last 7 days</p>
                   </div>
                 </div>
                 <div className="h-44 bg-background/40 rounded-lg border border-border/40 flex items-end justify-around p-4 gap-2">
-                  {dailyActivity.map((day, index) => {
-                  const max = 28; // max views for scaling
-                  return <div key={day.label} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="flex w-full gap-1 items-end">
-                          {/* Views */}
-                          <div className="flex-1 rounded-t bg-primary/70" style={{
-                        height: `${day.views / max * 100}%`
-                      }} />
-                          {/* Uploads */}
-                          <div className="w-1.5 rounded-t bg-chart-uploads/80" style={{
-                        height: `${day.uploads / max * 100 + 10}%`
-                      }} />
-                          {/* Downloads */}
-                          <div className="w-1.5 rounded-t bg-secondary/80" style={{
-                        height: `${day.downloads / max * 100 + 10}%`
-                      }} />
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">{day.label}</div>
-                      </div>;
-                })}
+                  {dailyActivity.map((day) => (
+                    <div key={day.label} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="flex w-full gap-1 items-end">
+                        {/* Views */}
+                        <div
+                          className="flex-1 rounded-t bg-primary/80"
+                          style={{
+                            height: `${(day.views / maxDailyViews) * 100 || 5}%`,
+                          }}
+                        />
+                        {/* Uploads */}
+                        <div
+                          className="w-1.5 rounded-t bg-chart-uploads/80"
+                          style={{
+                            height: `${(day.uploads / maxDailyViews) * 100 + 8}%`,
+                          }}
+                        />
+                        {/* Downloads */}
+                        <div
+                          className="w-1.5 rounded-t bg-secondary/80"
+                          style={{
+                            height: `${(day.downloads / maxDailyViews) * 100 + 6}%`,
+                          }}
+                        />
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">{day.label}</div>
+                    </div>
+                  ))}
                 </div>
                 <div className="mt-3 flex items-center gap-4 text-[10px] text-muted-foreground">
                   <div className="flex items-center gap-1">
@@ -217,15 +226,17 @@ export default function AnalyticsPreview() {
                     <Activity className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="h-28 bg-background/40 rounded-lg border border-border/40 flex items-end justify-around p-3 gap-2">
-                    {activityByDay.map(item => {
-                    const max = 28;
-                    return <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
-                          <div className="w-full rounded-t bg-primary/80" style={{
-                        height: `${item.total / max * 100}%`
-                      }} />
-                          <div className="text-[10px] text-muted-foreground">{item.label}</div>
-                        </div>;
-                  })}
+                    {activityByDay.map((item) => (
+                      <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
+                        <div
+                          className="w-full rounded-t bg-primary/80"
+                          style={{
+                            height: `${(item.total / maxDayTotal) * 100 || 5}%`,
+                          }}
+                        />
+                        <div className="text-[10px] text-muted-foreground">{item.label}</div>
+                      </div>
+                    ))}
                   </div>
                 </Card>
 
@@ -235,60 +246,99 @@ export default function AnalyticsPreview() {
                     <Clock className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="h-28 bg-background/40 rounded-lg border border-border/40 flex items-end justify-around p-3 gap-2">
-                    {activityByHour.map(item => {
-                    const max = 8;
-                    return <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
-                          <div className="w-2 rounded-t bg-secondary/80" style={{
-                        height: `${item.total / max * 100}%`
-                      }} />
-                          <div className="text-[10px] text-muted-foreground">{item.label}</div>
-                        </div>;
-                  })}
+                    {activityByHour.map((item) => (
+                      <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
+                        <div
+                          className="w-2 rounded-t bg-secondary/80"
+                          style={{
+                            height: `${(item.total / maxHourTotal) * 100 || 5}%`,
+                          }}
+                        />
+                        <div className="text-[10px] text-muted-foreground">{item.label}</div>
+                      </div>
+                    ))}
                   </div>
                 </Card>
               </div>
             </div>
 
             {/* Your Events preview */}
-            
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold">Your Events</h4>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs gap-1"
+                  onClick={() => navigate("/admin/events")}
+                >
+                  View all
+                  <ArrowUpRight className="h-3 w-3" />
+                </Button>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                {events.map((event) => (
+                  <Card key={event.slug} className="p-4 bg-background/60 border-border/70 flex flex-col gap-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div>
+                        <div className="text-sm font-semibold">{event.name}</div>
+                        <div className="text-[11px] text-muted-foreground">{event.subtitle}</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-1 text-[11px] text-muted-foreground flex items-center justify-between">
+                      <span>{event.range}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-background/80 border border-border/60">
+                        {event.slug}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-2">
+                      <div className="flex gap-3">
+                        <span>{event.views} views</span>
+                      </div>
+                      <span className="text-primary font-semibold">{event.conversion} conv.</span>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </Card>
 
           {/* Key Features + CTA */}
           <div className="grid gap-6 md:grid-cols-3 mt-8">
-            <div className="text-center animate-fade-in" style={{
-            animationDelay: "0.1s"
-          }}>
+            <div className="text-center animate-fade-in" style={{ animationDelay: "0.1s" }}>
               <div className="mb-2 text-primary text-lg font-semibold">📊 Live overview</div>
               <p className="text-sm text-muted-foreground">
-                One glance shows you how your event content performs across all channels.
+                One glance shows organizers how much reach and reuse their event content creates.
               </p>
             </div>
-            <div className="text-center animate-fade-in" style={{
-            animationDelay: "0.2s"
-          }}>
+            <div className="text-center animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <div className="mb-2 text-secondary text-lg font-semibold">🎯 Smarter decisions</div>
               <p className="text-sm text-muted-foreground">
-                See which frames and formats convert best, and double down on what works.
+                See which templates perform best and use those learnings for the next event.
               </p>
             </div>
-            <div className="text-center animate-fade-in" style={{
-            animationDelay: "0.3s"
-          }}>
+            <div className="text-center animate-fade-in" style={{ animationDelay: "0.3s" }}>
               <div className="mb-2 text-primary text-lg font-semibold">⏰ Peak engagement</div>
               <p className="text-sm text-muted-foreground">
-                Identify your strongest days and hours to time campaigns perfectly.
+                Identify your strongest days and hours to time announcements and social pushes perfectly.
               </p>
             </div>
           </div>
 
-          <div className="text-center mt-10 animate-fade-in" style={{
-          animationDelay: "0.4s"
-        }}>
-            <Button size="lg" className="bg-gradient-accent text-primary-foreground hover:opacity-90 shadow-glow" onClick={() => navigate("/admin/register")}>
+          <div className="text-center mt-10 animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            <Button
+              size="lg"
+              className="bg-gradient-accent text-primary-foreground hover:opacity-90 shadow-glow"
+              onClick={() => navigate("/admin/register")}
+            >
               Get These Insights for Your Event
             </Button>
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }
