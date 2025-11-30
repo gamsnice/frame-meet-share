@@ -6,8 +6,8 @@ export default function TrustSignals() {
         <div className="flex flex-col items-center gap-4">
           {/* Social Proof Line */}
           <div className="flex items-center gap-2 text-center">
-            <Sparkles className="h-5 w-5 text-primary animate-pulse mb-4" />
-            <p className="text-sm md:text-base text-muted-foreground">
+            <Sparkles className="h-5 w-5 text-primary animate-pulse " />
+            <p className="text-sm md:text-base text-muted-foreground mb-50">
               <span className="font-semibold text-foreground">Trusted by event organizers of all sizes</span> as one of
               the most cost-efficient marketing tools
             </p>
