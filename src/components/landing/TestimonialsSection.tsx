@@ -76,13 +76,13 @@ export default function TestimonialsSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="container mx-auto px-4 relative z-10">
-        <div className="mb-12 text-center animate-fade-in">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Real Events, <span className="bg-gradient-accent bg-clip-text text-transparent">Real Results</span>
-          </h2>
-          <p className="text-lg text-muted-foreground">What other Event Organizers are saying</p>
+          <div className="mb-12 text-center animate-fade-in">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Real Events, <span className="bg-gradient-accent bg-clip-text text-transparent">Real Results</span>
+            </h2>
+            <p className="text-lg text-muted-foreground">What other Event Organizers are saying</p>
+          </div>
         </div>
-
         {/* Slider */}
         <div
           className="relative max-w-5xl mx-auto mb-12"
