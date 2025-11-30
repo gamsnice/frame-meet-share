@@ -194,9 +194,6 @@ export default function Landing() {
         <TrustSignals />
       </section>
 
-      {/* Trust Signals Bar */}
-      <TrustSignals />
-
       {/* Process Flow Section */}
       <ProcessFlow />
 
