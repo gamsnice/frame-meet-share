@@ -4,26 +4,16 @@ export default function TrustSignals() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-4">
           {/* Social Proof Line */}
-          <div className="py-12 bg-gradient-card">
-  <div className="container mx-auto px-4">
-    <div className="flex items-center gap-2 text-center justify-center">
-      <Sparkles className="h-5 w-5 text-primary animate-pulse" />
-
-      <p className="text-sm md:text-base text-muted-foreground">
-        <span className="font-semibold text-foreground">
-          Trusted by event organizers of all sizes
-        </span>{" "}
-        as one of the most cost-efficient marketing tools
-      </p>
-
-      <Sparkles
-        className="h-5 w-5 text-secondary animate-pulse"
-        style={{ animationDelay: "0.5s" }}
-      />
-    </div>
-  </div>
-<
-
+          <div className="flex items-center gap-2 text-center">
+            <Sparkles className="h-5 w-5 text-primary animate-pulse" />
+            <p className="text-sm md:text-base text-muted-foreground">
+              <span className="font-semibold text-foreground">Trusted by event organizers of all sizes</span> as one of
+              the most cost-efficient marketing tools
+            </p>
+            <Sparkles className="h-5 w-5 text-secondary animate-pulse" style={{
+            animationDelay: "0.5s"
+          }} />
+          </div>
 
           {/* Event Types & Stats */}
           <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8 text-xs md:text-sm text-muted-foreground">
