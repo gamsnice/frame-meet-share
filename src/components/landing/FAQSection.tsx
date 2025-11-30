@@ -41,7 +41,7 @@ export default function FAQSection() {
   const filteredFaqs = activeCategory === "All" ? faqs : faqs.filter(faq => faq.category === activeCategory);
   const visibleFaqs = showAll ? filteredFaqs : filteredFaqs.slice(0, 3);
   const hiddenCount = Math.max(filteredFaqs.length - visibleFaqs.length, 0);
-  return <section className="py-20 bg-gradient-card relative overflow-hidden">
+  return <section className="py-20 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-4xl relative z-10">
         <div className="mb-12 text-center">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Frequently Asked <span className="bg-gradient-accent bg-clip-text text-transparent">Questions</span></h2>
