@@ -8,12 +8,9 @@ export default function FeaturesShowcase() {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-12 text-center animate-fade-in">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Powerful Features, <span className="bg-gradient-accent bg-clip-text text-transparent">Simple Setup</span>
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Real Event, Simple Setup<span className="bg-gradient-accent bg-clip-text text-transparent">Simple Setup</span>
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Everything you need to create a viral event marketing campaign
-          </p>
+          <p className="text-lg text-muted-foreground">What other Event Organizer are saying</p>
         </div>
 
         
