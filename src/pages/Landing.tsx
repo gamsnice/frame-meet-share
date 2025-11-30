@@ -199,13 +199,10 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <Sparkles className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">
-                <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span> posts in
-                seconds
-              </h3>
+              <h3 className="mb-2 text-xl font-semibold">Custom Branding</h3>
               <p className="text-muted-foreground">
-                Attendees select a template, add their photo, and download shareable visuals - boosting your event’s
-                reach. Caption suggestions included.
+                Your colors, your logo, your templates, your captions - working together to deliver your corporate
+                identity perfectly in every post.
               </p>
             </Card>
 
