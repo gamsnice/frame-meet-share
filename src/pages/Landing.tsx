@@ -198,6 +198,12 @@ export default function Landing() {
       {/* Process Flow Section */}
       <ProcessFlow />
 
+{/* Glow Linie oben */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="flex flex-col items-center gap-4">
+      
       {/* Features Section */}
       <section className="container mx-auto px-4 relative z-10">
         <div className="mb-12 text-center animate-fade-in">
