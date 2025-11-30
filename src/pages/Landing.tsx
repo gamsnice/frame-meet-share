@@ -219,9 +219,6 @@ export default function Landing() {
                 Create events, upload branded templates, and control everything from one simple dashboard. No design
                 skills required.
               </p>
-              <p className="text-xs text-primary font-semibold">
-                ⚡ Average setup: 5 minutes • Save 100+ hours vs. traditional marketing
-              </p>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
@@ -232,9 +229,6 @@ export default function Landing() {
               <p className="text-muted-foreground mb-3">
                 Your colors, your logo, your templates, your captions - working together to deliver your corporate
                 identity perfectly in every post.
-              </p>
-              <p className="text-xs text-secondary font-semibold">
-                🎨 Always on-brand pages & share links • Consistent CI across every attendee touchpoint
               </p>
             </Card>
 
@@ -247,9 +241,6 @@ export default function Landing() {
                 Square, story, landscape, portrait - all formats optimized for LinkedIn, Instagram, X, and more. One
                 click to share everywhere.
               </p>
-              <p className="text-xs text-primary font-semibold">
-                📱 Direct share buttons • Pre-optimized formats • Caption suggestions included
-              </p>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
@@ -260,9 +251,6 @@ export default function Landing() {
               <p className="text-muted-foreground mb-3">
                 Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See how
                 templates perform.
-              </p>
-              <p className="text-xs text-secondary font-semibold">
-                📊 Live dashboard • Template performance tracking • Identify peak engagement times
               </p>
             </Card>
           </div>
