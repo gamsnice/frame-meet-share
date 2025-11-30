@@ -71,22 +71,7 @@ export default function FAQSection() {
         </Accordion>
 
         {/* Use Cases Section */}
-        <div>
-          <div className="mb-8 text-center">
-            <h3 className="mb-2 text-2xl font-bold">Perfect For Every Event Type</h3>
-            <p className="text-muted-foreground">See how different events use meetme</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {useCases.map((useCase, index) => <Card key={index} className="p-6 bg-background/50 backdrop-blur-sm border-border/50 hover:border-primary/30 hover:shadow-glow transition-all duration-300 animate-fade-in" style={{
-            animationDelay: `${index * 0.05}s`
-          }}>
-                <div className="mb-3 text-3xl">{useCase.icon}</div>
-                <h4 className="mb-2 font-semibold text-foreground">{useCase.title}</h4>
-                
-              </Card>)}
-          </div>
-        </div>
+        
       </div>
     </section>;
 }
