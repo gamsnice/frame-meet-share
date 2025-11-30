@@ -202,7 +202,7 @@ export default function Landing() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <Sparkles className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Custom Branding</h3>
+              <h3 className="mb-2 text-xl font-semibold">Custom Branding for every Event</h3>
               <p className="text-muted-foreground mb-3">
                 Your colors, your logo, your templates, your captions - working together to deliver your corporate
                 identity perfectly in every post.
@@ -232,8 +232,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Know What's Working, Instantly</h3>
               <p className="text-muted-foreground mb-3">
-                Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See which
-                templates perform best.
+                Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See how
+                templates perform.
               </p>
               <p className="text-xs text-secondary font-semibold">
                 📊 Live dashboard • Template performance tracking • Identify peak engagement times
