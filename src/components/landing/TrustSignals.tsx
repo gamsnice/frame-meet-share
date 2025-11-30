@@ -9,7 +9,8 @@ export default function TrustSignals() {
           <div className="flex items-center gap-2 text-center">
             <Sparkles className="h-5 w-5 text-primary animate-pulse" />
             <p className="text-sm md:text-base text-muted-foreground">
-              <span className="font-semibold text-foreground">Trusted by small and big event organizers</span> as one of the most cost-efficient marketing tools
+              <span className="font-semibold text-foreground">Trusted by event organizers of all sizes</span> as one of
+              the most cost-efficient marketing tools
             </p>
             <Sparkles className="h-5 w-5 text-secondary animate-pulse" style={{ animationDelay: "0.5s" }} />
           </div>
