@@ -218,8 +218,8 @@ export default function Landing() {
               </div>
               <h3 className="mb-2 text-xl font-semibold">Perfect for Every Platform</h3>
               <p className="text-muted-foreground mb-3">
-                Square, story, landscape, portrait—all formats optimized for LinkedIn, Instagram, X, and more. One click
-                to share everywhere.
+                Square, story, landscape, portrait - all formats optimized for LinkedIn, Instagram, X, and more. One
+                click to share everywhere.
               </p>
               <p className="text-xs text-primary font-semibold">
                 📱 Direct share buttons • Pre-optimized formats • Caption suggestions included
