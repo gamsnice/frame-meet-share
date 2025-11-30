@@ -10,7 +10,7 @@ export default function FeaturesShowcase() {
         <div className="mb-12 text-center animate-fade-in">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">Real Event, Simple Setup<span className="bg-gradient-accent bg-clip-text text-transparent">Simple Setup</span>
           </h2>
-          <p className="text-lg text-muted-foreground">What other Event Organizer are saying</p>
+          <p className="text-lg text-muted-foreground">What other Event Organizers are saying</p>
         </div>
 
         
