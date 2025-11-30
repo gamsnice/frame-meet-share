@@ -31,10 +31,9 @@ export default function ProcessFlow() {
                 </div>
               </div>
 
-              <h3 className="mb-3 text-xl font-bold">Adming Backend</h3>
+              <h3 className="mb-3 text-xl font-bold">Event Visuals Backend</h3>
               <p className="text-muted-foreground mb-4">
-                Upload your own branded visual templates, define where photos fits and see your ready-to-share
-                templates.
+                Upload your branded templates, define the photo area, and see your frames instantly ready for attendees.
               </p>
 
               {/* Visual mockup placeholder */}
@@ -63,10 +62,10 @@ export default function ProcessFlow() {
                 </div>
               </div>
 
-              <h3 className="mb-3 text-xl font-bold">Automatic photo uploader</h3>
+              <h3 className="mb-3 text-xl font-bold">Self-serve photo uploader</h3>
               <p className="text-muted-foreground mb-4">
-                Attendees simply drag their photos, adjust position, and preview the final result instantly. Photos are
-                not saved anywhere, just used for visual creation.
+                Attendees drop in their photo, adjust the positioning, and preview the final visual in seconds. Photos
+                aren’t stored - only used to generate their download.
               </p>
 
               {/* Visual mockup placeholder */}
@@ -97,8 +96,8 @@ export default function ProcessFlow() {
 
               <h3 className="mb-3 text-xl font-bold">Download & Share</h3>
               <p className="text-muted-foreground mb-4">
-                One click downloads the perfect visual. Direct buttons to LinkedIn and Instagram make sharing
-                effortless. Your recommended captions included.
+                With one click, attendees download their on-brand visual and share it to LinkedIn, Instagram & more -
+                using your pre-written caption suggestions.
               </p>
 
               {/* Visual mockup placeholder with social icons */}
