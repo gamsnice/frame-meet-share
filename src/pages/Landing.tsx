@@ -6,7 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { Sparkles, Users, LayoutTemplate, BarChart3, Check, ArrowRight, Instagram, Linkedin, ChevronDown } from "lucide-react";
+import {
+  Sparkles,
+  Users,
+  LayoutTemplate,
+  BarChart3,
+  Check,
+  ArrowRight,
+  Instagram,
+  Linkedin,
+  ChevronDown,
+} from "lucide-react";
 import meetmeLogo from "@/assets/meetme-logo.png";
 import exampleSkinnovation from "@/assets/example-skinnovation.jpg";
 import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.jpg";
@@ -22,29 +32,31 @@ export default function Landing() {
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
-    message: ""
+    message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeExample, setActiveExample] = useState(0);
-  const examples = [{
-    image: exampleSkinnovation
-  }, {
-    image: exampleBitsAndPretzels
-  }, {
-    image: exampleSlush
-  }];
+  const examples = [
+    {
+      image: exampleSkinnovation,
+    },
+    {
+      image: exampleBitsAndPretzels,
+    },
+    {
+      image: exampleSlush,
+    },
+  ];
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveExample(prev => (prev + 1) % examples.length);
+      setActiveExample((prev) => (prev + 1) % examples.length);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const {
-      error
-    } = await supabase.from("contact_messages").insert([contactForm]);
+    const { error } = await supabase.from("contact_messages").insert([contactForm]);
     if (error) {
       toast.error("Failed to send message");
     } else {
@@ -52,12 +64,13 @@ export default function Landing() {
       setContactForm({
         name: "",
         email: "",
-        message: ""
+        message: "",
       });
     }
     setIsSubmitting(false);
   };
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       {/* Sticky Navigation */}
       <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-lg">
         <div className="container mx-auto px-4">
@@ -71,7 +84,10 @@ export default function Landing() {
               <Button variant="ghost" onClick={() => navigate("/admin/login")} className="hover:bg-muted">
                 Login
               </Button>
-              <Button onClick={() => navigate("/admin/register")} className="bg-gradient-accent text-primary-foreground hover:opacity-90">
+              <Button
+                onClick={() => navigate("/admin/register")}
+                className="bg-gradient-accent text-primary-foreground hover:opacity-90"
+              >
                 Get Started
               </Button>
             </div>
@@ -93,23 +109,40 @@ export default function Landing() {
                 Let Your Attendees Do Your{" "}
                 <span className="bg-gradient-accent bg-clip-text text-transparent"> Event Marketing</span>
               </h1>
-              <p className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in" style={{
-              animationDelay: "0.1s"
-            }}>
+              <p
+                className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
+                style={{
+                  animationDelay: "0.1s",
+                }}
+              >
                 <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span> is your
                 ultimate event marketing tool. Create stunning visuals, let your participants share them and with just a
                 few clicks, your event reaches millions.
               </p>
-              <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{
-              animationDelay: "0.2s"
-            }}>
-                <Button size="lg" className="bg-gradient-accent text-primary-foreground hover:opacity-90 font-semibold shadow-glow animate-pulse-glow" onClick={() => navigate("/admin/register")}>
+              <div
+                className="flex flex-col gap-4 sm:flex-row animate-fade-in"
+                style={{
+                  animationDelay: "0.2s",
+                }}
+              >
+                <Button
+                  size="lg"
+                  className="bg-gradient-accent text-primary-foreground hover:opacity-90 font-semibold shadow-glow animate-pulse-glow"
+                  onClick={() => navigate("/admin/register")}
+                >
                   🚀 Start Boosting Your Event's Reach
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-border hover:bg-muted hover:border-primary/50 transition-colors" onClick={() => document.getElementById("how-it-works")?.scrollIntoView({
-                behavior: "smooth"
-              })}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-border hover:bg-muted hover:border-primary/50 transition-colors"
+                  onClick={() =>
+                    document.getElementById("how-it-works")?.scrollIntoView({
+                      behavior: "smooth",
+                    })
+                  }
+                >
                   See how it works
                   <ChevronDown className="ml-2 h-5 w-5" />
                 </Button>
@@ -117,23 +150,39 @@ export default function Landing() {
             </div>
 
             {/* Right: Animated Example Images */}
-            <div className="relative h-[500px] animate-scale-in" style={{
-            animationDelay: "0.3s"
-          }}>
+            <div
+              className="relative h-[500px] animate-scale-in"
+              style={{
+                animationDelay: "0.3s",
+              }}
+            >
               <div className="absolute inset-0 flex items-center justify-center">
                 {examples.map((example, index) => {
-                const isActive = index === activeExample;
-                const offset = (index - activeExample + examples.length) % examples.length;
-                return <div key={index} className="absolute transition-all duration-700 ease-out cursor-pointer hover:scale-105" style={{
-                  transform: `translateX(${offset * 120 - 120}px) translateY(${Math.abs(offset - 1) * 30}px) scale(${isActive ? 1 : 0.85})`,
-                  zIndex: isActive ? 20 : 10 - Math.abs(offset - 1),
-                  opacity: Math.abs(offset - 1) > 1 ? 0 : 1
-                }} onClick={() => setActiveExample(index)}>
-                      <div className={`relative rounded-2xl overflow-hidden shadow-hover ${isActive ? "animate-glow-pulse" : ""}`}>
-                        <img src={example.image} alt="meetme example" className="h-[400px] w-auto object-cover rounded-2xl" />
+                  const isActive = index === activeExample;
+                  const offset = (index - activeExample + examples.length) % examples.length;
+                  return (
+                    <div
+                      key={index}
+                      className="absolute transition-all duration-700 ease-out cursor-pointer hover:scale-105"
+                      style={{
+                        transform: `translateX(${offset * 120 - 120}px) translateY(${Math.abs(offset - 1) * 30}px) scale(${isActive ? 1 : 0.85})`,
+                        zIndex: isActive ? 20 : 10 - Math.abs(offset - 1),
+                        opacity: Math.abs(offset - 1) > 1 ? 0 : 1,
+                      }}
+                      onClick={() => setActiveExample(index)}
+                    >
+                      <div
+                        className={`relative rounded-2xl overflow-hidden shadow-hover ${isActive ? "animate-glow-pulse" : ""}`}
+                      >
+                        <img
+                          src={example.image}
+                          alt="meetme example"
+                          className="h-[400px] w-auto object-cover rounded-2xl"
+                        />
                       </div>
-                    </div>;
-              })}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Floating decoration circles */}
@@ -221,9 +270,7 @@ export default function Landing() {
       </section>
 
       {/* Analytics Preview */}
-      
-
-      {/* Features Showcase */}
+      <AnalyticsPreview />
 
       {/* Testimonials & Social Proof */}
       <TestimonialsSection />
@@ -300,7 +347,10 @@ export default function Landing() {
                   <span>Custom branding</span>
                 </li>
               </ul>
-              <Button className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90" onClick={() => navigate("/admin/register")}>
+              <Button
+                className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90"
+                onClick={() => navigate("/admin/register")}
+              >
                 Get Started
               </Button>
             </Card>
@@ -332,9 +382,15 @@ export default function Landing() {
                   <span>Dedicated account manager</span>
                 </li>
               </ul>
-              <Button className="w-full" variant="outline" onClick={() => document.getElementById("contact")?.scrollIntoView({
-              behavior: "smooth"
-            })}>
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() =>
+                  document.getElementById("contact")?.scrollIntoView({
+                    behavior: "smooth",
+                  })
+                }
+              >
                 Contact Us
               </Button>
             </Card>
@@ -359,30 +415,60 @@ export default function Landing() {
                 <label htmlFor="name" className="block text-sm font-medium mb-2">
                   Name
                 </label>
-                <Input id="name" value={contactForm.name} onChange={e => setContactForm({
-                ...contactForm,
-                name: e.target.value
-              })} required className="bg-background/50 border-border/50 focus:border-primary" />
+                <Input
+                  id="name"
+                  value={contactForm.name}
+                  onChange={(e) =>
+                    setContactForm({
+                      ...contactForm,
+                      name: e.target.value,
+                    })
+                  }
+                  required
+                  className="bg-background/50 border-border/50 focus:border-primary"
+                />
               </div>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-2">
                   Email
                 </label>
-                <Input id="email" type="email" value={contactForm.email} onChange={e => setContactForm({
-                ...contactForm,
-                email: e.target.value
-              })} required className="bg-background/50 border-border/50 focus:border-primary" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={contactForm.email}
+                  onChange={(e) =>
+                    setContactForm({
+                      ...contactForm,
+                      email: e.target.value,
+                    })
+                  }
+                  required
+                  className="bg-background/50 border-border/50 focus:border-primary"
+                />
               </div>
               <div>
                 <label htmlFor="message" className="block text-sm font-medium mb-2">
                   Message
                 </label>
-                <Textarea id="message" rows={5} value={contactForm.message} onChange={e => setContactForm({
-                ...contactForm,
-                message: e.target.value
-              })} required className="bg-background/50 border-border/50 focus:border-primary" />
+                <Textarea
+                  id="message"
+                  rows={5}
+                  value={contactForm.message}
+                  onChange={(e) =>
+                    setContactForm({
+                      ...contactForm,
+                      message: e.target.value,
+                    })
+                  }
+                  required
+                  className="bg-background/50 border-border/50 focus:border-primary"
+                />
               </div>
-              <Button type="submit" className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90 shadow-glow" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="w-full bg-gradient-accent text-primary-foreground hover:opacity-90 shadow-glow"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </Button>
             </form>
@@ -407,5 +493,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 }
