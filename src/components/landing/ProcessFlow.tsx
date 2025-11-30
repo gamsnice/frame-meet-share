@@ -110,7 +110,7 @@ export default function ProcessFlow() {
 
         {/* Bottom emphasis */}
         <div
-          className="mt-12 text-center animate-fade-in"
+          className="mt-4 text-center animate-fade-in"
           style={{
             animationDelay: "0.4s",
           }}
