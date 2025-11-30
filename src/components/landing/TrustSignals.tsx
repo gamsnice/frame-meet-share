@@ -6,7 +6,7 @@ export default function TrustSignals() {
       className="
         border-t border-border/30
         bg-gradient-to-b from-background/60 to-background/0
-        mt-5
+        mt-10
         pt-19 pb-6
         animate-fade-in
         relative
