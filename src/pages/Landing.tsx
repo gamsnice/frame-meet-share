@@ -198,6 +198,9 @@ export default function Landing() {
       {/* Process Flow Section */}
       <ProcessFlow />
 
+      {/* Testimonials & Social Proof */}
+      <TestimonialsSection />
+
       {/* Features Section */}
       <section className="container mx-auto px-4 relative z-10">
         <div className="mb-12 text-center animate-fade-in">
@@ -259,9 +262,6 @@ export default function Landing() {
 
       {/* Analytics Preview */}
       <AnalyticsPreview />
-
-      {/* Testimonials & Social Proof */}
-      <TestimonialsSection />
 
       {/* Pricing */}
       <section className="py-20 bg-background">
