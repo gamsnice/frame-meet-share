@@ -6,7 +6,15 @@ import { useNavigate } from "react-router-dom";
 export default function AnalyticsPreview() {
   const navigate = useNavigate();
 
-  // Rich mock data: 7 days of activity (bigger & more realistic set)
+  // Helper to avoid NaN / 0-height bars
+  const getBarHeight = (value: number, max: number, minPercent = 8) => {
+    if (!max || max <= 0) return minPercent;
+    const ratio = (value / max) * 100;
+    if (!Number.isFinite(ratio)) return minPercent;
+    return Math.max(minPercent, ratio);
+  };
+
+  // Rich mock data: 7 days of activity (bigger & realistic)
   const dailyActivity = [
     { label: "Nov 23", views: 720, uploads: 130, downloads: 100 },
     { label: "Nov 24", views: 830, uploads: 140, downloads: 105 },
@@ -70,12 +78,12 @@ export default function AnalyticsPreview() {
   const totalViews = dailyActivity.reduce((sum, d) => sum + d.views, 0); // 5,630
   const totalUploads = dailyActivity.reduce((sum, d) => sum + d.uploads, 0); // 960
   const totalDownloads = dailyActivity.reduce((sum, d) => sum + d.downloads, 0); // 730
-  const conversionRate = (totalDownloads / totalViews) * 100; // ~12.9%
+  const conversionRate = (totalDownloads / totalViews) * 100; // ~12.9 -> 13%
 
   // Max values for scaling charts
-  const maxDailyViews = Math.max(...dailyActivity.map((d) => d.views));
-  const maxDayTotal = Math.max(...activityByDay.map((d) => d.total));
-  const maxHourTotal = Math.max(...activityByHour.map((d) => d.total));
+  const maxDailyViews = dailyActivity.reduce((max, d) => Math.max(max, d.views), 0);
+  const maxDayTotal = activityByDay.reduce((max, d) => Math.max(max, d.total), 0);
+  const maxHourTotal = activityByHour.reduce((max, d) => Math.max(max, d.total), 0);
 
   return (
     <section className="py-20 bg-background relative overflow-hidden">
@@ -186,21 +194,21 @@ export default function AnalyticsPreview() {
                         <div
                           className="flex-1 rounded-t bg-primary/80"
                           style={{
-                            height: `${(day.views / maxDailyViews) * 100 || 5}%`,
+                            height: `${getBarHeight(day.views, maxDailyViews)}%`,
                           }}
                         />
                         {/* Uploads */}
                         <div
                           className="w-1.5 rounded-t bg-chart-uploads/80"
                           style={{
-                            height: `${(day.uploads / maxDailyViews) * 100 + 8}%`,
+                            height: `${getBarHeight(day.uploads, maxDailyViews)}%`,
                           }}
                         />
                         {/* Downloads */}
                         <div
                           className="w-1.5 rounded-t bg-secondary/80"
                           style={{
-                            height: `${(day.downloads / maxDailyViews) * 100 + 6}%`,
+                            height: `${getBarHeight(day.downloads, maxDailyViews)}%`,
                           }}
                         />
                       </div>
@@ -237,7 +245,7 @@ export default function AnalyticsPreview() {
                         <div
                           className="w-full rounded-t bg-primary/80"
                           style={{
-                            height: `${(item.total / maxDayTotal) * 100 || 5}%`,
+                            height: `${getBarHeight(item.total, maxDayTotal)}%`,
                           }}
                         />
                         <div className="text-[10px] text-muted-foreground">{item.label}</div>
@@ -257,7 +265,7 @@ export default function AnalyticsPreview() {
                         <div
                           className="w-2 rounded-t bg-secondary/80"
                           style={{
-                            height: `${(item.total / maxHourTotal) * 100 || 5}%`,
+                            height: `${getBarHeight(item.total, maxHourTotal)}%`,
                           }}
                         />
                         <div className="text-[10px] text-muted-foreground">{item.label}</div>
