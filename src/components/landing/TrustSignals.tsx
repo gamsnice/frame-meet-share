@@ -1,18 +1,22 @@
 import { Sparkles } from "lucide-react";
 export default function TrustSignals() {
-  return <div className="border-t border-border/30 bg-gradient-card/30 py-6 animate-fade-in">
+  return (
+    <div className="border-t border-border/30 bg-gradient-card/30 py-6 animate-fade-in">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-4">
           {/* Social Proof Line */}
-          <div className="flex items-center gap-2 text-center">
+          <div className="flex items-center gap-2 text-center mb-4">
             <Sparkles className="h-5 w-5 text-primary animate-pulse" />
             <p className="text-sm md:text-base text-muted-foreground">
               <span className="font-semibold text-foreground">Trusted by event organizers of all sizes</span> as one of
               the most cost-efficient marketing tools
             </p>
-            <Sparkles className="h-5 w-5 text-secondary animate-pulse" style={{
-            animationDelay: "0.5s"
-          }} />
+            <Sparkles
+              className="h-5 w-5 text-secondary animate-pulse"
+              style={{
+                animationDelay: "0.5s",
+              }}
+            />
           </div>
 
           {/* Event Types & Stats */}
@@ -32,8 +36,8 @@ export default function TrustSignals() {
           </div>
 
           {/* Quick Stats */}
-          
         </div>
       </div>
-    </div>;
+    </div>
+  );
 }
