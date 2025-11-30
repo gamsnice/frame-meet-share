@@ -189,7 +189,7 @@ export default function AnalyticsPreview() {
                 <div className="h-44 bg-background/40 rounded-lg border border-border/40 flex items-end justify-around p-4 gap-2">
                   {dailyActivity.map((day) => (
                     <div key={day.label} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="flex w-full gap-1 items-end">
+                      <div className="flex w-full gap-1 items-end h-full">
                         {/* Views */}
                         <div
                           className="flex-1 rounded-t bg-primary/80"
@@ -241,7 +241,7 @@ export default function AnalyticsPreview() {
                   </div>
                   <div className="h-28 bg-background/40 rounded-lg border border-border/40 flex items-end justify-around p-3 gap-2">
                     {activityByDay.map((item) => (
-                      <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
+                      <div key={item.label} className="flex-1 flex flex-col items-center gap-1 h-full">
                         <div
                           className="w-full rounded-t bg-primary/80"
                           style={{
@@ -261,7 +261,7 @@ export default function AnalyticsPreview() {
                   </div>
                   <div className="h-28 bg-background/40 rounded-lg border border-border/40 flex items-end justify-around p-3 gap-2">
                     {activityByHour.map((item) => (
-                      <div key={item.label} className="flex-1 flex flex-col items-center gap-1">
+                      <div key={item.label} className="flex-1 flex flex-col items-center gap-1 h-full">
                         <div
                           className="w-2 rounded-t bg-secondary/80"
                           style={{
