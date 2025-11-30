@@ -173,7 +173,7 @@ export default function Landing() {
       <ProcessFlow />
 
       {/* Features Section */}
-      <div className="container mx-auto px-4 relative z-10">
+      <section className="container mx-auto px-4 relative z-10">
         <div className="mb-12 text-center animate-fade-in">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">
             Powerful Features, <span className="bg-gradient-accent bg-clip-text text-transparent">Simple Setup</span>
