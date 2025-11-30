@@ -165,12 +165,11 @@ export default function AnalyticsPreview() {
       <div className="container mx-auto px-4 relative z-10">
         <div className="mb-12 text-center animate-fade-in">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            See Your Event&apos;s <span className="bg-gradient-accent bg-clip-text text-transparent">Impact</span> in
-            Real Time
+            Your Event&apos;s <span className="bg-gradient-accent bg-clip-text text-transparent">Impact</span> in Real
+            Time
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A compact version of your analytics dashboard – so event organizers instantly see how much reach their
-            content creates.
+            Compact analytics that instantly show when and how your templates are used.
           </p>
         </div>
 
