@@ -186,7 +186,6 @@ export default function Landing() {
       Everything you need to create a viral event marketing campaign
     </p>
   </div>
-</section>
 
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
