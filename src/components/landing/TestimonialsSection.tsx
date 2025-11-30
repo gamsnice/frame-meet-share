@@ -49,16 +49,15 @@ export default function TestimonialsSection() {
   }, [isHovered, testimonials.length]);
 
   const next = () => setActive((prev) => (prev + 1) % testimonials.length);
-
   const prev = () => setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
-  // Touch handlers for mobile swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
+  // Touch handlers for mobile swipe (kept simple to avoid TS noise)
+  const handleTouchStart = (e: any) => {
     setTouchStartX(e.touches[0].clientX);
-    setIsHovered(true); // also pause while swiping
+    setIsHovered(true); // pause while swiping
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = (e: any) => {
     if (touchStartX === null) {
       setIsHovered(false);
       return;
@@ -67,7 +66,6 @@ export default function TestimonialsSection() {
     const deltaX = e.changedTouches[0].clientX - touchStartX;
 
     if (Math.abs(deltaX) > 50) {
-      // swipe threshold
       if (deltaX < 0) {
         // swipe left → next
         next();
@@ -81,12 +79,15 @@ export default function TestimonialsSection() {
     setIsHovered(false);
   };
 
+  const current = testimonials[active];
+
   return (
     <section className="py-20 bg-gradient-card relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30" />
 
       <div className="container mx-auto px-4 relative z-10">
+        {/* Heading */}
         <div className="mb-12 text-center animate-fade-in">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl">What Event Organizers Are Saying</h2>
           <p className="text-lg text-muted-foreground">Real results from real events</p>
@@ -94,7 +95,7 @@ export default function TestimonialsSection() {
 
         {/* Slider */}
         <div
-          className="relative max-w-3xl mx-auto mb-12"
+          className="relative max-w-4xl mx-auto mb-12"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onTouchStart={handleTouchStart}
@@ -103,24 +104,30 @@ export default function TestimonialsSection() {
           <Card
             key={active}
             className={`
-              p-8 bg-background/60 backdrop-blur-md border-border/50 
-              shadow-lg shadow-primary/5 
+              p-8 md:p-10 bg-background/70 backdrop-blur-lg border-border/60 
+              shadow-lg shadow-primary/10 
               transition-all duration-700 
               animate-fade-slide
+              rounded-3xl
             `}
           >
-            <Quote className="h-10 w-10 text-primary mb-6 opacity-50" />
-
-            <p className="text-muted-foreground mb-6 italic text-xl leading-relaxed">“{testimonials[active].quote}”</p>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-sm">
-                {testimonials[active].avatar}
+            <div className="flex flex-col gap-6 md:flex-row md:items-center">
+              {/* Left: quote content */}
+              <div className="flex-1 space-y-4">
+                <Quote className="h-10 w-10 text-primary opacity-70" />
+                <p className="text-muted-foreground italic text-lg md:text-xl leading-relaxed">“{current.quote}”</p>
               </div>
-              <div>
-                <div className="font-semibold text-foreground">{testimonials[active].name}</div>
-                <div className="text-sm text-muted-foreground">{testimonials[active].role}</div>
-                <div className="text-xs text-primary">{testimonials[active].event}</div>
+
+              {/* Right: bigger avatar + meta */}
+              <div className="flex items-center gap-4 md:min-w-[260px]">
+                <div className="flex h-16 w-16 md:h-18 md:w-18 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-lg shadow-[0_0_30px_rgba(0,0,0,0.35)]">
+                  {current.avatar}
+                </div>
+                <div className="space-y-1">
+                  <div className="font-semibold text-foreground text-base md:text-lg">{current.name}</div>
+                  <div className="text-sm text-muted-foreground">{current.role}</div>
+                  <div className="text-xs font-semibold text-primary uppercase tracking-wide">{current.event}</div>
+                </div>
               </div>
             </div>
           </Card>
@@ -129,14 +136,14 @@ export default function TestimonialsSection() {
           <button
             type="button"
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 bg-primary/10 hover:bg-primary/20 text-primary rounded-full h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-colors"
+            className="absolute -left-5 md:-left-7 top-1/2 -translate-y-1/2 bg-primary/15 hover:bg-primary/30 text-primary rounded-full h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-colors"
           >
             ‹
           </button>
           <button
             type="button"
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 bg-primary/10 hover:bg-primary/20 text-primary rounded-full h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-colors"
+            className="absolute -right-5 md:-right-7 top-1/2 -translate-y-1/2 bg-primary/15 hover:bg-primary/30 text-primary rounded-full h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-colors"
           >
             ›
           </button>
@@ -148,8 +155,8 @@ export default function TestimonialsSection() {
                 key={i}
                 type="button"
                 onClick={() => setActive(i)}
-                className={`h-3 rounded-full transition-all ${
-                  i === active ? "bg-primary w-6" : "bg-primary/30 hover:bg-primary/50 w-3"
+                className={`h-2.5 rounded-full transition-all ${
+                  i === active ? "bg-primary w-7" : "bg-primary/30 hover:bg-primary/50 w-2.5"
                 }`}
               />
             ))}
