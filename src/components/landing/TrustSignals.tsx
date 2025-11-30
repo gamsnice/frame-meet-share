@@ -1,8 +1,6 @@
 import { Sparkles } from "lucide-react";
-
 export default function TrustSignals() {
-  return (
-    <div className="border-t border-border/30 bg-gradient-card/30 py-6 animate-fade-in">
+  return <div className="border-t border-border/30 bg-gradient-card/30 py-6 animate-fade-in">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-4">
           {/* Social Proof Line */}
@@ -12,7 +10,9 @@ export default function TrustSignals() {
               <span className="font-semibold text-foreground">Trusted by event organizers of all sizes</span> as one of
               the most cost-efficient marketing tools
             </p>
-            <Sparkles className="h-5 w-5 text-secondary animate-pulse" style={{ animationDelay: "0.5s" }} />
+            <Sparkles className="h-5 w-5 text-secondary animate-pulse" style={{
+            animationDelay: "0.5s"
+          }} />
           </div>
 
           {/* Event Types & Stats */}
@@ -32,19 +32,8 @@ export default function TrustSignals() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center gap-6 text-xs md:text-sm">
-            <div className="text-center">
-              <div className="font-bold text-primary text-lg md:text-xl">500+</div>
-              <div className="text-muted-foreground">Events Created</div>
-            </div>
-            <div className="h-8 w-px bg-border/50"></div>
-            <div className="text-center">
-              <div className="font-bold text-secondary text-lg md:text-xl">10,000+</div>
-              <div className="text-muted-foreground">Visuals Generated</div>
-            </div>
-          </div>
+          
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
