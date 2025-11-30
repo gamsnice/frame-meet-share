@@ -65,8 +65,8 @@ export default function FAQSection() {
   return (
     <section className="py-20 bg-gradient-card relative overflow-hidden">
       <div className="container mx-auto px-4 max-w-4xl relative z-10">
-        <div className="mb-10 text-center">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Frequently Asked Questions</h2>
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl">Frequently Asked <span className="bg-gradient-accent bg-clip-text text-transparent">Questions</span></h2>
           <p className="text-lg text-muted-foreground">Everything you need to know</p>
         </div>
 

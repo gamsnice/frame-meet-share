@@ -202,55 +202,57 @@ export default function Landing() {
       <TestimonialsSection />
 
       {/* Features Section */}
-      <section className="container mx-auto px-4 relative z-10">
-        <div className="mb-12 text-center animate-fade-in">
-          <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-            Powerful Features, <span className="bg-gradient-accent bg-clip-text text-transparent">Simple Setup</span>
-          </h2>
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="mb-12 text-center animate-fade-in">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+              Powerful <span className="bg-gradient-accent bg-clip-text text-transparent">Features</span>, Simple Setup
+            </h2>
 
-          <p className="text-lg text-muted-foreground mb-8">
-            Everything you need to create a viral event marketing campaign
-          </p>
+            <p className="text-lg text-muted-foreground">
+              Everything you need to create a viral event marketing campaign
+            </p>
+          </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-6 bg-gradient-card border-border/50 hover:border-primary/50 hover:shadow-glow transition-all duration-300 group">
+          <div className="grid gap-6 md:gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
+            <Card className="p-8 bg-gradient-card border-border/50 hover:border-primary/50 hover:shadow-glow transition-all duration-300 group">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <LayoutTemplate className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Launch in 5 Minutes, Not 5 Days</h3>
+              <h3 className="mb-3 text-xl font-bold">Launch in 5 Minutes, Not 5 Days</h3>
               <p className="text-muted-foreground mb-3">
                 Create events, upload branded templates, and control everything from one simple dashboard. No design
                 skills required.
               </p>
             </Card>
 
-            <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
+            <Card className="p-8 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <Sparkles className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Custom Branding for every Event</h3>
+              <h3 className="mb-3 text-xl font-bold">Custom Branding for every Event</h3>
               <p className="text-muted-foreground mb-3">
                 Your colors, your logo, your templates, your captions - working together to deliver your corporate
                 identity perfectly in every post.
               </p>
             </Card>
 
-            <Card className="p-6 bg-gradient-card border-border/50 hover:border-primary/50 hover:shadow-glow transition-all duration-300 group">
+            <Card className="p-8 bg-gradient-card border-border/50 hover:border-primary/50 hover:shadow-glow transition-all duration-300 group">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <Users className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Perfect for Every Platform</h3>
+              <h3 className="mb-3 text-xl font-bold">Perfect for Every Platform</h3>
               <p className="text-muted-foreground mb-3">
                 Square, story, landscape, portrait - all formats optimized for LinkedIn, Instagram, X, and more. One
                 click to share everywhere.
               </p>
             </Card>
 
-            <Card className="p-6 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
+            <Card className="p-8 bg-gradient-card border-border/50 hover:border-secondary/50 hover:shadow-glow-orange transition-all duration-300 group">
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 group-hover:bg-secondary/20 transition-colors">
                 <BarChart3 className="h-6 w-6 text-secondary" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">Know What's Working, Instantly</h3>
+              <h3 className="mb-3 text-xl font-bold">Know What's Working, Instantly</h3>
               <p className="text-muted-foreground mb-3">
                 Real-time engagement metrics show you views, uploads, downloads, and peak activity times. See how
                 templates perform.
@@ -390,7 +392,7 @@ export default function Landing() {
       <section id="contact" className="py-20 bg-background">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Get in touch</h2>
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Get in <span className="bg-gradient-accent bg-clip-text text-transparent">Touch</span></h2>
             <p className="text-lg text-muted-foreground">Have questions? We'd love to hear from you.</p>
           </div>
 
