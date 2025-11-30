@@ -153,7 +153,7 @@ export default function Landing() {
       <TestimonialsSection />
 
       {/* Features Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-muted/10">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center animate-fade-in">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -215,7 +215,7 @@ export default function Landing() {
       <AnalyticsPreview />
 
       {/* Pricing */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-muted/10">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
@@ -327,7 +327,7 @@ export default function Landing() {
       <FAQSection />
 
       {/* Contact */}
-      <section id="contact" className="py-20 bg-background">
+      <section id="contact" className="py-20 bg-muted/10">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">Get in <span className="bg-gradient-accent bg-clip-text text-transparent">Touch</span></h2>
