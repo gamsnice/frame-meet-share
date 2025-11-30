@@ -101,8 +101,9 @@ export default function Landing() {
                 className="mb-4 text-lg text-muted-foreground md:text-xl animate-fade-in"
                 style={{ animationDelay: "0.1s" }}
               >
-                Create stunning visuals in seconds. Let your attendees amplify your reach to millions. The most
-                cost-efficient way to boost your event's visibility.
+                <span className="font-semibold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
+                is your ultimate event marketing tool. Create stunning visuals, let your participants share them and
+                with just a few clicks, your event reaches millions.
               </p>
               <div className="flex flex-col gap-4 sm:flex-row animate-fade-in" style={{ animationDelay: "0.2s" }}>
                 <Button
