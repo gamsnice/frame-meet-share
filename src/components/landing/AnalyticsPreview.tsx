@@ -6,37 +6,37 @@ import { useNavigate } from "react-router-dom";
 export default function AnalyticsPreview() {
   const navigate = useNavigate();
 
-  // Rich mock data: 7 days of activity
+  // Rich mock data: 7 days of activity (bigger & more realistic set)
   const dailyActivity = [
-    { label: "Nov 23", views: 520, uploads: 80, downloads: 65 },
-    { label: "Nov 24", views: 610, uploads: 90, downloads: 72 },
-    { label: "Nov 25", views: 430, uploads: 70, downloads: 55 },
-    { label: "Nov 26", views: 710, uploads: 120, downloads: 95 },
-    { label: "Nov 27", views: 580, uploads: 85, downloads: 68 },
-    { label: "Nov 28", views: 690, uploads: 110, downloads: 88 },
-    { label: "Nov 29", views: 690, uploads: 105, downloads: 82 },
+    { label: "Nov 23", views: 720, uploads: 130, downloads: 100 },
+    { label: "Nov 24", views: 830, uploads: 140, downloads: 105 },
+    { label: "Nov 25", views: 610, uploads: 120, downloads: 95 },
+    { label: "Nov 26", views: 910, uploads: 150, downloads: 120 },
+    { label: "Nov 27", views: 780, uploads: 130, downloads: 100 },
+    { label: "Nov 28", views: 890, uploads: 150, downloads: 110 },
+    { label: "Nov 29", views: 890, uploads: 140, downloads: 100 },
   ];
 
   const activityByDay = [
-    { label: "Mon", total: 520 },
-    { label: "Tue", total: 610 },
-    { label: "Wed", total: 430 },
-    { label: "Thu", total: 710 },
-    { label: "Fri", total: 580 },
-    { label: "Sat", total: 690 },
-    { label: "Sun", total: 690 },
+    { label: "Mon", total: 720 },
+    { label: "Tue", total: 830 },
+    { label: "Wed", total: 610 },
+    { label: "Thu", total: 910 },
+    { label: "Fri", total: 780 },
+    { label: "Sat", total: 890 },
+    { label: "Sun", total: 890 },
   ];
 
   const activityByHour = [
-    { label: "08:00", total: 40 },
-    { label: "09:00", total: 55 },
-    { label: "10:00", total: 65 },
-    { label: "11:00", total: 52 },
-    { label: "12:00", total: 38 },
-    { label: "13:00", total: 30 },
-    { label: "14:00", total: 27 },
-    { label: "15:00", total: 34 },
-    { label: "16:00", total: 22 },
+    { label: "08:00", total: 60 },
+    { label: "09:00", total: 85 },
+    { label: "10:00", total: 95 },
+    { label: "11:00", total: 82 },
+    { label: "12:00", total: 68 },
+    { label: "13:00", total: 54 },
+    { label: "14:00", total: 47 },
+    { label: "15:00", total: 59 },
+    { label: "16:00", total: 42 },
   ];
 
   const events = [
@@ -45,7 +45,7 @@ export default function AnalyticsPreview() {
       subtitle: "Scale-up networking experience",
       range: "Mar 04 – Mar 06, 2026",
       slug: "/e/founders-summit-eu",
-      views: 2310,
+      views: 4230,
       conversion: "21.3%",
     },
     {
@@ -53,7 +53,7 @@ export default function AnalyticsPreview() {
       subtitle: "Hybrid product launch series",
       range: "Apr 18 – Apr 20, 2026",
       slug: "/e/productcon-remote",
-      views: 1845,
+      views: 3185,
       conversion: "19.7%",
     },
     {
@@ -61,10 +61,16 @@ export default function AnalyticsPreview() {
       subtitle: "Invite-only leadership meetup",
       range: "May 09, 2026",
       slug: "/e/ai-leaders-day",
-      views: 980,
+      views: 1980,
       conversion: "24.1%",
     },
   ];
+
+  // Totals derived from dailyActivity so cards & charts match
+  const totalViews = dailyActivity.reduce((sum, d) => sum + d.views, 0); // 5,630
+  const totalUploads = dailyActivity.reduce((sum, d) => sum + d.uploads, 0); // 960
+  const totalDownloads = dailyActivity.reduce((sum, d) => sum + d.downloads, 0); // 730
+  const conversionRate = (totalDownloads / totalViews) * 100; // ~12.9%
 
   // Max values for scaling charts
   const maxDailyViews = Math.max(...dailyActivity.map((d) => d.views));
@@ -121,7 +127,7 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
-                <div className="text-2xl font-bold">4,230</div>
+                <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
                 <div className="text-[11px] text-muted-foreground">+38% vs. last week</div>
               </Card>
 
@@ -133,7 +139,7 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-chart-uploads" />
                 </div>
-                <div className="text-2xl font-bold">960</div>
+                <div className="text-2xl font-bold">{totalUploads.toLocaleString()}</div>
                 <div className="text-[11px] text-muted-foreground">140 participants created content</div>
               </Card>
 
@@ -145,7 +151,7 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-secondary" />
                 </div>
-                <div className="text-2xl font-bold">730</div>
+                <div className="text-2xl font-bold">{totalDownloads.toLocaleString()}</div>
                 <div className="text-[11px] text-muted-foreground">3 out of 4 uploads get reused</div>
               </Card>
 
@@ -157,7 +163,7 @@ export default function AnalyticsPreview() {
                   </div>
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
-                <div className="text-2xl font-bold">18.4%</div>
+                <div className="text-2xl font-bold">{conversionRate.toFixed(1)}%</div>
                 <div className="text-[11px] text-muted-foreground">Views → branded downloads</div>
               </Card>
             </div>
@@ -296,7 +302,7 @@ export default function AnalyticsPreview() {
 
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-2">
                       <div className="flex gap-3">
-                        <span>{event.views} views</span>
+                        <span>{event.views.toLocaleString()} views</span>
                       </div>
                       <span className="text-primary font-semibold">{event.conversion} conv.</span>
                     </div>
