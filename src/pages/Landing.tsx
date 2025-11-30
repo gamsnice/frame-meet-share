@@ -203,7 +203,7 @@ export default function Landing() {
                 <Sparkles className="h-6 w-6 text-secondary" />
               </div>
               <h3 className="mb-2 text-xl font-semibold">Custom Branding</h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-3">
                 Your colors, your logo, your templates, your captions - working together to deliver your corporate
                 identity perfectly in every post.
               </p>
