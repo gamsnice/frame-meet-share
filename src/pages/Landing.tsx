@@ -240,54 +240,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-20 bg-gradient-card">
-        <div className="container mx-auto px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Maximize Your Event's Visibility—
-              <span className="bg-gradient-accent bg-clip-text text-transparent">No Design Skills Required</span>
-            </h2>
-            <p className="text-lg text-muted-foreground">Three simple steps to amplify your reach</p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
-            <div className="relative">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-2xl shadow-glow">
-                1
-              </div>
-              <h3 className="mb-2 text-xl font-semibold">Set Up in Minutes</h3>
-              <p className="text-muted-foreground">
-                Add your event, upload branded templates, and you're ready. The system guides you through every step—no
-                technical expertise needed.
-              </p>
-            </div>
-
-            <div className="relative">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-2xl shadow-glow">
-                2
-              </div>
-              <h3 className="mb-2 text-xl font-semibold">One Link, Unlimited Shares</h3>
-              <p className="text-muted-foreground">
-                Send your unique link via email, social media, or QR code. Each event gets a memorable URL like{" "}
-                <code className="text-sm bg-muted/50 px-2 py-1 rounded text-primary">/e/skinnovation-2026</code>
-              </p>
-            </div>
-
-            <div className="relative">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-accent text-primary-foreground font-bold text-2xl shadow-glow">
-                3
-              </div>
-              <h3 className="mb-2 text-xl font-semibold">Watch Your Reach Multiply</h3>
-              <p className="text-muted-foreground">
-                Attendees personalize and share instantly—no account needed. Every share amplifies your event's
-                visibility across their networks.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Analytics Preview */}
       <AnalyticsPreview />
 
