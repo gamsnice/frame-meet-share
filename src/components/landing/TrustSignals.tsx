@@ -41,8 +41,8 @@ export default function TrustSignals() {
         </div>
       </div>
 
-      {/* Glow Line direkt unter dem Trusted-Bereich, ohne extra Abstand zum nächsten Abschnitt */}
-      <div className="mt-6 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      {/* Glow Line direkt unten – ohne Abstand */}
+      <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
     </div>
   );
 }
