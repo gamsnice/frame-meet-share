@@ -144,6 +144,80 @@ export default function PhotoFrameMapper({ imageUrl, initialFrame, onFrameChange
     setIsResizing(false);
   };
 
+  // Touch event handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length !== 1) return;
+    e.preventDefault();
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) / canvas.width;
+    const y = (touch.clientY - rect.top) / canvas.height;
+
+    const frameX = frame.x;
+    const frameY = frame.y;
+    const frameWidth = frame.width;
+    const frameHeight = frame.height;
+
+    // Check if touching resize handle (larger touch area for mobile)
+    const handleX = frameX + frameWidth;
+    const handleY = frameY + frameHeight;
+    if (Math.abs(x - handleX) < 0.05 && Math.abs(y - handleY) < 0.05) {
+      setIsResizing(true);
+      setDragStart({ x, y });
+      return;
+    }
+
+    // Check if touching inside frame
+    if (x >= frameX && x <= frameX + frameWidth && y >= frameY && y <= frameY + frameHeight) {
+      setIsDragging(true);
+      setDragStart({ x: x - frameX, y: y - frameY });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length !== 1 || (!isDragging && !isResizing)) return;
+    e.preventDefault();
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = (touch.clientX - rect.left) / canvas.width;
+    const y = (touch.clientY - rect.top) / canvas.height;
+
+    if (isResizing) {
+      let newWidth = x - frame.x;
+      let newHeight = y - frame.y;
+
+      newWidth = Math.max(0.1, Math.min(newWidth, 1 - frame.x));
+      newHeight = Math.max(0.1, Math.min(newHeight, 1 - frame.y));
+
+      const newFrame = { ...frame, width: newWidth, height: newHeight };
+      setFrame(newFrame);
+      onFrameChange(newFrame.x, newFrame.y, newFrame.width, newFrame.height);
+    } else if (isDragging) {
+      let newX = x - dragStart.x;
+      let newY = y - dragStart.y;
+
+      newX = Math.max(0, Math.min(newX, 1 - frame.width));
+      newY = Math.max(0, Math.min(newY, 1 - frame.height));
+
+      const newFrame = { ...frame, x: newX, y: newY };
+      setFrame(newFrame);
+      onFrameChange(newFrame.x, newFrame.y, newFrame.width, newFrame.height);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
   return (
     <Card className="p-4">
       <Label className="mb-2 block">Photo Frame Mapping</Label>
@@ -157,7 +231,10 @@ export default function PhotoFrameMapper({ imageUrl, initialFrame, onFrameChange
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          className="w-full cursor-move"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="w-full cursor-move touch-none"
         />
       </div>
       <div className="grid grid-cols-4 gap-2 mt-4 text-xs">

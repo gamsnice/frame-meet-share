@@ -425,19 +425,19 @@ export default function TemplateManager() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/admin/events")}>
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <Button variant="ghost" onClick={() => navigate("/admin/events")} size="sm" className="self-start">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Events
+            Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Manage Templates</h1>
-            <p className="text-muted-foreground">Create and customize visual frames</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">Manage Templates</h1>
+            <p className="text-sm text-muted-foreground">Create and customize visual frames</p>
           </div>
         </div>
-        <Button onClick={openCreateDialog}>
+        <Button onClick={openCreateDialog} className="w-full sm:w-auto min-h-[44px]">
           <Plus className="mr-2 h-4 w-4" />
           Add Template
         </Button>
@@ -454,7 +454,7 @@ export default function TemplateManager() {
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
             <Card key={template.id} className="p-4 group hover:shadow-hover transition-shadow">
               <div
@@ -477,19 +477,19 @@ export default function TemplateManager() {
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1" onClick={() => openEditDialog(template)}>
-                    <Pencil className="mr-1 h-3 w-3" />
-                    Edit
+                <div className="grid grid-cols-3 gap-2">
+                  <Button size="sm" variant="outline" className="min-h-[40px]" onClick={() => openEditDialog(template)}>
+                    <Pencil className="h-3 w-3 sm:mr-1" />
+                    <span className="hidden sm:inline">Edit</span>
                   </Button>
-                  <Button size="sm" variant="outline" className="flex-1" onClick={() => openCaptionsDialog(template)}>
-                    Captions
+                  <Button size="sm" variant="outline" className="min-h-[40px]" onClick={() => openCaptionsDialog(template)}>
+                    <span className="text-xs sm:text-sm">Captions</span>
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleDelete(template.id)}>
+                  <Button size="sm" variant="outline" className="min-h-[40px]" onClick={() => handleDelete(template.id)}>
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
-                <Button size="sm" variant="outline" className="w-full" onClick={() => openPlaceholderDialog(template)}>
+                <Button size="sm" variant="outline" className="w-full min-h-[40px]" onClick={() => openPlaceholderDialog(template)}>
                   <User className="mr-1 h-3 w-3" />
                   Placeholder
                 </Button>
@@ -501,12 +501,12 @@ export default function TemplateManager() {
 
       {/* Template Editor Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>{editingTemplate ? "Edit Template" : "Create Template"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label>Template Name</Label>
                 <Input
@@ -636,7 +636,7 @@ export default function TemplateManager() {
 
       {/* Placeholder Dialog */}
       <Dialog open={showPlaceholderDialog} onOpenChange={setShowPlaceholderDialog}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-hidden flex flex-col p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Manage Placeholder - {placeholderTemplate?.name}</DialogTitle>
           </DialogHeader>

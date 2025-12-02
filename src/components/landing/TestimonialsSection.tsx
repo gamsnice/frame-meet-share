@@ -113,10 +113,10 @@ export default function TestimonialsSection() {
           </Card>
 
           {/* Arrows */}
-          <button type="button" onClick={prev} className="absolute -left-6 top-1/2 -translate-y-1/2 bg-primary/15 hover:bg-primary/30 text-primary rounded-full h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-colors">
+          <button type="button" onClick={prev} className="absolute left-2 md:-left-6 top-1/2 -translate-y-1/2 bg-primary/15 hover:bg-primary/30 text-primary rounded-full h-10 w-10 md:h-12 md:w-12 flex items-center justify-center backdrop-blur-sm transition-colors z-10">
             ‹
           </button>
-          <button type="button" onClick={next} className="absolute -right-6 top-1/2 -translate-y-1/2 bg-primary/15 hover:bg-primary/30 text-primary rounded-full h-10 w-10 flex items-center justify-center backdrop-blur-sm transition-colors">
+          <button type="button" onClick={next} className="absolute right-2 md:-right-6 top-1/2 -translate-y-1/2 bg-primary/15 hover:bg-primary/30 text-primary rounded-full h-10 w-10 md:h-12 md:w-12 flex items-center justify-center backdrop-blur-sm transition-colors z-10">
             ›
           </button>
 

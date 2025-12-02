@@ -3,7 +3,8 @@ import { Routes, Route, Navigate, useNavigate, Link, useLocation } from "react-r
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutDashboard, Calendar, Settings } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { LogOut, LayoutDashboard, Calendar, Settings, Menu } from "lucide-react";
 import { toast } from "sonner";
 import DashboardHome from "@/components/admin/DashboardHome";
 import EventsList from "@/components/admin/EventsList";
@@ -68,13 +69,72 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 md:gap-8">
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="md:hidden p-2">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 p-0">
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b">
+                    <Link to="/admin" className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-accent flex items-center justify-center text-white font-bold">
+                        M
+                      </div>
+                      <div>
+                        <h1 className="text-lg font-bold">meetme</h1>
+                        <p className="text-xs text-muted-foreground">Admin Dashboard</p>
+                      </div>
+                    </Link>
+                  </div>
+                  <nav className="flex flex-col gap-1 p-4 flex-1">
+                    <Link to="/admin">
+                      <Button 
+                        variant={isActive("/admin") && location.pathname === "/admin" ? "default" : "ghost"} 
+                        className="w-full justify-start gap-2"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link to="/admin/events">
+                      <Button 
+                        variant={isActive("/admin/events") ? "default" : "ghost"} 
+                        className="w-full justify-start gap-2"
+                      >
+                        <Calendar className="h-4 w-4" />
+                        Events
+                      </Button>
+                    </Link>
+                    <Link to="/admin/account">
+                      <Button 
+                        variant={isActive("/admin/account") ? "default" : "ghost"} 
+                        className="w-full justify-start gap-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Account
+                      </Button>
+                    </Link>
+                  </nav>
+                  <div className="p-4 border-t">
+                    <Button variant="outline" onClick={handleSignOut} className="w-full">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
             <Link to="/admin" className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-gradient-accent flex items-center justify-center text-white font-bold">
                 M
               </div>
-              <div>
-                <h1 className="text-lg font-bold">MeetMeFrame</h1>
+              <div className="hidden sm:block">
+                <h1 className="text-lg font-bold">meetme</h1>
                 <p className="text-xs text-muted-foreground">Admin Dashboard</p>
               </div>
             </Link>
@@ -113,7 +173,7 @@ export default function AdminDashboard() {
             </nav>
           </div>
 
-          <Button variant="outline" onClick={handleSignOut} size="sm">
+          <Button variant="outline" onClick={handleSignOut} size="sm" className="hidden md:flex">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </Button>
