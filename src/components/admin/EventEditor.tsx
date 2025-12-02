@@ -193,7 +193,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                   })
                 }
                 required
-                placeholder="future-leaders-summit"
+                placeholder="futureleaderssummit"
               />
               <p className="text-xs text-muted-foreground mt-1">This becomes the unique URL for your event page.</p>
             </div>
@@ -449,7 +449,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                 value={formData.hero_title}
                 onChange={(e) => setFormData({ ...formData, hero_title: e.target.value })}
                 required
-                placeholder="Create your “Meet me at [Event]” visual"
+                placeholder="Create your “Meet me at..” visual"
               />
             </div>
 
