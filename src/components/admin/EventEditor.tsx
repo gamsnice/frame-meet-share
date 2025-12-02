@@ -67,11 +67,7 @@ export default function EventEditor({ userId }: { userId: string }) {
 
   const loadEvent = async () => {
     try {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("id", eventId)
-        .single();
+      const { data, error } = await supabase.from("events").select("*").eq("id", eventId).single();
 
       if (error) throw error;
 
@@ -105,16 +101,17 @@ export default function EventEditor({ userId }: { userId: string }) {
   };
 
   const generateSlug = (name: string) =>
-    name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
   const handleNameChange = (name: string) => {
     setFormData({
       ...formData,
       name,
       slug: formData.slug || generateSlug(name),
-      hero_title:
-        formData.hero_title ||
-        `Create your “Meet me at ${name}” visual in seconds`,
+      hero_title: formData.hero_title || `Create your “Meet me at ${name}” visual in seconds`,
     });
   };
 
@@ -124,10 +121,7 @@ export default function EventEditor({ userId }: { userId: string }) {
 
     try {
       if (eventId) {
-        const { error } = await supabase
-          .from("events")
-          .update(formData)
-          .eq("id", eventId);
+        const { error } = await supabase.from("events").update(formData).eq("id", eventId);
 
         if (error) throw error;
 
@@ -164,12 +158,10 @@ export default function EventEditor({ userId }: { userId: string }) {
       </div>
 
       <div>
-        <h1 className="text-3xl font-bold mb-2">
-          {eventId ? "Edit Event" : "Create a New Event"}
-        </h1>
+        <h1 className="text-3xl font-bold mb-2">{eventId ? "Edit Event" : "Create a New Event"}</h1>
         <p className="text-muted-foreground">
-          Set up your event page, customize your branding, and prepare everything
-          attendees will use to create their visuals.
+          Set up your event page, customize your branding, and prepare everything attendees will use to create their
+          visuals.
         </p>
       </div>
 
@@ -203,9 +195,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                 required
                 placeholder="future-leaders-summit"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                This becomes the unique URL for your event page.
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">This becomes the unique URL for your event page.</p>
             </div>
 
             <div>
@@ -213,9 +203,7 @@ export default function EventEditor({ userId }: { userId: string }) {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe what makes your event exciting, unique, or worth attending."
                 rows={3}
               />
@@ -228,9 +216,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                   id="start_date"
                   type="date"
                   value={formData.start_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, start_date: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                   required
                 />
               </div>
@@ -240,9 +226,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                   id="end_date"
                   type="date"
                   value={formData.end_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, end_date: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                   required
                 />
               </div>
@@ -253,9 +237,7 @@ export default function EventEditor({ userId }: { userId: string }) {
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="City, venue, or online"
               />
             </div>
@@ -282,27 +264,21 @@ export default function EventEditor({ userId }: { userId: string }) {
                     eventId={eventId}
                     assetType="logo"
                     currentUrl={formData.logo_url}
-                    onUploadComplete={(url) =>
-                      setFormData({ ...formData, logo_url: url })
-                    }
+                    onUploadComplete={(url) => setFormData({ ...formData, logo_url: url })}
                     recommendedSize="200×60px"
                   />
                   <BrandAssetUploader
                     eventId={eventId}
                     assetType="secondary-logo"
                     currentUrl={formData.secondary_logo_url}
-                    onUploadComplete={(url) =>
-                      setFormData({ ...formData, secondary_logo_url: url })
-                    }
+                    onUploadComplete={(url) => setFormData({ ...formData, secondary_logo_url: url })}
                     recommendedSize="120×40px"
                   />
                   <BrandAssetUploader
                     eventId={eventId}
                     assetType="favicon"
                     currentUrl={formData.favicon_url}
-                    onUploadComplete={(url) =>
-                      setFormData({ ...formData, favicon_url: url })
-                    }
+                    onUploadComplete={(url) => setFormData({ ...formData, favicon_url: url })}
                     recommendedSize="32×32px"
                     acceptedFormats=".png,.ico"
                   />
@@ -349,4 +325,168 @@ export default function EventEditor({ userId }: { userId: string }) {
               </div>
 
               <div>
-                <Label htmlFor="secondary_color">Secondary Color</La_
+                <Label htmlFor="secondary_color">Secondary Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="secondary_color"
+                    type="color"
+                    value={formData.brand_secondary_color}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        brand_secondary_color: e.target.value,
+                      })
+                    }
+                    className="w-16 h-10 p-1"
+                  />
+                  <Input
+                    value={formData.brand_secondary_color}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        brand_secondary_color: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="text_color">Text Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="text_color"
+                    type="color"
+                    value={formData.brand_text_color}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        brand_text_color: e.target.value,
+                      })
+                    }
+                    className="w-16 h-10 p-1"
+                  />
+                  <Input
+                    value={formData.brand_text_color}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        brand_text_color: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* LINKS */}
+          <div className="rounded-xl bg-card p-6 border">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <span>🔗</span> Links & Social Media
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Add your website and social profiles — they’ll appear as icons on your event page header.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="homepage_url">Homepage URL</Label>
+                <Input
+                  id="homepage_url"
+                  value={formData.homepage_url}
+                  onChange={(e) => setFormData({ ...formData, homepage_url: e.target.value })}
+                  placeholder="https://yourevent.com"
+                  type="url"
+                />
+              </div>
+
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="instagram_url">Instagram URL</Label>
+                  <Input
+                    id="instagram_url"
+                    value={formData.instagram_url}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        instagram_url: e.target.value,
+                      })
+                    }
+                    placeholder="https://instagram.com/yourpage"
+                    type="url"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="linkedin_url">LinkedIn URL</Label>
+                  <Input
+                    id="linkedin_url"
+                    value={formData.linkedin_url}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        linkedin_url: e.target.value,
+                      })
+                    }
+                    placeholder="https://linkedin.com/company/yourbrand"
+                    type="url"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* EVENT PAGE CONTENT */}
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Event Page Content</h2>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="hero_title">Hero Title *</Label>
+              <Input
+                id="hero_title"
+                value={formData.hero_title}
+                onChange={(e) => setFormData({ ...formData, hero_title: e.target.value })}
+                required
+                placeholder="Create your “Meet me at [Event]” visual"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="hero_subtitle">Hero Subtitle</Label>
+              <Textarea
+                id="hero_subtitle"
+                value={formData.hero_subtitle}
+                onChange={(e) => setFormData({ ...formData, hero_subtitle: e.target.value })}
+                placeholder="A short line that sets the vibe — e.g. “Join the movement. Share the excitement.”"
+                rows={2}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="helper_text">Helper Text</Label>
+              <Input
+                id="helper_text"
+                value={formData.helper_text}
+                onChange={(e) => setFormData({ ...formData, helper_text: e.target.value })}
+                placeholder="Tip: A close-up, well-lit photo creates the best result."
+              />
+            </div>
+          </div>
+        </Card>
+
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4">
+          <Button type="button" variant="outline" onClick={() => navigate("/admin/events")} className="min-h-[44px]">
+            Cancel
+          </Button>
+
+          <Button type="submit" disabled={loading} className="min-h-[44px]">
+            <Save className="mr-2 h-4 w-4" />
+            {loading ? "Saving..." : eventId ? "Save Changes" : "Create Event"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
