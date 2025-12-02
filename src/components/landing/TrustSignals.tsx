@@ -4,7 +4,7 @@ export default function TrustSignals() {
   return (
     <div
       className="
-        border-t border-border/30
+     
         mt-16
         pt-12 pb-6
         animate-fade-in
