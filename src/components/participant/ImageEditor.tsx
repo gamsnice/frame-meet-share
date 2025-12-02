@@ -421,7 +421,7 @@ export default function ImageEditor({
               </Button>
             </div>
           </div>
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+          <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" />
         </div>
       ) : (
         <div className="space-y-3">
@@ -461,11 +461,11 @@ export default function ImageEditor({
               />
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="sm" className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="sm" className="flex-1 min-h-[44px]">
                 Change Photo
               </Button>
-              <Button onClick={handleDownloadClick} size="sm" className="flex-1">
+              <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[44px]">
                 <Download className="mr-1.5 h-3.5 w-3.5" />
                 Download
               </Button>
@@ -477,7 +477,7 @@ export default function ImageEditor({
                 <Share2 className="h-4 w-4 text-muted-foreground" />
                 <p className="text-xs font-medium text-muted-foreground">Share directly to social media</p>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button
                   onClick={() => window.open('https://www.linkedin.com/feed/', '_blank')}
                   variant="outline"

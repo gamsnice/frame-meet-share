@@ -174,3 +174,36 @@ All colors MUST be HSL.
 .testimonial-slider:hover {
   animation-play-state: paused;
 }
+
+/* Mobile-specific utilities */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Smooth scrolling for iOS */
+.scroll-smooth-touch {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Better touch target sizing */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent text selection on interactive elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Touch manipulation for faster tap response */
+.touch-action-manipulation {
+  touch-action: manipulation;
+}

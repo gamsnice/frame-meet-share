@@ -151,7 +151,7 @@ export default function Landing() {
 
             {/* Right: Animated Example Images */}
             <div
-              className="relative h-[500px] animate-scale-in"
+              className="relative h-[300px] sm:h-[400px] md:h-[500px] animate-scale-in"
               style={{
                 animationDelay: "0.3s",
               }}
@@ -165,7 +165,7 @@ export default function Landing() {
                       key={index}
                       className="absolute transition-all duration-700 ease-out cursor-pointer hover:scale-105"
                       style={{
-                        transform: `translateX(${offset * 120 - 120}px) translateY(${Math.abs(offset - 1) * 30}px) scale(${isActive ? 1 : 0.85})`,
+                        transform: `translateX(${offset * 60}px) translateY(${Math.abs(offset - 1) * 15}px) scale(${isActive ? 1 : 0.85})`,
                         zIndex: isActive ? 20 : 10 - Math.abs(offset - 1),
                         opacity: Math.abs(offset - 1) > 1 ? 0 : 1,
                       }}
@@ -177,7 +177,7 @@ export default function Landing() {
                         <img
                           src={example.image}
                           alt="meetme example"
-                          className="h-[400px] w-auto object-cover rounded-2xl"
+                          className="h-[220px] sm:h-[300px] md:h-[400px] w-auto object-cover rounded-2xl"
                         />
                       </div>
                     </div>
@@ -270,7 +270,7 @@ export default function Landing() {
             </h2>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-6 sm:gap-8 grid-cols-1 md:grid-cols-3 max-w-5xl mx-auto">
             <Card className="p-8 bg-gradient-card border-border/50 hover:border-primary/30 transition-all duration-300">
               <div className="mb-2">
                 <h3 className="text-2xl font-bold">Just Getting Started</h3>
