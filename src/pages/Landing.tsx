@@ -20,7 +20,7 @@ import {
 import meetmeLogo from "@/assets/meetme-logo.png";
 import exampleSkinnovation from "@/assets/example-skinnovation.jpg";
 import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.jpg";
-import exampleSlush from "@/assets/example-slush.jpg";
+import exampleStartupNights from "@/assets/example-startupnights.jpg";
 import TrustSignals from "@/components/landing/TrustSignals";
 import ProcessFlow from "@/components/landing/ProcessFlow";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
@@ -44,7 +44,7 @@ export default function Landing() {
       image: exampleBitsAndPretzels,
     },
     {
-      image: exampleSlush,
+      image: exampleStartupNights,
     },
   ];
   useEffect(() => {
