@@ -4,13 +4,15 @@ export default function TrustSignals() {
   return (
     <div
       className="
-     
-        mt-16
-        pt-12 pb-6
+        mt-10
+        pt-10 pb-2
         animate-fade-in
         relative
       "
     >
+      {/* Glow Übergang direkt vom Hero zum Dark Background */}
+      <div className="absolute -top-6 left-0 right-0 h-10 bg-gradient-to-b from-primary/30 to-transparent blur-2xl pointer-events-none" />
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col items-center gap-4">
           {/* Social Proof Line */}
@@ -43,8 +45,7 @@ export default function TrustSignals() {
         </div>
       </div>
 
-      {/* Glow Line unten */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+      {/* Entfernt: Glow Line unten → nicht mehr nötig */}
     </div>
   );
 }
