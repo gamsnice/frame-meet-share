@@ -296,7 +296,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              <span className="bg-gradient-accent bg-clip-text text-transparent"> Invest in Results</span> Not Agencies
+              <span className="bg-gradient-accent bg-clip-text text-transparent"> Invest in Results</span> not Agencies
             </h2>
           </div>
 
