@@ -7,10 +7,9 @@ export default function TrustSignals() {
         mt-12
         pt-12 pb-0
         animate-fade-in
-        relative
       "
     >
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-4">
           {/* Social Proof Line */}
           <div className="flex items-center gap-2 text-center">
@@ -42,17 +41,8 @@ export default function TrustSignals() {
         </div>
       </div>
 
-      {/* Glow Line unten – jetzt direkt am Übergang ohne Abstand */}
-      <div
-        className="
-          absolute
-          -bottom-[1px]   /* sitzt exakt an der Kante */
-          left-0 right-0
-          h-px
-          bg-gradient-to-r
-          from-transparent via-primary/40 to-transparent
-        "
-      />
+      {/* Glow Line direkt unter dem Trusted-Bereich, ohne extra Abstand zum nächsten Abschnitt */}
+      <div className="mt-6 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
     </div>
   );
 }
