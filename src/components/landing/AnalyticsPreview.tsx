@@ -96,21 +96,21 @@ export default function AnalyticsPreview() {
     name: "Founders Summit Europe",
     subtitle: "Scale-up networking experience",
     range: "Mar 04 – Mar 06, 2026",
-    slug: "/e/founders-summit-eu",
+    slug: "/founders-summit-eu",
     views: 2310,
     conversion: "21.3%"
   }, {
     name: "ProductCon Remote",
     subtitle: "Hybrid product launch series",
     range: "Apr 18 – Apr 20, 2026",
-    slug: "/e/productcon-remote",
+    slug: "/productcon-remote",
     views: 1845,
     conversion: "19.7%"
   }, {
     name: "AI Leaders Day",
     subtitle: "Invite-only leadership meetup",
     range: "May 09, 2026",
-    slug: "/e/ai-leaders-day",
+    slug: "/ai-leaders-day",
     views: 980,
     conversion: "24.1%"
   }];
