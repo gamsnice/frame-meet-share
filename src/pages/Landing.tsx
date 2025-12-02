@@ -152,33 +152,55 @@ export default function Landing() {
             {/* Right: Animated Example Images */}
             <div
               className="relative h-[300px] sm:h-[400px] md:h-[500px] animate-scale-in"
-              style={{
-                animationDelay: "0.3s",
-              }}
+              style={{ animationDelay: "0.3s" }}
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 {examples.map((example, index) => {
-                  const isActive = index === activeExample;
-                  const offset = (index - activeExample + examples.length) % examples.length;
+                  // relative index: -1 (left), 0 (center), 1 (right), others hidden
+                  let relativeIndex = index - activeExample;
+
+                  // wrap around for a 3-item carousel
+                  if (relativeIndex > 1) relativeIndex -= examples.length;
+                  if (relativeIndex < -1) relativeIndex += examples.length;
+
+                  const isCenter = relativeIndex === 0;
+                  const isSide = Math.abs(relativeIndex) === 1;
+
+                  // hide anything that's not left / center / right
+                  if (!isCenter && !isSide) {
+                    return <div key={index} className="absolute opacity-0 pointer-events-none" />;
+                  }
+
+                  const translateX = isCenter ? 0 : relativeIndex === -1 ? -120 : 120;
+                  const translateY = isCenter ? 0 : 24;
+                  const scale = isCenter ? 1 : 0.9;
+                  const zIndex = isCenter ? 30 : 20;
+                  const opacity = isCenter ? 1 : 0.8;
+
                   return (
                     <div
                       key={index}
-                      className="absolute transition-all duration-700 ease-out cursor-pointer hover:scale-105"
+                      className="absolute cursor-pointer transition-transform duration-500 ease-out"
                       style={{
-                        transform: `translateX(${offset * 60}px) translateY(${Math.abs(offset - 1) * 15}px) scale(${isActive ? 1 : 0.85})`,
-                        zIndex: isActive ? 20 : 10 - Math.abs(offset - 1),
-                        opacity: Math.abs(offset - 1) > 1 ? 0 : 1,
+                        transform: `translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
+                        zIndex,
+                        opacity,
                       }}
                       onClick={() => setActiveExample(index)}
                     >
                       <div
-                        className={`relative rounded-2xl overflow-hidden shadow-hover ${isActive ? "animate-glow-pulse" : ""}`}
+                        className={`relative rounded-2xl overflow-hidden shadow-hover ${
+                          isCenter ? "animate-glow-pulse" : ""
+                        }`}
                       >
-                        <img
-                          src={example.image}
-                          alt="meetme example"
-                          className="h-[220px] sm:h-[300px] md:h-[400px] w-auto object-cover rounded-2xl"
-                        />
+                        {/* Fixed frame so all images look the same size */}
+                        <div className="w-[220px] h-[260px] sm:w-[260px] sm:h-[320px] md:w-[320px] md:h-[380px]">
+                          <img
+                            src={example.image}
+                            alt="meetme example"
+                            className="w-full h-full object-cover rounded-2xl"
+                          />
+                        </div>
                       </div>
                     </div>
                   );
@@ -186,8 +208,8 @@ export default function Landing() {
               </div>
 
               {/* Floating decoration circles */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-float"></div>
-              <div className="absolute bottom-0 left-0 w-40 h-40 bg-secondary/20 rounded-full blur-3xl animate-float-delayed"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-float" />
+              <div className="absolute bottom-0 left-0 w-40 h-40 bg-secondary/20 rounded-full blur-3xl animate-float-delayed" />
             </div>
           </div>
         </div>
