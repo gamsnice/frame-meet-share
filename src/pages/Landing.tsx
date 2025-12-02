@@ -236,7 +236,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center animate-fade-in">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Powerful <span className="bg-gradient-accent bg-clip-text text-transparent">Features</span>, Simple Setup
+              <span className="bg-gradient-accent bg-clip-text text-transparent">Powerful Features</span> Simple Setup
             </h2>
           </div>
 
@@ -296,7 +296,7 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold md:text-4xl">
-              Invest in <span className="bg-gradient-accent bg-clip-text text-transparent">Results</span>, Not Overhead
+              <span className="bg-gradient-accent bg-clip-text text-transparent"> Invest in Results</span> Not Agencies
             </h2>
           </div>
 
