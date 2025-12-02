@@ -170,7 +170,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
   };
 
   const copyEventLink = (slug: string) => {
-    const url = `${window.location.origin}/e/${slug}`;
+    const url = `${window.location.origin}/${slug}`;
     navigator.clipboard.writeText(url);
     toast.success("Event link copied to clipboard!");
   };
@@ -268,11 +268,11 @@ export default function DashboardHome({ userId }: { userId: string }) {
                 </div>
 
                 <div className="flex items-center gap-2 p-3 bg-muted rounded-lg mb-4">
-                  <code className="text-sm flex-1 truncate">/e/{event.slug}</code>
+                  <code className="text-sm flex-1 truncate">/{event.slug}</code>
                   <Button size="sm" variant="ghost" onClick={() => copyEventLink(event.slug)}>
                     <Copy className="h-4 w-4" />
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => window.open(`/e/${event.slug}`, "_blank")}>
+                  <Button size="sm" variant="ghost" onClick={() => window.open(`/${event.slug}`, "_blank")}>
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </div>
