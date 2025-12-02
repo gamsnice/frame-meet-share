@@ -193,12 +193,20 @@ export default function Landing() {
                           isCenter ? "animate-glow-pulse" : ""
                         }`}
                       >
-                        {/* Fixed frame so all images look the same size */}
-                        <div className="w-[220px] h-[260px] sm:w-[260px] sm:h-[320px] md:w-[320px] md:h-[380px]">
+                        {/* 
+              Responsive "max frame" that allows natural aspect ratio.
+              Images never get distorted or cropped.
+            */}
+                        <div className="flex items-center justify-center">
                           <img
                             src={example.image}
                             alt="meetme example"
-                            className="w-full h-full object-cover rounded-2xl"
+                            className="
+                  rounded-2xl
+                  object-contain
+                  max-h-[260px] sm:max-h-[320px] md:max-h-[380px]
+                  max-w-[260px] sm:max-w-[320px] md:max-w-[380px]
+                "
                           />
                         </div>
                       </div>
