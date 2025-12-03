@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Download, ZoomIn, Move, Instagram, Linkedin, Share2, ArrowLeft, Save, FileDown } from "lucide-react";
+import { Upload, Download, ZoomIn, Move, Instagram, Linkedin, Share2, ArrowLeft, Save, FileDown, Copy, Lightbulb, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import TemplatePreview from "./TemplatePreview";
 import {
@@ -11,6 +11,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { supabase } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics";
 
 interface Template {
   id: string;
@@ -27,6 +29,11 @@ interface Template {
   placeholder_y?: number;
 }
 
+interface Caption {
+  id: string;
+  caption_text: string;
+}
+
 interface ImageEditorProps {
   template: Template;
   userImage: string | null;
@@ -35,6 +42,7 @@ interface ImageEditorProps {
   onResetTemplate?: () => void;
   helperText?: string;
   eventSlug: string;
+  eventId?: string;
   isMobile?: boolean;
 }
 
@@ -56,6 +64,7 @@ export default function ImageEditor({
   onResetTemplate,
   helperText,
   eventSlug,
+  eventId,
   isMobile = false,
 }: ImageEditorProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -72,6 +81,40 @@ export default function ImageEditor({
   // Pinch-to-zoom state
   const [pinchStartDistance, setPinchStartDistance] = useState<number | null>(null);
   const [pinchStartScale, setPinchStartScale] = useState<number>(1);
+
+  // Captions state
+  const [captions, setCaptions] = useState<Caption[]>([]);
+  const [captionsExpanded, setCaptionsExpanded] = useState(!isMobile);
+
+  // Load captions
+  useEffect(() => {
+    const loadCaptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("template_captions")
+          .select("*")
+          .eq("template_id", template.id);
+
+        if (error) throw error;
+        setCaptions(data || []);
+      } catch (error: any) {
+        console.error("Failed to load captions:", error);
+      }
+    };
+    loadCaptions();
+  }, [template.id]);
+
+  const copyCaption = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Caption copied to clipboard!");
+      if (eventId) {
+        await trackEvent(eventId, template.id, "caption_copy");
+      }
+    } catch (error) {
+      toast.error("Failed to copy caption");
+    }
+  };
 
   // Load template image
   useEffect(() => {
@@ -527,6 +570,76 @@ export default function ImageEditor({
     };
   }, []);
 
+  // Captions Section Component
+  const CaptionsSection = () => {
+    if (captions.length === 0) return null;
+
+    if (isMobile) {
+      return (
+        <div className="border border-border rounded-lg p-3">
+          <button 
+            onClick={() => setCaptionsExpanded(!captionsExpanded)}
+            className="w-full flex items-center justify-between text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Caption Ideas</span>
+              <span className="text-[10px] text-muted-foreground">({captions.length})</span>
+            </div>
+            {captionsExpanded ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+          
+          {captionsExpanded && (
+            <div className="mt-3 space-y-2">
+              {captions.map((caption) => (
+                <div key={caption.id} className="flex items-start gap-2 p-2 bg-muted rounded-lg">
+                  <p className="flex-1 text-xs whitespace-pre-wrap leading-relaxed">{caption.caption_text}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyCaption(caption.caption_text)}
+                    className="shrink-0 h-7 w-7 p-0"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Desktop captions
+    return (
+      <div className="border border-border rounded-lg p-4">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <Lightbulb className="h-4 w-4 text-primary" />
+          Caption Ideas
+        </h3>
+        <div className="space-y-2">
+          {captions.map((caption) => (
+            <div key={caption.id} className="flex items-start gap-3 p-2 bg-muted rounded-lg">
+              <p className="flex-1 text-sm whitespace-pre-wrap">{caption.caption_text}</p>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => copyCaption(caption.caption_text)}
+                className="shrink-0"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Mobile Layout
   if (isMobile) {
     return (
@@ -566,7 +679,8 @@ export default function ImageEditor({
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="border border-primary/20 rounded-lg overflow-hidden bg-muted">
+            {/* Canvas with touch-pan-y to allow vertical scroll outside the image manipulation */}
+            <div className="border border-primary/20 rounded-lg overflow-hidden bg-muted" style={{ touchAction: 'pan-y' }}>
               <canvas
                 ref={previewCanvasRef}
                 onMouseDown={handleMouseDown}
@@ -576,8 +690,8 @@ export default function ImageEditor({
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleMouseUp}
-                className="w-full cursor-move touch-none"
-                style={{ display: "block" }}
+                className="w-full cursor-move"
+                style={{ display: "block", touchAction: 'none' }}
               />
             </div>
 
@@ -607,6 +721,7 @@ export default function ImageEditor({
                 />
               </div>
 
+              {/* Inline buttons: Change Photo, Download, Back */}
               <div className="flex gap-2">
                 <Button 
                   onClick={() => fileInputRef.current?.click()} 
@@ -616,15 +731,22 @@ export default function ImageEditor({
                 >
                   Change Photo
                 </Button>
+                <Button 
+                  onClick={handleDownloadClick} 
+                  size="sm" 
+                  className="flex-1 min-h-[40px] text-xs"
+                >
+                  <Download className="h-3.5 w-3.5 mr-1" />
+                  Download
+                </Button>
                 {onResetTemplate && (
                   <Button 
                     onClick={onResetTemplate} 
                     variant="ghost" 
                     size="sm" 
-                    className="min-h-[40px] text-xs"
+                    className="min-h-[40px] text-xs px-3"
                   >
-                    <ArrowLeft className="h-3 w-3 mr-1" />
-                    Back
+                    <ArrowLeft className="h-3 w-3" />
                   </Button>
                 )}
               </div>
@@ -659,6 +781,9 @@ export default function ImageEditor({
                   Download first, then upload to share
                 </p>
               </div>
+
+              {/* Captions Section - below social share */}
+              <CaptionsSection />
             </div>
 
             {/* Download Options Drawer */}
@@ -692,17 +817,6 @@ export default function ImageEditor({
                 </div>
               </DrawerContent>
             </Drawer>
-
-            {/* Sticky Download Bar for Mobile */}
-            <div className="fixed bottom-0 left-0 right-0 p-3 bg-card/95 backdrop-blur-sm border-t z-50 safe-bottom">
-              <Button onClick={handleDownloadClick} className="w-full min-h-[48px] text-base font-medium">
-                <Download className="mr-2 h-5 w-5" />
-                Download Your Visual
-              </Button>
-            </div>
-            
-            {/* Spacer to account for fixed bottom bar */}
-            <div className="h-20" />
           </div>
         )}
       </Card>
@@ -818,6 +932,9 @@ export default function ImageEditor({
                 Download first, then upload to your preferred platform
               </p>
             </div>
+
+            {/* Captions Section - below social share */}
+            <CaptionsSection />
           </div>
         </div>
       )}
