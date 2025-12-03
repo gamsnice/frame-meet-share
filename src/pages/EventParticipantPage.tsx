@@ -138,6 +138,11 @@ export default function EventParticipantPage() {
     }
   };
 
+  const handleResetTemplate = () => {
+    setSelectedTemplate(null);
+    setUserImage(null);
+  };
+
   const handleDownload = async () => {
     if (event && selectedTemplate) {
       await trackEvent(event.id, selectedTemplate.id, "download");
@@ -307,6 +312,7 @@ export default function EventParticipantPage() {
                       userImage={userImage}
                       onImageUpload={handleImageUpload}
                       onDownload={handleDownload}
+                      onResetTemplate={handleResetTemplate}
                       helperText={event.helper_text}
                       eventSlug={slug || ""}
                       isMobile={isMobile}
