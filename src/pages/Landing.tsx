@@ -27,6 +27,7 @@ import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FAQSection from "@/components/landing/FAQSection";
 import AnalyticsPreview from "@/components/landing/AnalyticsPreview";
 import FeaturesShowcase from "@/components/landing/FeaturesShowcase";
+
 export default function Landing() {
   const navigate = useNavigate();
   const [contactForm, setContactForm] = useState({
@@ -36,6 +37,7 @@ export default function Landing() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeExample, setActiveExample] = useState(0);
+
   const examples = [
     {
       image: exampleSkinnovation,
@@ -47,12 +49,25 @@ export default function Landing() {
       image: exampleStartupNights,
     },
   ];
+
+  // 🔥 Neu: track, welche Bilder fertig geladen sind
+  const [loadedImages, setLoadedImages] = useState<boolean[]>(() => new Array(examples.length).fill(false));
+
+  const handleImageLoad = (index: number) => {
+    setLoadedImages((prev) => {
+      const next = [...prev];
+      next[index] = true;
+      return next;
+    });
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveExample((prev) => (prev + 1) % examples.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [examples.length]);
+
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -69,6 +84,7 @@ export default function Landing() {
     }
     setIsSubmitting(false);
   };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Sticky Navigation */}
@@ -175,7 +191,9 @@ export default function Landing() {
                   const translateY = isCenter ? 0 : 24;
                   const scale = isCenter ? 1 : 0.9;
                   const zIndex = isCenter ? 30 : 20;
-                  const opacity = isCenter ? 1 : 0.8;
+                  const opacityBase = isCenter ? 1 : 0.8;
+
+                  const isLoaded = loadedImages[index];
 
                   return (
                     <div
@@ -184,7 +202,7 @@ export default function Landing() {
                       style={{
                         transform: `translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
                         zIndex,
-                        opacity,
+                        opacity: opacityBase,
                       }}
                       onClick={() => setActiveExample(index)}
                     >
@@ -193,20 +211,26 @@ export default function Landing() {
                           isCenter ? "animate-glow-pulse" : ""
                         }`}
                       >
-                        {/* 
-              Responsive "max frame" that allows natural aspect ratio.
-              Images never get distorted or cropped.
-            */}
-                        <div className="flex items-center justify-center">
+                        {/* Smooth image fade-in */}
+                        <div
+                          className={`
+                            flex items-center justify-center
+                            transition-all duration-500 ease-out
+                            ${isLoaded ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-2 blur-sm"}
+                          `}
+                        >
                           <img
                             src={example.image}
                             alt="meetme example"
+                            loading={index === 0 ? "eager" : "lazy"}
+                            decoding="async"
+                            onLoad={() => handleImageLoad(index)}
                             className="
-                  rounded-2xl
-                  object-contain
-                  max-h-[260px] sm:max-h-[320px] md:max-h-[380px]
-                  max-w-[260px] sm:max-w-[320px] md:max-w-[380px]
-                "
+                              rounded-2xl
+                              object-contain
+                              max-h-[260px] sm:max-h-[320px] md:max-h-[380px]
+                              max-w-[260px] sm:max-w-[320px] md:max-w-[380px]
+                            "
                           />
                         </div>
                       </div>
@@ -225,6 +249,7 @@ export default function Landing() {
         {/* Trust Signals Bar */}
         <TrustSignals />
       </section>
+
       {/* Process Flow Section */}
       <ProcessFlow />
 
