@@ -2,9 +2,16 @@ import { useRef, useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Download, ZoomIn, Move, Instagram, Linkedin, Share2 } from "lucide-react";
+import { Upload, Download, ZoomIn, Move, Instagram, Linkedin, Share2, Camera, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import TemplatePreview from "./TemplatePreview";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 interface Template {
   id: string;
@@ -28,6 +35,7 @@ interface ImageEditorProps {
   onDownload: () => void;
   helperText?: string;
   eventSlug: string;
+  isMobile?: boolean;
 }
 
 const FORMAT_DIMENSIONS = {
@@ -44,9 +52,11 @@ export default function ImageEditor({
   onDownload,
   helperText,
   eventSlug,
+  isMobile = false,
 }: ImageEditorProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [userImageElement, setUserImageElement] = useState<HTMLImageElement | null>(null);
   const [templateImageElement, setTemplateImageElement] = useState<HTMLImageElement | null>(null);
   const [scale, setScale] = useState(1);
@@ -54,6 +64,7 @@ export default function ImageEditor({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Load template image
   useEffect(() => {
@@ -123,7 +134,7 @@ export default function ImageEditor({
     if (!container) return;
 
     const containerWidth = container.clientWidth;
-    const containerHeight = containerWidth * (dimensions.height / dimensions.width); // Adjust height based on aspect ratio
+    const containerHeight = containerWidth * (dimensions.height / dimensions.width);
 
     // Set canvas size
     canvas.width = containerWidth;
@@ -302,6 +313,7 @@ export default function ImageEditor({
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       onImageUpload(dataUrl);
+      setIsDrawerOpen(false);
     };
     reader.readAsDataURL(file);
   };
@@ -385,7 +397,7 @@ export default function ImageEditor({
     }
   };
 
-  // Resize handling (Optional)
+  // Resize handling
   useEffect(() => {
     const handleResize = () => {
       drawPreview();
@@ -398,6 +410,180 @@ export default function ImageEditor({
     };
   }, []);
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <Card className="p-3">
+        <h2 className="text-base font-medium mb-2">Create Your Visual</h2>
+
+        {helperText && (
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-2 mb-2">
+            <p className="text-[11px] text-primary leading-tight">{helperText}</p>
+          </div>
+        )}
+
+        {!userImage ? (
+          <div className="relative">
+            <div className="border border-primary/20 rounded-lg overflow-hidden bg-muted">
+              <TemplatePreview template={template} className="w-full" />
+            </div>
+            {/* Always visible upload overlay on mobile */}
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
+              <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                <DrawerTrigger asChild>
+                  <Button size="lg" className="shadow-lg min-h-[48px] text-base px-6">
+                    <Upload className="h-5 w-5 mr-2" />
+                    Add Your Photo
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle className="text-center">Choose Photo Source</DrawerTitle>
+                  </DrawerHeader>
+                  <div className="p-4 pb-8 space-y-3">
+                    <Button 
+                      onClick={() => cameraInputRef.current?.click()} 
+                      className="w-full min-h-[56px] text-base justify-start gap-4"
+                      variant="outline"
+                    >
+                      <Camera className="h-6 w-6" />
+                      <div className="text-left">
+                        <div className="font-medium">Take a Photo</div>
+                        <div className="text-xs text-muted-foreground">Open camera</div>
+                      </div>
+                    </Button>
+                    <Button 
+                      onClick={() => fileInputRef.current?.click()} 
+                      className="w-full min-h-[56px] text-base justify-start gap-4"
+                      variant="outline"
+                    >
+                      <ImageIcon className="h-6 w-6" />
+                      <div className="text-left">
+                        <div className="font-medium">Choose from Gallery</div>
+                        <div className="text-xs text-muted-foreground">Select existing photo</div>
+                      </div>
+                    </Button>
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            </div>
+            {/* Hidden file inputs */}
+            <input 
+              ref={fileInputRef} 
+              type="file" 
+              accept="image/*" 
+              onChange={handleFileUpload} 
+              className="hidden" 
+            />
+            <input 
+              ref={cameraInputRef} 
+              type="file" 
+              accept="image/*" 
+              capture="environment"
+              onChange={handleFileUpload} 
+              className="hidden" 
+            />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="border border-primary/20 rounded-lg overflow-hidden bg-muted">
+              <canvas
+                ref={previewCanvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleMouseUp}
+                className="w-full cursor-move touch-none"
+                style={{ display: "block" }}
+              />
+            </div>
+
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground bg-muted/50 rounded p-1.5">
+              <Move className="h-3 w-3 flex-shrink-0" />
+              <span>Drag to position • Use slider to zoom</span>
+            </div>
+
+            <div className="space-y-2">
+              <div>
+                <label className="text-[11px] font-medium mb-1 flex items-center gap-1">
+                  <ZoomIn className="h-3 w-3" />
+                  Zoom: {scale.toFixed(1)}x
+                </label>
+                <Slider
+                  value={[scale]}
+                  onValueChange={handleScaleChange}
+                  min={initialScale}
+                  max={initialScale * 3}
+                  step={0.1}
+                  className="mt-1"
+                />
+              </div>
+
+              <Button 
+                onClick={() => {
+                  setIsDrawerOpen(true);
+                }} 
+                variant="outline" 
+                size="sm" 
+                className="w-full min-h-[40px] text-xs"
+              >
+                Change Photo
+              </Button>
+              
+              {/* Drawer for changing photo */}
+              <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle className="text-center">Choose Photo Source</DrawerTitle>
+                  </DrawerHeader>
+                  <div className="p-4 pb-8 space-y-3">
+                    <Button 
+                      onClick={() => cameraInputRef.current?.click()} 
+                      className="w-full min-h-[56px] text-base justify-start gap-4"
+                      variant="outline"
+                    >
+                      <Camera className="h-6 w-6" />
+                      <div className="text-left">
+                        <div className="font-medium">Take a Photo</div>
+                        <div className="text-xs text-muted-foreground">Open camera</div>
+                      </div>
+                    </Button>
+                    <Button 
+                      onClick={() => fileInputRef.current?.click()} 
+                      className="w-full min-h-[56px] text-base justify-start gap-4"
+                      variant="outline"
+                    >
+                      <ImageIcon className="h-6 w-6" />
+                      <div className="text-left">
+                        <div className="font-medium">Choose from Gallery</div>
+                        <div className="text-xs text-muted-foreground">Select existing photo</div>
+                      </div>
+                    </Button>
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            </div>
+
+            {/* Sticky Download Bar for Mobile */}
+            <div className="fixed bottom-0 left-0 right-0 p-3 bg-card/95 backdrop-blur-sm border-t z-50 safe-bottom">
+              <Button onClick={handleDownloadClick} className="w-full min-h-[48px] text-base font-medium">
+                <Download className="mr-2 h-5 w-5" />
+                Download Your Visual
+              </Button>
+            </div>
+            
+            {/* Spacer to account for fixed bottom bar */}
+            <div className="h-20" />
+          </div>
+        )}
+      </Card>
+    );
+  }
+
+  // Desktop Layout
   return (
     <Card className="p-4">
       <h2 className="text-lg font-semibold mb-3">Create Your Visual</h2>
@@ -491,19 +677,17 @@ export default function ImageEditor({
                   onClick={() => window.open('https://www.instagram.com/', '_blank')}
                   variant="outline"
                   size="sm"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4405F]/10 to-[#E4405F]/5 border-[#E4405F]/30 hover:border-[#E4405F] hover:bg-[#E4405F]/10 transition-all"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4405F]/10 to-[#833AB4]/10 border-[#E4405F]/30 hover:border-[#E4405F] hover:bg-[#E4405F]/10 transition-all"
                 >
                   <Instagram className="h-4 w-4 text-[#E4405F]" />
                   <span className="font-medium">Share on Instagram</span>
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-2 text-center">
+              <p className="text-[10px] text-muted-foreground text-center mt-2">
                 Download first, then upload to your preferred platform
               </p>
             </div>
           </div>
-
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
         </div>
       )}
     </Card>

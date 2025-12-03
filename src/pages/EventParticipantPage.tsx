@@ -1,15 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Copy, Download, Globe, Instagram, Linkedin } from "lucide-react";
+import { Calendar, MapPin, Globe, Instagram, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import TemplateSelector from "@/components/participant/TemplateSelector";
 import ImageEditor from "@/components/participant/ImageEditor";
 import CaptionsPanel from "@/components/participant/CaptionsPanel";
 import { trackEvent } from "@/lib/analytics";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Event {
   id: string;
@@ -55,6 +56,8 @@ export default function EventParticipantPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [userImage, setUserImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
+  const editorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (slug) {
@@ -119,6 +122,13 @@ export default function EventParticipantPage() {
     if (event) {
       await trackEvent(event.id, template.id, "view");
     }
+
+    // Auto-scroll to editor on mobile
+    if (isMobile && editorRef.current) {
+      setTimeout(() => {
+        editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
   };
 
   const handleImageUpload = async (imageDataUrl: string) => {
@@ -164,9 +174,9 @@ export default function EventParticipantPage() {
         background: `linear-gradient(135deg, ${event.brand_primary_color}15, ${event.brand_secondary_color}15)`,
       }}
     >
-      {/* Header */}
+      {/* Header - Mobile Optimized */}
       <header
-        className="relative overflow-hidden py-6 sm:py-8 md:py-10 lg:py-12"
+        className="relative overflow-hidden py-4 sm:py-6 md:py-8 lg:py-12"
         style={{ color: event.brand_text_color }}
       >
         {/* Gradient background using brand colors */}
@@ -181,32 +191,29 @@ export default function EventParticipantPage() {
         {/* Soft overlay for a modern look */}
         <div className="pointer-events-none absolute inset-0 opacity-20 mix-blend-soft-light bg-[radial-gradient(circle_at_top,_#ffffff,_transparent_60%)]" />
 
-        <div className="relative container mx-auto px-4">
-          <div className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6">
+        <div className="relative container mx-auto px-3 sm:px-4">
+          <div className="flex flex-col items-center gap-3 sm:gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
             {/* Logo + titles */}
-            <div className="flex items-center gap-4 md:gap-6 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 md:gap-6 w-full lg:w-auto">
               {event.logo_url && (
-                <div className="flex-shrink-0 rounded-2xl bg-white/10 backdrop-blur-sm px-4 py-3 md:px-5 md:py-4 shadow-sm">
+                <div className="flex-shrink-0 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-sm px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 shadow-sm">
                   <img
                     src={event.logo_url}
                     alt={event.name}
-                    className="h-12 sm:h-14 md:h-18 lg:h-20 xl:h-24 w-auto max-w-[55vw] md:max-w-[260px] object-contain animate-fade-in"
+                    className="h-10 sm:h-12 md:h-16 lg:h-20 xl:h-24 w-auto max-w-[50vw] sm:max-w-[45vw] md:max-w-[260px] object-contain"
                   />
                 </div>
               )}
 
               <div className="w-full text-center lg:text-left">
-                <p className="text-[0.65rem] sm:text-xs uppercase tracking-[0.25em] opacity-80 mb-1 animate-fade-in">
+                <p className="text-[0.6rem] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.25em] opacity-80 mb-0.5 sm:mb-1">
                   Create your event visual
                 </p>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2 md:mb-3 animate-fade-in">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-1 sm:mb-2 md:mb-3">
                   {event.hero_title}
                 </h1>
                 {event.hero_subtitle && (
-                  <p
-                    className="text-sm sm:text-base md:text-lg opacity-90 max-w-2xl mx-auto lg:mx-0 animate-fade-in"
-                    style={{ animationDelay: "0.1s" }}
-                  >
+                  <p className="text-xs sm:text-sm md:text-base lg:text-lg opacity-90 max-w-2xl mx-auto lg:mx-0 line-clamp-2 sm:line-clamp-none">
                     {event.hero_subtitle}
                   </p>
                 )}
@@ -214,44 +221,41 @@ export default function EventParticipantPage() {
             </div>
 
             {/* Event meta: date + location + social icons */}
-            <div
-              className="flex flex-col items-center lg:items-end gap-3 animate-fade-in"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 text-xs sm:text-sm md:text-base">
+            <div className="flex flex-col items-center lg:items-end gap-2 sm:gap-3">
+              <div className="flex flex-wrap items-center justify-center lg:justify-end gap-1.5 sm:gap-2 md:gap-3">
                 <Badge
                   variant="outline"
-                  className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
+                  className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs md:text-sm"
                 >
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {new Date(event.start_date).toLocaleDateString()} – {new Date(event.end_date).toLocaleDateString()}
+                  <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="whitespace-nowrap">
+                    {new Date(event.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – {new Date(event.end_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                   </span>
                 </Badge>
 
                 {event.location && (
                   <Badge
                     variant="outline"
-                    className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-2 px-3 py-1 rounded-full"
+                    className="bg-black/5 border-white/30 backdrop-blur-sm flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs md:text-sm"
                   >
-                    <MapPin className="h-4 w-4" />
-                    <span>{event.location}</span>
+                    <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="truncate max-w-[120px] sm:max-w-none">{event.location}</span>
                   </Badge>
                 )}
               </div>
 
               {/* Social Media Icons */}
               {(event.homepage_url || event.instagram_url || event.linkedin_url) && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   {event.homepage_url && (
                     <a
                       href={event.homepage_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 transition-all hover:scale-110"
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-1.5 sm:p-2 transition-all hover:scale-110"
                       aria-label="Visit homepage"
                     >
-                      <Globe className="h-4 w-4" />
+                      <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </a>
                   )}
                   {event.instagram_url && (
@@ -259,10 +263,10 @@ export default function EventParticipantPage() {
                       href={event.instagram_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 transition-all hover:scale-110"
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-1.5 sm:p-2 transition-all hover:scale-110"
                       aria-label="Follow on Instagram"
                     >
-                      <Instagram className="h-4 w-4" />
+                      <Instagram className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </a>
                   )}
                   {event.linkedin_url && (
@@ -270,10 +274,10 @@ export default function EventParticipantPage() {
                       href={event.linkedin_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-2 transition-all hover:scale-110"
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-full p-1.5 sm:p-2 transition-all hover:scale-110"
                       aria-label="Connect on LinkedIn"
                     >
-                      <Linkedin className="h-4 w-4" />
+                      <Linkedin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     </a>
                   )}
                 </div>
@@ -284,35 +288,20 @@ export default function EventParticipantPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {templates.length === 0 ? (
-          <Card className="p-12 text-center">
-            <h3 className="text-xl font-semibold mb-2">No templates available yet</h3>
-            <p className="text-muted-foreground">The organizer hasn't created any frames yet. Check back soon!</p>
+          <Card className="p-8 sm:p-12 text-center">
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">No templates available yet</h3>
+            <p className="text-sm sm:text-base text-muted-foreground">The organizer hasn't created any frames yet. Check back soon!</p>
           </Card>
         ) : (
-          <div className="grid gap-8 lg:grid-cols-2">
-            {/* Left Column: Template Selector & Captions */}
-            <div className="space-y-6">
-              <TemplateSelector
-                templates={templates}
-                selectedTemplate={selectedTemplate}
-                onSelect={handleTemplateSelect}
-              />
-
-              {selectedTemplate && <CaptionsPanel templateId={selectedTemplate.id} eventId={event.id} />}
-            </div>
-
-            {/* Right Column: Image Editor */}
-            <div className="lg:sticky lg:top-8 lg:self-start flex justify-center items-center overflow-hidden">
-              {!selectedTemplate ? (
-                <Card className="p-12 text-center">
-                  <p className="text-muted-foreground mb-2">Choose your frame first</p>
-                  <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
-                </Card>
-              ) : (
-                <div className="relative w-full h-full flex justify-center items-center overflow-hidden">
-                  <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex justify-center items-center">
+          <>
+            {/* Mobile Layout: Editor first, then templates */}
+            {isMobile ? (
+              <div className="space-y-4">
+                {/* Editor Section - Always visible on mobile */}
+                <div ref={editorRef}>
+                  {selectedTemplate ? (
                     <ImageEditor
                       template={selectedTemplate}
                       userImage={userImage}
@@ -320,23 +309,90 @@ export default function EventParticipantPage() {
                       onDownload={handleDownload}
                       helperText={event.helper_text}
                       eventSlug={slug || ""}
+                      isMobile={isMobile}
                     />
-                  </div>
+                  ) : (
+                    <Card className="p-6 text-center bg-muted/50">
+                      <p className="text-sm text-muted-foreground mb-1">Select a frame below to get started</p>
+                    </Card>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+
+                {/* Template Selector */}
+                <TemplateSelector
+                  templates={templates}
+                  selectedTemplate={selectedTemplate}
+                  onSelect={handleTemplateSelect}
+                  isMobile={isMobile}
+                />
+
+                {/* Captions Panel */}
+                {selectedTemplate && (
+                  <CaptionsPanel 
+                    templateId={selectedTemplate.id} 
+                    eventId={event.id}
+                    isMobile={isMobile}
+                  />
+                )}
+              </div>
+            ) : (
+              /* Desktop Layout: Side by side */
+              <div className="grid gap-8 lg:grid-cols-2">
+                {/* Left Column: Template Selector & Captions */}
+                <div className="space-y-6">
+                  <TemplateSelector
+                    templates={templates}
+                    selectedTemplate={selectedTemplate}
+                    onSelect={handleTemplateSelect}
+                    isMobile={false}
+                  />
+
+                  {selectedTemplate && (
+                    <CaptionsPanel 
+                      templateId={selectedTemplate.id} 
+                      eventId={event.id}
+                      isMobile={false}
+                    />
+                  )}
+                </div>
+
+                {/* Right Column: Image Editor */}
+                <div className="lg:sticky lg:top-8 lg:self-start flex justify-center items-center overflow-hidden">
+                  {!selectedTemplate ? (
+                    <Card className="p-12 text-center">
+                      <p className="text-muted-foreground mb-2">Choose your frame first</p>
+                      <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
+                    </Card>
+                  ) : (
+                    <div className="relative w-full h-full flex justify-center items-center overflow-hidden">
+                      <div className="relative w-full h-full max-w-[100vw] max-h-[100vh] flex justify-center items-center">
+                        <ImageEditor
+                          template={selectedTemplate}
+                          userImage={userImage}
+                          onImageUpload={handleImageUpload}
+                          onDownload={handleDownload}
+                          helperText={event.helper_text}
+                          eventSlug={slug || ""}
+                          isMobile={false}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t mt-16 py-8 bg-card">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+      <footer className="border-t mt-8 sm:mt-16 py-6 sm:py-8 bg-card">
+        <div className="container mx-auto px-3 sm:px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
             {event.secondary_logo_url && (
-              <img src={event.secondary_logo_url} alt="Partner logo" className="h-8 w-auto object-contain" />
+              <img src={event.secondary_logo_url} alt="Partner logo" className="h-6 sm:h-8 w-auto object-contain" />
             )}
-            <p className="text-sm text-muted-foreground text-center md:text-left flex-1">Powered by MeetMeFrame</p>
+            <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left flex-1">Powered by MeetMeFrame</p>
           </div>
         </div>
       </footer>
