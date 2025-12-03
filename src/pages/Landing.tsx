@@ -18,9 +18,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 import meetmeLogo from "@/assets/meetme-logo.png";
-import exampleSkinnovation from "@/assets/example-skinnovation.jpg";
-import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.jpg";
-import exampleStartupNights from "@/assets/example-startupnights.jpg";
+import exampleSkinnovation from "@/assets/example-skinnovation.webp";
+import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.webp";
+import exampleStartupNights from "@/assets/example-startupnights.webp";
 import TrustSignals from "@/components/landing/TrustSignals";
 import ProcessFlow from "@/components/landing/ProcessFlow";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
