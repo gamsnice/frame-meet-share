@@ -47,7 +47,12 @@ const FORMAT_ASPECT_RATIOS = {
   portrait: "aspect-[4/5]",
 };
 
-export default function TemplateSelector({ templates, selectedTemplate, onSelect, isMobile = false }: TemplateSelectorProps) {
+export default function TemplateSelector({
+  templates,
+  selectedTemplate,
+  onSelect,
+  isMobile = false,
+}: TemplateSelectorProps) {
   if (isMobile) {
     return (
       <Card className="p-3">
@@ -55,10 +60,10 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
           <h2 className="text-base font-medium">Choose Your Frame</h2>
           <span className="text-[10px] text-muted-foreground">{templates.length} available</span>
         </div>
-        
+
         {/* Horizontal Carousel for Mobile */}
         <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
-          <div className="flex gap-2 pb-2" style={{ width: 'max-content' }}>
+          <div className="flex gap-2 pb-2" style={{ width: "max-content" }}>
             {templates.map((template) => {
               const isSelected = selectedTemplate?.id === template.id;
               return (
@@ -66,13 +71,15 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
                   key={template.id}
                   onClick={() => onSelect(template)}
                   className={`relative rounded-lg border overflow-hidden transition-all flex-shrink-0 ${
-                    isSelected 
-                      ? "border-primary bg-primary/5 shadow-md" 
+                    isSelected
+                      ? "border-primary bg-primary/5 shadow-md"
                       : "border-border bg-card hover:border-primary/50"
                   }`}
-                  style={{ width: '140px' }}
+                  style={{ width: "140px" }}
                 >
-                  <div className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}>
+                  <div
+                    className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}
+                  >
                     <TemplatePreview template={template} />
                   </div>
                   {isSelected && (
@@ -95,10 +102,8 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
             })}
           </div>
         </div>
-        
-        <p className="text-[10px] text-muted-foreground text-center mt-1">
-          Swipe to see all frames
-        </p>
+
+        <p className="text-[10px] text-muted-foreground text-center mt-1">Swipe to see all frames</p>
       </Card>
     );
   }
@@ -107,9 +112,7 @@ export default function TemplateSelector({ templates, selectedTemplate, onSelect
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-4">Choose Your Frame</h2>
-      <div className="text-left text-sm text-muted-foreground mt-4 mb-6">
-        Please note that the resolution displayed here is lower only for preview purposes.
-      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         {templates.map((template) => {
           const isSelected = selectedTemplate?.id === template.id;
