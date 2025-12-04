@@ -835,19 +835,21 @@ export default function ImageEditor({
       )}
 
       {!userImage ? (
-        <div className="relative group">
-          <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
-            <TemplatePreview template={template} className="w-full" />
-          </div>
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="text-center">
-              <Upload className="h-10 w-10 mx-auto text-primary mb-2" />
-              <Button onClick={() => fileInputRef.current?.click()} className="shadow-lg">
-                Upload Your Photo
-              </Button>
+        <div className="max-w-sm mx-auto">
+          <div className="relative group">
+            <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
+              <TemplatePreview template={template} className="w-full" />
             </div>
+            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="text-center">
+                <Upload className="h-10 w-10 mx-auto text-primary mb-2" />
+                <Button onClick={() => fileInputRef.current?.click()} className="shadow-lg">
+                  Upload Your Photo
+                </Button>
+              </div>
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
           </div>
-          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
         </div>
       ) : (
         <div className="space-y-3">
