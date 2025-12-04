@@ -66,15 +66,9 @@ export default function TemplatePreview({ template, className = "" }: TemplatePr
 
     const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
     
-    // Set canvas to display size
-    const container = canvas.parentElement;
-    if (!container) return;
-    
-    const containerWidth = container.clientWidth;
-    const displayScale = containerWidth / dimensions.width;
-    
-    canvas.width = containerWidth;
-    canvas.height = dimensions.height * displayScale;
+    // Render at full resolution for quality
+    canvas.width = dimensions.width;
+    canvas.height = dimensions.height;
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -95,16 +89,16 @@ export default function TemplatePreview({ template, className = "" }: TemplatePr
       const posX = template.placeholder_x || 0;
       const posY = template.placeholder_y || 0;
 
-      const scaledWidth = placeholderImg.width * scale * displayScale;
-      const scaledHeight = placeholderImg.height * scale * displayScale;
+      const scaledWidth = placeholderImg.width * scale;
+      const scaledHeight = placeholderImg.height * scale;
 
       // Calculate center of frame (same logic as PlaceholderEditor)
       const centerX = frameX + frameWidth / 2;
       const centerY = frameY + frameHeight / 2;
 
       // Position image centered, then apply offset
-      const imgX = centerX - scaledWidth / 2 + posX * displayScale;
-      const imgY = centerY - scaledHeight / 2 + posY * displayScale;
+      const imgX = centerX - scaledWidth / 2 + posX;
+      const imgY = centerY - scaledHeight / 2 + posY;
 
       ctx.drawImage(
         placeholderImg,
@@ -124,6 +118,7 @@ export default function TemplatePreview({ template, className = "" }: TemplatePr
     <canvas
       ref={canvasRef}
       className={`w-full h-full object-contain pointer-events-none ${className}`}
+      style={{ imageRendering: "auto" }}
     />
   );
 }
