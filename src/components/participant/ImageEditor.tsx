@@ -63,9 +63,6 @@ const FORMAT_DIMENSIONS = {
   portrait: { width: 1080, height: 1350 },
 };
 
-// Preview quality multiplier for better resolution
-const PREVIEW_QUALITY = 1.5;
-
 export default function ImageEditor({
   template,
   userImage,
@@ -88,14 +85,19 @@ export default function ImageEditor({
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
 
+  // 🔍 Dynamic preview quality: higher on mobile / high-DPI screens
+  const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+  const previewQuality = isMobile
+    ? Math.min(devicePixelRatioSafe * 1.2, 3) // e.g. iPhone: ~3x
+    : Math.min(devicePixelRatioSafe, 2); // desktop usually 1–2x
+
   // Pinch-to-zoom state
   const [pinchStartDistance, setPinchStartDistance] = useState<number | null>(null);
   const [pinchStartScale, setPinchStartScale] = useState<number>(1);
 
   // Captions state
   const [captions, setCaptions] = useState<Caption[]>([]);
-  // Mobile: default open (true), Desktop: also true
-  const [captionsExpanded, setCaptionsExpanded] = useState(true);
+  const [captionsExpanded, setCaptionsExpanded] = useState(!isMobile);
 
   // Load captions
   useEffect(() => {
@@ -176,7 +178,7 @@ export default function ImageEditor({
     if (previewCanvasRef.current && templateImageElement && userImageElement) {
       drawPreview();
     }
-  }, [templateImageElement, userImageElement, scale, position]);
+  }, [templateImageElement, userImageElement, scale, position, previewQuality]);
 
   const drawPreview = () => {
     const canvas = previewCanvasRef.current;
@@ -195,8 +197,8 @@ export default function ImageEditor({
     const containerHeight = containerWidth * (dimensions.height / dimensions.width);
 
     // Set canvas size with quality multiplier for better resolution
-    canvas.width = containerWidth * PREVIEW_QUALITY;
-    canvas.height = containerHeight * PREVIEW_QUALITY;
+    canvas.width = containerWidth * previewQuality;
+    canvas.height = containerHeight * previewQuality;
 
     // Set display size via CSS
     canvas.style.width = `${containerWidth}px`;
@@ -241,8 +243,8 @@ export default function ImageEditor({
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * PREVIEW_QUALITY;
-    const y = (e.clientY - rect.top) * PREVIEW_QUALITY;
+    const x = (e.clientX - rect.left) * previewQuality;
+    const y = (e.clientY - rect.top) * previewQuality;
 
     const frameX = template.photo_frame_x * canvas.width;
     const frameY = template.photo_frame_y * canvas.height;
@@ -270,8 +272,8 @@ export default function ImageEditor({
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * PREVIEW_QUALITY;
-    const y = (e.clientY - rect.top) * PREVIEW_QUALITY;
+    const x = (e.clientX - rect.left) * previewQuality;
+    const y = (e.clientY - rect.top) * previewQuality;
 
     const frameX = template.photo_frame_x * canvas.width;
     const frameY = template.photo_frame_y * canvas.height;
@@ -325,8 +327,8 @@ export default function ImageEditor({
 
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * PREVIEW_QUALITY;
-    const y = (touch.clientY - rect.top) * PREVIEW_QUALITY;
+    const x = (touch.clientX - rect.left) * previewQuality;
+    const y = (touch.clientY - rect.top) * previewQuality;
 
     const frameX = template.photo_frame_x * canvas.width;
     const frameY = template.photo_frame_y * canvas.height;
@@ -384,8 +386,8 @@ export default function ImageEditor({
 
     const rect = canvas.getBoundingClientRect();
     const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * PREVIEW_QUALITY;
-    const y = (touch.clientY - rect.top) * PREVIEW_QUALITY;
+    const x = (touch.clientX - rect.left) * previewQuality;
+    const y = (touch.clientY - rect.top) * previewQuality;
 
     const frameX = template.photo_frame_x * canvas.width;
     const frameY = template.photo_frame_y * canvas.height;
@@ -572,7 +574,7 @@ export default function ImageEditor({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [previewQuality]);
 
   // Captions Section Component
   const CaptionsSection = () => {
