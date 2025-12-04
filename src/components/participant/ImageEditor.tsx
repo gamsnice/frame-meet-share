@@ -851,90 +851,96 @@ export default function ImageEditor({
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
-            <canvas
-              ref={previewCanvasRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleMouseUp}
-              className="w-full cursor-move touch-none"
-              style={{ display: "block" }}
-            />
-          </div>
-
-          {/* Preview quality note */}
-          <p className="text-[10px] text-muted-foreground text-center italic">
-            Preview shown at reduced quality. Final download is full resolution.
-          </p>
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
-            <Move className="h-3 w-3" />
-            <span>Drag to position • Zoom to adjust</span>
-          </div>
-
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs font-medium mb-1 flex items-center gap-1.5">
-                <ZoomIn className="h-3 w-3" />
-                Zoom: {scale.toFixed(1)}x
-              </label>
-              <Slider
-                value={[scale]}
-                onValueChange={handleScaleChange}
-                min={initialScale}
-                max={initialScale * 3}
-                step={0.1}
-                className="mt-1"
+          {/* Constrain canvas to reasonable max width on desktop */}
+          <div className="max-w-sm mx-auto">
+            <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
+              <canvas
+                ref={previewCanvasRef}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleMouseUp}
+                className="w-full cursor-move touch-none"
+                style={{ display: "block" }}
               />
             </div>
+          </div>
 
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="sm" className="flex-1 min-h-[44px]">
-                Change Photo
-              </Button>
-              <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[44px]">
-                <Download className="mr-1.5 h-3.5 w-3.5" />
-                Download
-              </Button>
+          {/* All controls centered and constrained to match canvas width */}
+          <div className="max-w-sm mx-auto space-y-3">
+            {/* Preview quality note */}
+            <p className="text-[10px] text-muted-foreground text-center italic">
+              Preview shown at reduced quality. Final download is full resolution.
+            </p>
+
+            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
+              <Move className="h-3 w-3" />
+              <span>Drag to position • Zoom to adjust</span>
             </div>
 
-            {/* Quick Share Buttons */}
-            <div className="mt-4 pt-4 border-t border-border">
-              <div className="flex items-center gap-2 mb-2">
-                <Share2 className="h-4 w-4 text-muted-foreground" />
-                <p className="text-xs font-medium text-muted-foreground">Share directly to social media</p>
+            <div className="space-y-2">
+              <div>
+                <label className="text-xs font-medium mb-1 flex items-center gap-1.5">
+                  <ZoomIn className="h-3 w-3" />
+                  Zoom: {scale.toFixed(1)}x
+                </label>
+                <Slider
+                  value={[scale]}
+                  onValueChange={handleScaleChange}
+                  min={initialScale}
+                  max={initialScale * 3}
+                  step={0.1}
+                  className="mt-1"
+                />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Button
-                  onClick={() => window.open('https://www.linkedin.com/feed/', '_blank')}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#0077B5]/10 to-[#0077B5]/5 border-[#0077B5]/30 hover:border-[#0077B5] hover:bg-[#0077B5]/10 transition-all"
-                >
-                  <Linkedin className="h-4 w-4 text-[#0077B5]" />
-                  <span className="font-medium">Share on LinkedIn</span>
-                </Button>
-                <Button
-                  onClick={() => window.open('https://www.instagram.com/', '_blank')}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4405F]/10 to-[#833AB4]/10 border-[#E4405F]/30 hover:border-[#E4405F] hover:bg-[#E4405F]/10 transition-all"
-                >
-                  <Instagram className="h-4 w-4 text-[#E4405F]" />
-                  <span className="font-medium">Share on Instagram</span>
-                </Button>
-              </div>
-              <p className="text-[10px] text-muted-foreground text-center mt-2">
-                Download first, then upload to your preferred platform
-              </p>
-            </div>
 
-            {/* Captions Section - below social share */}
-            <CaptionsSection />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="sm" className="flex-1 min-h-[44px]">
+                  Change Photo
+                </Button>
+                <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[44px]">
+                  <Download className="mr-1.5 h-3.5 w-3.5" />
+                  Download
+                </Button>
+              </div>
+
+              {/* Quick Share Buttons */}
+              <div className="mt-4 pt-4 border-t border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Share2 className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground">Share directly to social media</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Button
+                    onClick={() => window.open('https://www.linkedin.com/feed/', '_blank')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#0077B5]/10 to-[#0077B5]/5 border-[#0077B5]/30 hover:border-[#0077B5] hover:bg-[#0077B5]/10 transition-all"
+                  >
+                    <Linkedin className="h-4 w-4 text-[#0077B5]" />
+                    <span className="font-medium">Share on LinkedIn</span>
+                  </Button>
+                  <Button
+                    onClick={() => window.open('https://www.instagram.com/', '_blank')}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4405F]/10 to-[#833AB4]/10 border-[#E4405F]/30 hover:border-[#E4405F] hover:bg-[#E4405F]/10 transition-all"
+                  >
+                    <Instagram className="h-4 w-4 text-[#E4405F]" />
+                    <span className="font-medium">Share on Instagram</span>
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground text-center mt-2">
+                  Download first, then upload to your preferred platform
+                </p>
+              </div>
+
+              {/* Captions Section - below social share */}
+              <CaptionsSection />
+            </div>
           </div>
         </div>
       )}
