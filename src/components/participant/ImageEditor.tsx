@@ -2,15 +2,27 @@ import { useRef, useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Upload, Download, ZoomIn, Move, Instagram, Linkedin, Share2, ArrowLeft, Save, FileDown } from "lucide-react";
+import {
+  Upload,
+  Download,
+  ZoomIn,
+  Move,
+  Instagram,
+  Linkedin,
+  Share2,
+  ArrowLeft,
+  Save,
+  FileDown,
+  Copy,
+  Lightbulb,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { toast } from "sonner";
 import TemplatePreview from "./TemplatePreview";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { supabase } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics";
 
 interface Template {
   id: string;
@@ -27,6 +39,11 @@ interface Template {
   placeholder_y?: number;
 }
 
+interface Caption {
+  id: string;
+  caption_text: string;
+}
+
 interface ImageEditorProps {
   template: Template;
   userImage: string | null;
@@ -35,6 +52,7 @@ interface ImageEditorProps {
   onResetTemplate?: () => void;
   helperText?: string;
   eventSlug: string;
+  eventId?: string;
   isMobile?: boolean;
 }
 
@@ -56,6 +74,7 @@ export default function ImageEditor({
   onResetTemplate,
   helperText,
   eventSlug,
+  eventId,
   isMobile = false,
 }: ImageEditorProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -68,10 +87,41 @@ export default function ImageEditor({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
-  
+
   // Pinch-to-zoom state
   const [pinchStartDistance, setPinchStartDistance] = useState<number | null>(null);
   const [pinchStartScale, setPinchStartScale] = useState<number>(1);
+
+  // Captions state
+  const [captions, setCaptions] = useState<Caption[]>([]);
+  const [captionsExpanded, setCaptionsExpanded] = useState(!isMobile);
+
+  // Load captions
+  useEffect(() => {
+    const loadCaptions = async () => {
+      try {
+        const { data, error } = await supabase.from("template_captions").select("*").eq("template_id", template.id);
+
+        if (error) throw error;
+        setCaptions(data || []);
+      } catch (error: any) {
+        console.error("Failed to load captions:", error);
+      }
+    };
+    loadCaptions();
+  }, [template.id]);
+
+  const copyCaption = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Caption copied to clipboard!");
+      if (eventId) {
+        await trackEvent(eventId, template.id, "caption_copy");
+      }
+    } catch (error) {
+      toast.error("Failed to copy caption");
+    }
+  };
 
   // Load template image
   useEffect(() => {
@@ -121,12 +171,6 @@ export default function ImageEditor({
   }, [userImage, template]);
 
   // Draw preview
-  useEffect(() => {
-    if (previewCanvasRef.current && templateImageElement && userImageElement) {
-      drawPreview();
-    }
-  }, [templateImageElement, userImageElement, scale, position]);
-
   const drawPreview = () => {
     const canvas = previewCanvasRef.current;
     if (!canvas || !templateImageElement || !userImageElement) return;
@@ -135,51 +179,67 @@ export default function ImageEditor({
     if (!ctx) return;
 
     const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+    const aspect = dimensions.height / dimensions.width; // z.B. 1920 / 1080
 
-    // Get container size
+    // Container, in dem das Canvas steckt (die Border-Box)
     const container = canvas.parentElement;
     if (!container) return;
 
-    const containerWidth = container.clientWidth;
-    const containerHeight = containerWidth * (dimensions.height / dimensions.width);
+    // Ausgangsbreite = komplette Containerbreite
+    let displayWidth = container.clientWidth;
+    let displayHeight = displayWidth * aspect;
 
-    // Set canvas size with quality multiplier for better resolution
-    canvas.width = containerWidth * PREVIEW_QUALITY;
-    canvas.height = containerHeight * PREVIEW_QUALITY;
-    
-    // Set display size via CSS
-    canvas.style.width = `${containerWidth}px`;
-    canvas.style.height = `${containerHeight}px`;
+    // Viewport-basierte Maximalhöhe (damit nichts „aus dem Card-Rahmen raus“ geht)
+    // Desktop: an Browserhöhe orientieren; Mobile: etwas kleiner halten
+    const viewportMaxHeight = typeof window !== "undefined" ? window.innerHeight - 260 : 0;
+    const MOBILE_MAX_HEIGHT = 360;
 
-    // Calculate frame position at canvas resolution
+    const maxHeight = isMobile ? MOBILE_MAX_HEIGHT : viewportMaxHeight > 0 ? viewportMaxHeight : displayHeight;
+
+    if (displayHeight > maxHeight) {
+      displayHeight = maxHeight;
+      displayWidth = displayHeight / aspect;
+    }
+
+    // Canvas-Innenauflösung (für Schärfe)
+    canvas.width = displayWidth * PREVIEW_QUALITY;
+    canvas.height = displayHeight * PREVIEW_QUALITY;
+
+    // Sichtbare Größe: volle Breite, Höhe passend zum Seitenverhältnis
+    canvas.style.width = `${displayWidth}px`;
+    canvas.style.height = `${displayHeight}px`;
+
+    // Frame-Position in Canvas-Koordinaten
     const frameX = template.photo_frame_x * canvas.width;
     const frameY = template.photo_frame_y * canvas.height;
     const frameWidth = template.photo_frame_width * canvas.width;
     const frameHeight = template.photo_frame_height * canvas.height;
 
-    // Clear canvas
+    // Canvas leeren
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw user image clipped to frame
+    // User-Bild innerhalb des Frames zeichnen
     ctx.save();
     ctx.beginPath();
     ctx.rect(frameX, frameY, frameWidth, frameHeight);
     ctx.clip();
 
-    // Scale the user image according to canvas size
-    const scaledUserWidth = userImageElement.width * scale * (canvas.width / dimensions.width);
-    const scaledUserHeight = userImageElement.height * scale * (canvas.height / dimensions.height);
+    const scaleX = canvas.width / dimensions.width;
+    const scaleY = canvas.height / dimensions.height;
+
+    const scaledUserWidth = userImageElement.width * scale * scaleX;
+    const scaledUserHeight = userImageElement.height * scale * scaleY;
 
     ctx.drawImage(
       userImageElement,
-      frameX + position.x * (canvas.width / dimensions.width),
-      frameY + position.y * (canvas.height / dimensions.height),
+      frameX + position.x * scaleX,
+      frameY + position.y * scaleY,
       scaledUserWidth,
       scaledUserHeight,
     );
     ctx.restore();
 
-    // Draw template image over the user image
+    // Template komplett oben drüber legen (keine Verzerrung, kein Cropping)
     ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
   };
 
@@ -307,9 +367,9 @@ export default function ImageEditor({
       const newDistance = getTouchDistance(e.touches[0], e.touches[1]);
       const scaleRatio = newDistance / pinchStartDistance;
       const newScale = Math.max(initialScale, Math.min(pinchStartScale * scaleRatio, initialScale * 3));
-      
+
       setScale(newScale);
-      
+
       // Adjust position to keep image constrained
       const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
       const frameWidth = template.photo_frame_width * dimensions.width;
@@ -413,11 +473,7 @@ export default function ImageEditor({
       // Draw template overlay
       ctx.drawImage(templateImageElement, 0, 0, dimensions.width, dimensions.height);
 
-      canvas.toBlob(
-        (blob) => resolve(blob),
-        "image/png",
-        1.0,
-      );
+      canvas.toBlob((blob) => resolve(blob), "image/png", 1.0);
     });
   };
 
@@ -527,6 +583,71 @@ export default function ImageEditor({
     };
   }, []);
 
+  // Captions Section Component
+  const CaptionsSection = () => {
+    if (captions.length === 0) return null;
+
+    if (isMobile) {
+      return (
+        <div className="border border-border rounded-lg p-3">
+          <button
+            onClick={() => setCaptionsExpanded(!captionsExpanded)}
+            className="w-full flex items-center justify-between text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Lightbulb className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Caption Ideas</span>
+              <span className="text-[10px] text-muted-foreground">({captions.length})</span>
+            </div>
+            {captionsExpanded ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
+
+          {captionsExpanded && (
+            <div className="mt-3 space-y-2">
+              {captions.map((caption) => (
+                <div key={caption.id} className="flex items-start gap-2 p-2 bg-muted rounded-lg">
+                  <p className="flex-1 text-xs whitespace-pre-wrap leading-relaxed">{caption.caption_text}</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => copyCaption(caption.caption_text)}
+                    className="shrink-0 h-7 w-7 p-0"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Desktop captions
+    return (
+      <div className="border border-border rounded-lg p-4">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <Lightbulb className="h-4 w-4 text-primary" />
+          Caption Ideas
+        </h3>
+        <div className="space-y-2">
+          {captions.map((caption) => (
+            <div key={caption.id} className="flex items-start gap-3 p-2 bg-muted rounded-lg">
+              <p className="flex-1 text-sm whitespace-pre-wrap">{caption.caption_text}</p>
+              <Button size="sm" variant="ghost" onClick={() => copyCaption(caption.caption_text)} className="shrink-0">
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Mobile Layout
   if (isMobile) {
     return (
@@ -546,8 +667,8 @@ export default function ImageEditor({
             </div>
             {/* Single upload button overlay */}
             <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="shadow-lg min-h-[48px] text-base px-6"
                 onClick={() => fileInputRef.current?.click()}
               >
@@ -556,17 +677,15 @@ export default function ImageEditor({
               </Button>
             </div>
             {/* Hidden file input - native OS will offer camera or gallery */}
-            <input 
-              ref={fileInputRef} 
-              type="file" 
-              accept="image/*" 
-              onChange={handleFileUpload} 
-              className="hidden" 
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
           </div>
         ) : (
           <div className="space-y-2">
-            <div className="border border-primary/20 rounded-lg overflow-hidden bg-muted">
+            {/* Canvas with touch-pan-y to allow vertical scroll outside the image manipulation */}
+            <div
+              className="border border-primary/20 rounded-lg overflow-hidden bg-muted"
+              style={{ touchAction: "pan-y" }}
+            >
               <canvas
                 ref={previewCanvasRef}
                 onMouseDown={handleMouseDown}
@@ -576,8 +695,8 @@ export default function ImageEditor({
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleMouseUp}
-                className="w-full cursor-move touch-none"
-                style={{ display: "block" }}
+                className="w-full cursor-move"
+                style={{ display: "block", touchAction: "none" }}
               />
             </div>
 
@@ -607,24 +726,23 @@ export default function ImageEditor({
                 />
               </div>
 
+              {/* Inline buttons: Change Photo, Download, Back */}
               <div className="flex gap-2">
-                <Button 
-                  onClick={() => fileInputRef.current?.click()} 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  size="sm"
                   className="flex-1 min-h-[40px] text-xs"
                 >
                   Change Photo
                 </Button>
+                <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[40px] text-xs">
+                  <Download className="h-3.5 w-3.5 mr-1" />
+                  Download
+                </Button>
                 {onResetTemplate && (
-                  <Button 
-                    onClick={onResetTemplate} 
-                    variant="ghost" 
-                    size="sm" 
-                    className="min-h-[40px] text-xs"
-                  >
-                    <ArrowLeft className="h-3 w-3 mr-1" />
-                    Back
+                  <Button onClick={onResetTemplate} variant="ghost" size="sm" className="min-h-[40px] text-xs px-3">
+                    <ArrowLeft className="h-3 w-3" />
                   </Button>
                 )}
               </div>
@@ -637,7 +755,7 @@ export default function ImageEditor({
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    onClick={() => window.open('https://www.linkedin.com/feed/', '_blank')}
+                    onClick={() => window.open("https://www.linkedin.com/feed/", "_blank")}
                     variant="outline"
                     size="sm"
                     className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0077B5]/10 to-[#0077B5]/5 border-[#0077B5]/30 hover:border-[#0077B5] hover:bg-[#0077B5]/10 transition-all min-h-[40px] text-xs"
@@ -646,7 +764,7 @@ export default function ImageEditor({
                     <span>LinkedIn</span>
                   </Button>
                   <Button
-                    onClick={() => window.open('https://www.instagram.com/', '_blank')}
+                    onClick={() => window.open("https://www.instagram.com/", "_blank")}
                     variant="outline"
                     size="sm"
                     className="flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#E4405F]/10 to-[#833AB4]/10 border-[#E4405F]/30 hover:border-[#E4405F] hover:bg-[#E4405F]/10 transition-all min-h-[40px] text-xs"
@@ -659,6 +777,9 @@ export default function ImageEditor({
                   Download first, then upload to share
                 </p>
               </div>
+
+              {/* Captions Section - below social share */}
+              <CaptionsSection />
             </div>
 
             {/* Download Options Drawer */}
@@ -668,18 +789,15 @@ export default function ImageEditor({
                   <DrawerTitle className="text-center">Save Your Visual</DrawerTitle>
                 </DrawerHeader>
                 <div className="p-4 pb-8 space-y-3">
-                  <Button 
-                    onClick={handleSaveToPhotos} 
-                    className="w-full min-h-[56px] text-base justify-start gap-4"
-                  >
+                  <Button onClick={handleSaveToPhotos} className="w-full min-h-[56px] text-base justify-start gap-4">
                     <Save className="h-6 w-6" />
                     <div className="text-left">
                       <div className="font-medium">Save to Photos</div>
                       <div className="text-xs opacity-80">Add to your camera roll</div>
                     </div>
                   </Button>
-                  <Button 
-                    onClick={handleDownloadAsFile} 
+                  <Button
+                    onClick={handleDownloadAsFile}
                     className="w-full min-h-[56px] text-base justify-start gap-4"
                     variant="outline"
                   >
@@ -692,17 +810,6 @@ export default function ImageEditor({
                 </div>
               </DrawerContent>
             </Drawer>
-
-            {/* Sticky Download Bar for Mobile */}
-            <div className="fixed bottom-0 left-0 right-0 p-3 bg-card/95 backdrop-blur-sm border-t z-50 safe-bottom">
-              <Button onClick={handleDownloadClick} className="w-full min-h-[48px] text-base font-medium">
-                <Download className="mr-2 h-5 w-5" />
-                Download Your Visual
-              </Button>
-            </div>
-            
-            {/* Spacer to account for fixed bottom bar */}
-            <div className="h-20" />
           </div>
         )}
       </Card>
@@ -779,7 +886,12 @@ export default function ImageEditor({
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">
-              <Button onClick={() => fileInputRef.current?.click()} variant="outline" size="sm" className="flex-1 min-h-[44px]">
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                variant="outline"
+                size="sm"
+                className="flex-1 min-h-[44px]"
+              >
                 Change Photo
               </Button>
               <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[44px]">
@@ -796,7 +908,7 @@ export default function ImageEditor({
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Button
-                  onClick={() => window.open('https://www.linkedin.com/feed/', '_blank')}
+                  onClick={() => window.open("https://www.linkedin.com/feed/", "_blank")}
                   variant="outline"
                   size="sm"
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#0077B5]/10 to-[#0077B5]/5 border-[#0077B5]/30 hover:border-[#0077B5] hover:bg-[#0077B5]/10 transition-all"
@@ -805,7 +917,7 @@ export default function ImageEditor({
                   <span className="font-medium">Share on LinkedIn</span>
                 </Button>
                 <Button
-                  onClick={() => window.open('https://www.instagram.com/', '_blank')}
+                  onClick={() => window.open("https://www.instagram.com/", "_blank")}
                   variant="outline"
                   size="sm"
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#E4405F]/10 to-[#833AB4]/10 border-[#E4405F]/30 hover:border-[#E4405F] hover:bg-[#E4405F]/10 transition-all"
@@ -818,6 +930,9 @@ export default function ImageEditor({
                 Download first, then upload to your preferred platform
               </p>
             </div>
+
+            {/* Captions Section - below social share */}
+            <CaptionsSection />
           </div>
         </div>
       )}
