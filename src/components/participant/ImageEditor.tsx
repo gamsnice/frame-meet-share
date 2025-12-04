@@ -179,46 +179,60 @@ export default function ImageEditor({
     if (!ctx) return;
 
     const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-    const aspect = dimensions.height / dimensions.width; // z.B. 1920 / 1080
+    const aspect = dimensions.height / dimensions.width;
 
-    // Container, in dem das Canvas steckt (die Border-Box)
+    // Get container (the border-box holding the canvas)
     const container = canvas.parentElement;
     if (!container) return;
 
-    // Ausgangsbreite = komplette Containerbreite
+    // ===== DESKTOP BEHAVIOR (your original version — unchanged) =====
+    if (!isMobile) {
+      const containerWidth = container.clientWidth;
+      const containerHeight = containerWidth * aspect;
+
+      canvas.width = containerWidth * PREVIEW_QUALITY;
+      canvas.height = containerHeight * PREVIEW_QUALITY;
+
+      canvas.style.width = `${containerWidth}px`;
+      canvas.style.height = `${containerHeight}px`;
+
+      drawPreviewCore(ctx, canvas, dimensions);
+      return;
+    }
+
+    // ===== MOBILE BEHAVIOR (safe height, same perfect aspect ratio) =====
     let displayWidth = container.clientWidth;
     let displayHeight = displayWidth * aspect;
 
-    // Viewport-basierte Maximalhöhe (damit nichts „aus dem Card-Rahmen raus“ geht)
-    // Desktop: an Browserhöhe orientieren; Mobile: etwas kleiner halten
-    const viewportMaxHeight = typeof window !== "undefined" ? window.innerHeight - 260 : 0;
-    const MOBILE_MAX_HEIGHT = 360;
+    const MAX_MOBILE_HEIGHT = 420; // safe value that fits on all screens
 
-    const maxHeight = isMobile ? MOBILE_MAX_HEIGHT : viewportMaxHeight > 0 ? viewportMaxHeight : displayHeight;
-
-    if (displayHeight > maxHeight) {
-      displayHeight = maxHeight;
+    if (displayHeight > MAX_MOBILE_HEIGHT) {
+      displayHeight = MAX_MOBILE_HEIGHT;
       displayWidth = displayHeight / aspect;
     }
 
-    // Canvas-Innenauflösung (für Schärfe)
     canvas.width = displayWidth * PREVIEW_QUALITY;
     canvas.height = displayHeight * PREVIEW_QUALITY;
 
-    // Sichtbare Größe: volle Breite, Höhe passend zum Seitenverhältnis
     canvas.style.width = `${displayWidth}px`;
     canvas.style.height = `${displayHeight}px`;
 
-    // Frame-Position in Canvas-Koordinaten
+    drawPreviewCore(ctx, canvas, dimensions);
+  };
+
+  const drawPreviewCore = (
+    ctx: CanvasRenderingContext2D,
+    canvas: HTMLCanvasElement,
+    dimensions: { width: number; height: number },
+  ) => {
     const frameX = template.photo_frame_x * canvas.width;
     const frameY = template.photo_frame_y * canvas.height;
     const frameWidth = template.photo_frame_width * canvas.width;
     const frameHeight = template.photo_frame_height * canvas.height;
 
-    // Canvas leeren
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // User-Bild innerhalb des Frames zeichnen
+    // USER IMAGE
     ctx.save();
     ctx.beginPath();
     ctx.rect(frameX, frameY, frameWidth, frameHeight);
@@ -237,9 +251,10 @@ export default function ImageEditor({
       scaledUserWidth,
       scaledUserHeight,
     );
+
     ctx.restore();
 
-    // Template komplett oben drüber legen (keine Verzerrung, kein Cropping)
+    // TEMPLATE OVERLAY
     ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
   };
 
