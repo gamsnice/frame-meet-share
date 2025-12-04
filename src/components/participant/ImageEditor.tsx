@@ -693,11 +693,6 @@ export default function ImageEditor({
               />
             </div>
 
-            {/* Preview quality note */}
-            <p className="text-[9px] text-muted-foreground text-center italic">
-              Preview shown at reduced quality. Final download is full resolution.
-            </p>
-
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground bg-muted/50 rounded p-1.5">
               <Move className="h-3 w-3 flex-shrink-0" />
               <span>Drag to position • Pinch or use slider to zoom</span>
@@ -859,11 +854,6 @@ export default function ImageEditor({
 
           {/* All controls centered and constrained to match canvas width */}
           <div className="max-w-sm mx-auto space-y-3">
-            {/* Preview quality note */}
-            <p className="text-[10px] text-muted-foreground text-center italic">
-              Preview shown at reduced quality. Final download is full resolution.
-            </p>
-
             <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
               <Move className="h-3 w-3" />
               <span>Drag to position • Zoom to adjust</span>
