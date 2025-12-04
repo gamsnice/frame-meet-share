@@ -164,63 +164,74 @@ export default function ImageEditor({
   }, [userImage, template]);
 
   // Draw preview
-  useEffect(() => {
-    if (previewCanvasRef.current && templateImageElement && userImageElement) {
-      drawPreview();
-    }
-  }, [templateImageElement, userImageElement, scale, position]);
+ const drawPreview = () => {
+  const canvas = previewCanvasRef.current;
+  if (!canvas || !templateImageElement || !userImageElement) return;
 
-  const drawPreview = () => {
-    const canvas = previewCanvasRef.current;
-    if (!canvas || !templateImageElement || !userImageElement) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+  const aspect = dimensions.height / dimensions.width;
 
-    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
+  // Container des Canvas
+  const container = canvas.parentElement;
+  if (!container) return;
 
-    // Get container size
-    const container = canvas.parentElement;
-    if (!container) return;
+  // Ausgangsbreite: volle Containerbreite
+  let displayWidth = container.clientWidth;
+  let displayHeight = displayWidth * aspect;
 
-    const containerWidth = container.clientWidth;
-    const containerHeight = containerWidth * (dimensions.height / dimensions.width);
+  // Maximal sichtbare Höhe (damit oben/unten nichts abgeschnitten wird)
+  const MAX_DISPLAY_HEIGHT = isMobile ? 360 : 520;
 
-    // Set canvas size with quality multiplier for better resolution
-    canvas.width = containerWidth * PREVIEW_QUALITY;
-    canvas.height = containerHeight * PREVIEW_QUALITY;
-    
-    // Set display size via CSS
-    canvas.style.width = `${containerWidth}px`;
-    canvas.style.height = `${containerHeight}px`;
+  if (displayHeight > MAX_DISPLAY_HEIGHT) {
+    displayHeight = MAX_DISPLAY_HEIGHT;
+    displayWidth = displayHeight / aspect;
+  }
 
-    // Calculate frame position at canvas resolution
-    const frameX = template.photo_frame_x * canvas.width;
-    const frameY = template.photo_frame_y * canvas.height;
-    const frameWidth = template.photo_frame_width * canvas.width;
-    const frameHeight = template.photo_frame_height * canvas.height;
+  // Canvas-Auflösung (intern, für Qualität)
+  canvas.width = displayWidth * PREVIEW_QUALITY;
+  canvas.height = displayHeight * PREVIEW_QUALITY;
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Sichtbare Größe
+  canvas.style.width = `${displayWidth}px`;
+  canvas.style.height = `${displayHeight}px`;
 
-    // Draw user image clipped to frame
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(frameX, frameY, frameWidth, frameHeight);
-    ctx.clip();
+  // Frame-Position in Canvas-Koordinaten
+  const frameX = template.photo_frame_x * canvas.width;
+  const frameY = template.photo_frame_y * canvas.height;
+  const frameWidth = template.photo_frame_width * canvas.width;
+  const frameHeight = template.photo_frame_height * canvas.height;
 
-    // Scale the user image according to canvas size
-    const scaledUserWidth = userImageElement.width * scale * (canvas.width / dimensions.width);
-    const scaledUserHeight = userImageElement.height * scale * (canvas.height / dimensions.height);
+  // Canvas leeren
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(
-      userImageElement,
-      frameX + position.x * (canvas.width / dimensions.width),
-      frameY + position.y * (canvas.height / dimensions.height),
-      scaledUserWidth,
-      scaledUserHeight,
-    );
-    ctx.restore();
+  // Benutzerbild innerhalb des Frames zeichnen
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(frameX, frameY, frameWidth, frameHeight);
+  ctx.clip();
+
+  const scaleX = canvas.width / dimensions.width;
+  const scaleY = canvas.height / dimensions.height;
+
+  const scaledUserWidth = userImageElement.width * scale * scaleX;
+  const scaledUserHeight = userImageElement.height * scale * scaleY;
+
+  ctx.drawImage(
+    userImageElement,
+    frameX + position.x * scaleX,
+    frameY + position.y * scaleY,
+    scaledUserWidth,
+    scaledUserHeight
+  );
+  ctx.restore();
+
+  // Template-Overlay oben drauf
+  ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
+};
+
 
     // Draw template image over the user image
     ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
