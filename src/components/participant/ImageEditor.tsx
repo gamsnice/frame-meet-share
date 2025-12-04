@@ -873,7 +873,7 @@ export default function ImageEditor({
               <div>
                 <label className="text-xs font-medium mb-1 flex items-center gap-1.5">
                   <ZoomIn className="h-3 w-3" />
-                  Zoom: {scale.toFixed(1)}x
+                  Zoom
                 </label>
                 <Slider
                   value={[scale]}
@@ -904,7 +904,7 @@ export default function ImageEditor({
               <div className="mt-4 pt-4 border-t border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Share2 className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground">Share directly to social media</p>
+                  <p className="text-xs font-medium text-muted-foreground"></p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
