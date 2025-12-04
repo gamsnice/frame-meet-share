@@ -8,6 +8,7 @@ import { Calendar, MapPin, Globe, Instagram, Linkedin } from "lucide-react";
 import { toast } from "sonner";
 import TemplateSelector from "@/components/participant/TemplateSelector";
 import ImageEditor from "@/components/participant/ImageEditor";
+import CaptionsPanel from "@/components/participant/CaptionsPanel";
 import { trackEvent } from "@/lib/analytics";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -300,7 +301,7 @@ export default function EventParticipantPage() {
           </Card>
         ) : (
           <>
-            {/* Mobile Layout: Editor first, then templates at bottom */}
+            {/* Mobile Layout: Editor first, then templates */}
             {isMobile ? (
               <div className="space-y-4">
                 {/* Editor Section - Always visible on mobile */}
@@ -314,7 +315,6 @@ export default function EventParticipantPage() {
                       onResetTemplate={handleResetTemplate}
                       helperText={event.helper_text}
                       eventSlug={slug || ""}
-                      eventId={event.id}
                       isMobile={isMobile}
                     />
                   ) : (
@@ -324,18 +324,27 @@ export default function EventParticipantPage() {
                   )}
                 </div>
 
-                {/* Template Selector - at the bottom on mobile */}
+                {/* Template Selector */}
                 <TemplateSelector
                   templates={templates}
                   selectedTemplate={selectedTemplate}
                   onSelect={handleTemplateSelect}
                   isMobile={isMobile}
                 />
+
+                {/* Captions Panel */}
+                {selectedTemplate && (
+                  <CaptionsPanel 
+                    templateId={selectedTemplate.id} 
+                    eventId={event.id}
+                    isMobile={isMobile}
+                  />
+                )}
               </div>
             ) : (
               /* Desktop Layout: Side by side */
               <div className="grid gap-8 lg:grid-cols-2">
-                {/* Left Column: Template Selector only */}
+                {/* Left Column: Template Selector & Captions */}
                 <div className="space-y-6">
                   <TemplateSelector
                     templates={templates}
@@ -343,9 +352,17 @@ export default function EventParticipantPage() {
                     onSelect={handleTemplateSelect}
                     isMobile={false}
                   />
+
+                  {selectedTemplate && (
+                    <CaptionsPanel 
+                      templateId={selectedTemplate.id} 
+                      eventId={event.id}
+                      isMobile={false}
+                    />
+                  )}
                 </div>
 
-                {/* Right Column: Image Editor (with captions inside) */}
+                {/* Right Column: Image Editor */}
                 <div className="lg:sticky lg:top-8 lg:self-start flex justify-center items-center overflow-hidden">
                   {!selectedTemplate ? (
                     <Card className="p-12 text-center">
@@ -362,7 +379,6 @@ export default function EventParticipantPage() {
                           onDownload={handleDownload}
                           helperText={event.helper_text}
                           eventSlug={slug || ""}
-                          eventId={event.id}
                           isMobile={false}
                         />
                       </div>

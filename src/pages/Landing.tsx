@@ -166,49 +166,74 @@ export default function Landing() {
             </div>
 
             {/* Right: Animated Example Images */}
-            <div className="relative h-[300px] sm:h-[400px] md:h-[500px]" style={{ animationDelay: "0.3s" }}>
+            <div
+              className="relative h-[300px] sm:h-[400px] md:h-[500px] animate-scale-in"
+              style={{ animationDelay: "0.3s" }}
+            >
               <div className="absolute inset-0 flex items-center justify-center">
                 {examples.map((example, index) => {
-                  const isActive = index === activeExample;
+                  // relative index: -1 (left), 0 (center), 1 (right), others hidden
+                  let relativeIndex = index - activeExample;
 
-                  // Positions for left, center, right
-                  const positions = {
-                    0: "translate-x-0 scale-100 z-30 opacity-100",
-                    "-1": "-translate-x-32 translate-y-6 scale-90 z-20 opacity-70",
-                    1: "translate-x-32 translate-y-6 scale-90 z-20 opacity-70",
-                  };
+                  // wrap around for a 3-item carousel
+                  if (relativeIndex > 1) relativeIndex -= examples.length;
+                  if (relativeIndex < -1) relativeIndex += examples.length;
 
-                  let relative = index - activeExample;
+                  const isCenter = relativeIndex === 0;
+                  const isSide = Math.abs(relativeIndex) === 1;
 
-                  // wrap logic for 3 images
-                  if (relative > 1) relative -= examples.length;
-                  if (relative < -1) relative += examples.length;
+                  // hide anything that's not left / center / right
+                  if (!isCenter && !isSide) {
+                    return <div key={index} className="absolute opacity-0 pointer-events-none" />;
+                  }
 
-                  const transformClass = positions[relative] || "opacity-0 scale-90";
+                  const translateX = isCenter ? 0 : relativeIndex === -1 ? -120 : 120;
+                  const translateY = isCenter ? 0 : 24;
+                  const scale = isCenter ? 1 : 0.9;
+                  const zIndex = isCenter ? 30 : 20;
+                  const opacityBase = isCenter ? 1 : 0.8;
+
+                  const isLoaded = loadedImages[index];
 
                   return (
                     <div
                       key={index}
-                      className={`
-            absolute transition-all duration-700 ease-[cubic-bezier(.25,.8,.25,1)]
-            cursor-pointer
-            ${transformClass}
-          `}
+                      className="absolute cursor-pointer transition-transform duration-500 ease-out"
+                      style={{
+                        transform: `translateX(${translateX}px) translateY(${translateY}px) scale(${scale})`,
+                        zIndex,
+                        opacity: opacityBase,
+                      }}
                       onClick={() => setActiveExample(index)}
                     >
-                      {/* Smooth image fade-in + no popping */}
-                      <img
-                        src={example.image}
-                        alt="meetme example"
-                        className="
-              rounded-2xl object-contain
-              max-h-[260px] sm:max-h-[320px] md:max-h-[380px]
-              transition-opacity duration-700
-            "
-                        style={{
-                          opacity: 1,
-                        }}
-                      />
+                      <div
+                        className={`relative rounded-2xl overflow-hidden shadow-hover ${
+                          isCenter ? "animate-glow-pulse" : ""
+                        }`}
+                      >
+                        {/* Smooth image fade-in */}
+                        <div
+                          className={`
+                            flex items-center justify-center
+                            transition-all duration-500 ease-out
+                            ${isLoaded ? "opacity-100 translate-y-0 blur-0" : "opacity-0 translate-y-2 blur-sm"}
+                          `}
+                        >
+                          <img
+                            src={example.image}
+                            alt="meetme example"
+                            loading={index === 0 ? "eager" : "lazy"}
+                            decoding="async"
+                            onLoad={() => handleImageLoad(index)}
+                            className="
+                              rounded-2xl
+                              object-contain
+                              max-h-[260px] sm:max-h-[320px] md:max-h-[380px]
+                              max-w-[260px] sm:max-w-[320px] md:max-w-[380px]
+                            "
+                          />
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
