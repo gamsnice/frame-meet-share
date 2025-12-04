@@ -179,29 +179,33 @@ export default function ImageEditor({
     if (!ctx) return;
 
     const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-    const aspect = dimensions.height / dimensions.width;
+    const aspect = dimensions.height / dimensions.width; // z.B. 1920 / 1080
 
-    // Container des Canvas
+    // Container, in dem das Canvas steckt (die Border-Box)
     const container = canvas.parentElement;
     if (!container) return;
 
-    // Ausgangsbreite: volle Containerbreite
+    // Ausgangsbreite = komplette Containerbreite
     let displayWidth = container.clientWidth;
     let displayHeight = displayWidth * aspect;
 
-    // Maximal sichtbare Höhe (damit oben/unten nichts abgeschnitten wird)
-    const MAX_DISPLAY_HEIGHT = isMobile ? 360 : 520;
+    // Viewport-basierte Maximalhöhe (damit nichts „aus dem Card-Rahmen raus“ geht)
+    // Desktop: an Browserhöhe orientieren; Mobile: etwas kleiner halten
+    const viewportMaxHeight = typeof window !== "undefined" ? window.innerHeight - 260 : 0;
+    const MOBILE_MAX_HEIGHT = 360;
 
-    if (displayHeight > MAX_DISPLAY_HEIGHT) {
-      displayHeight = MAX_DISPLAY_HEIGHT;
+    const maxHeight = isMobile ? MOBILE_MAX_HEIGHT : viewportMaxHeight > 0 ? viewportMaxHeight : displayHeight;
+
+    if (displayHeight > maxHeight) {
+      displayHeight = maxHeight;
       displayWidth = displayHeight / aspect;
     }
 
-    // Canvas-Auflösung (intern, für Qualität)
+    // Canvas-Innenauflösung (für Schärfe)
     canvas.width = displayWidth * PREVIEW_QUALITY;
     canvas.height = displayHeight * PREVIEW_QUALITY;
 
-    // Sichtbare Größe
+    // Sichtbare Größe: volle Breite, Höhe passend zum Seitenverhältnis
     canvas.style.width = `${displayWidth}px`;
     canvas.style.height = `${displayHeight}px`;
 
@@ -214,7 +218,7 @@ export default function ImageEditor({
     // Canvas leeren
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Benutzerbild innerhalb des Frames zeichnen
+    // User-Bild innerhalb des Frames zeichnen
     ctx.save();
     ctx.beginPath();
     ctx.rect(frameX, frameY, frameWidth, frameHeight);
@@ -235,7 +239,7 @@ export default function ImageEditor({
     );
     ctx.restore();
 
-    // Template-Overlay oben drauf
+    // Template komplett oben drüber legen (keine Verzerrung, kein Cropping)
     ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
   };
 
