@@ -193,28 +193,51 @@ export default function TemplateManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this template?")) return;
+    if (!confirm("Delete this template? This will also remove all associated captions and placeholder images.")) return;
 
     try {
-      // Get template to find image URL
       const template = templates.find((t) => t.id === id);
+      if (!template) {
+        toast.error("Template not found");
+        return;
+      }
 
-      // Delete from database
-      const { error } = await supabase.from("templates").delete().eq("id", id);
-      if (error) throw error;
+      // Collect storage paths to delete
+      const pathsToDelete: string[] = [];
 
-      // Delete image from storage
-      if (template?.image_url) {
-        const path = template.image_url.split("/event-assets/")[1];
-        if (path) {
-          await supabase.storage.from("event-assets").remove([path]);
+      // Add placeholder image path if exists
+      if (template.placeholder_image_url) {
+        const placeholderPath = template.placeholder_image_url.split("/event-assets/")[1];
+        if (placeholderPath) {
+          pathsToDelete.push(placeholderPath);
         }
       }
 
-      toast.success("Template deleted");
+      // Add template image path if exists
+      if (template.image_url) {
+        const imagePath = template.image_url.split("/event-assets/")[1];
+        if (imagePath) {
+          pathsToDelete.push(imagePath);
+        }
+      }
+
+      // Delete template from database first (cascades to template_captions, sets null on stats)
+      const { error } = await supabase.from("templates").delete().eq("id", id);
+      if (error) throw error;
+
+      // Delete images from storage after successful database deletion
+      if (pathsToDelete.length > 0) {
+        const { error: storageError } = await supabase.storage.from("event-assets").remove(pathsToDelete);
+        if (storageError) {
+          console.warn("Failed to delete some storage files:", storageError);
+        }
+      }
+
+      toast.success("Template and all related data deleted successfully");
       loadTemplates();
     } catch (error: any) {
-      toast.error("Failed to delete template");
+      console.error("Delete error:", error);
+      toast.error(`Failed to delete template: ${error.message || "Unknown error"}`);
     }
   };
 
