@@ -1,29 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-
-interface Template {
-  format: string;
-  image_url: string;
-  photo_frame_x: number;
-  photo_frame_y: number;
-  photo_frame_width: number;
-  photo_frame_height: number;
-  placeholder_image_url?: string;
-  placeholder_scale?: number;
-  placeholder_x?: number;
-  placeholder_y?: number;
-}
+import { FORMAT_DIMENSIONS, type TemplateBase } from "@/types";
 
 interface TemplatePreviewProps {
-  template: Template;
+  template: TemplateBase;
   className?: string;
 }
-
-const FORMAT_DIMENSIONS = {
-  square: { width: 1080, height: 1080 },
-  story: { width: 1080, height: 1920 },
-  landscape: { width: 1200, height: 630 },
-  portrait: { width: 1080, height: 1350 },
-};
 
 export default function TemplatePreview({ template, className = "" }: TemplatePreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

@@ -13,41 +13,7 @@ import { toast } from "sonner";
 import PhotoFrameMapper from "./PhotoFrameMapper";
 import { PlaceholderEditor } from "./PlaceholderEditor";
 import TemplatePreview from "@/components/participant/TemplatePreview";
-
-interface Template {
-  id: string;
-  name: string;
-  type: string;
-  format: string;
-  image_url: string;
-  photo_frame_x: number;
-  photo_frame_y: number;
-  photo_frame_width: number;
-  photo_frame_height: number;
-  placeholder_image_url?: string;
-  placeholder_scale?: number;
-  placeholder_x?: number;
-  placeholder_y?: number;
-}
-
-interface Caption {
-  id: string;
-  caption_text: string;
-}
-
-const FORMAT_DIMENSIONS = {
-  square: { width: 1080, height: 1080, label: "Square (1080x1080)" },
-  story: { width: 1080, height: 1920, label: "Story (1080x1920)" },
-  landscape: { width: 1200, height: 630, label: "Landscape (1200x630)" },
-  portrait: { width: 1080, height: 1350, label: "Portrait (1080x1350)" },
-};
-
-const FORMAT_ASPECT_RATIOS = {
-  square: "aspect-square",
-  story: "aspect-[9/16]",
-  landscape: "aspect-[1200/630]",
-  portrait: "aspect-[4/5]",
-};
+import { FORMAT_DIMENSIONS_WITH_LABELS, FORMAT_ASPECT_RATIOS, type Template, type Caption } from "@/types";
 
 export default function TemplateManager() {
   const { eventId } = useParams();
@@ -472,8 +438,8 @@ export default function TemplateManager() {
               <h3 className="font-semibold mb-1">{template.name}</h3>
               <div className="flex gap-2 text-xs mb-3">
                 <span className="px-2 py-1 bg-primary/10 text-primary rounded">{template.type}</span>
-                <span className="px-2 py-1 bg-secondary/10 text-secondary rounded">
-                  {FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS]?.label}
+              <span className="px-2 py-1 bg-secondary/10 text-secondary rounded">
+                  {FORMAT_DIMENSIONS_WITH_LABELS[template.format as keyof typeof FORMAT_DIMENSIONS_WITH_LABELS]?.label}
                 </span>
               </div>
               <div className="flex flex-col gap-2">

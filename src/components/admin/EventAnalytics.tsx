@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -11,37 +11,9 @@ import HourlyHeatmap from "./analytics/HourlyHeatmap";
 import WeekdayChart from "./analytics/WeekdayChart";
 import TemplatePerformanceTable from "./analytics/TemplatePerformanceTable";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
+import type { TemplateStats, DailyData, HourlyData, WeekdayData, AnalyticsStats } from "@/types";
 
-interface DailyData {
-  date: string;
-  views: number;
-  uploads: number;
-  downloads: number;
-}
-
-interface HourlyData {
-  hour: number;
-  views: number;
-  uploads: number;
-  downloads: number;
-}
-
-interface WeekdayData {
-  day: string;
-  views: number;
-  uploads: number;
-  downloads: number;
-}
-
-interface TemplateStats {
-  id: string;
-  name: string;
-  type: string;
-  views: number;
-  uploads: number;
-  downloads: number;
-  conversion: number;
-}
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function EventAnalytics() {
   const { eventId } = useParams();
@@ -53,15 +25,11 @@ export default function EventAnalytics() {
   const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
   const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
   const [templateStats, setTemplateStats] = useState<TemplateStats[]>([]);
-  const [stats, setStats] = useState({ totalViews: 0, totalUploads: 0, totalDownloads: 0, conversionRate: 0 });
+  const [stats, setStats] = useState<AnalyticsStats>({ totalViews: 0, totalUploads: 0, totalDownloads: 0, conversionRate: 0 });
 
-  useEffect(() => {
-    if (eventId) {
-      loadAnalytics();
-    }
-  }, [eventId, startDate, endDate]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
+    if (!eventId) return;
+    
     setLoading(true);
     try {
       // Build date filter for daily stats
@@ -78,8 +46,9 @@ export default function EventAnalytics() {
 
       const { data: hourlyStats } = await hourlyQuery;
 
-      // Calculate overall stats
+      // Process daily stats
       if (dailyStats) {
+        // Calculate overall stats
         const totalViews = dailyStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
         const totalUploads = dailyStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
         const totalDownloads = dailyStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
@@ -103,12 +72,11 @@ export default function EventAnalytics() {
 
         // Process weekday data
         const weekdayMap = new Map<number, WeekdayData>();
-        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         dailyStats.forEach((stat) => {
           const dayOfWeek = getDay(parseISO(stat.date));
-          const existing = weekdayMap.get(dayOfWeek) || { day: dayNames[dayOfWeek], views: 0, uploads: 0, downloads: 0 };
+          const existing = weekdayMap.get(dayOfWeek) || { day: DAY_NAMES[dayOfWeek], views: 0, uploads: 0, downloads: 0 };
           weekdayMap.set(dayOfWeek, {
-            day: dayNames[dayOfWeek],
+            day: DAY_NAMES[dayOfWeek],
             views: existing.views + (stat.views_count || 0),
             uploads: existing.uploads + (stat.uploads_count || 0),
             downloads: existing.downloads + (stat.downloads_count || 0),
@@ -137,15 +105,15 @@ export default function EventAnalytics() {
 
         if (templates) {
           const templateStatsArray: TemplateStats[] = templates.map((t) => {
-            const stats = templateMap.get(t.id) || { views: 0, uploads: 0, downloads: 0 };
-            const conversion = stats.views > 0 ? (stats.downloads / stats.views) * 100 : 0;
+            const tStats = templateMap.get(t.id) || { views: 0, uploads: 0, downloads: 0 };
+            const conversion = tStats.views > 0 ? (tStats.downloads / tStats.views) * 100 : 0;
             return {
               id: t.id,
               name: t.name,
               type: t.type,
-              views: stats.views,
-              uploads: stats.uploads,
-              downloads: stats.downloads,
+              views: tStats.views,
+              uploads: tStats.uploads,
+              downloads: tStats.downloads,
               conversion,
             };
           });
@@ -175,7 +143,11 @@ export default function EventAnalytics() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId, startDate, endDate]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
 
   if (loading) {
     return <div className="text-center py-12">Loading analytics...</div>;

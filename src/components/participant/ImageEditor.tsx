@@ -23,26 +23,7 @@ import TemplatePreview from "./TemplatePreview";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { supabase } from "@/lib/supabase";
 import { trackEvent } from "@/lib/analytics";
-
-interface Template {
-  id: string;
-  name: string;
-  format: string;
-  image_url: string;
-  photo_frame_x: number;
-  photo_frame_y: number;
-  photo_frame_width: number;
-  photo_frame_height: number;
-  placeholder_image_url?: string;
-  placeholder_scale?: number;
-  placeholder_x?: number;
-  placeholder_y?: number;
-}
-
-interface Caption {
-  id: string;
-  caption_text: string;
-}
+import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
 
 interface ImageEditorProps {
   template: Template;
@@ -55,13 +36,6 @@ interface ImageEditorProps {
   eventId?: string;
   isMobile?: boolean;
 }
-
-const FORMAT_DIMENSIONS = {
-  square: { width: 1080, height: 1080 },
-  story: { width: 1080, height: 1920 },
-  landscape: { width: 1200, height: 630 },
-  portrait: { width: 1080, height: 1350 },
-};
 
 export default function ImageEditor({
   template,

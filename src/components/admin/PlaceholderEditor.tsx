@@ -2,31 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ZoomIn } from "lucide-react";
-
-interface Template {
-  image_url: string;
-  format: string;
-  photo_frame_x: number;
-  photo_frame_y: number;
-  photo_frame_width: number;
-  photo_frame_height: number;
-}
+import { FORMAT_DIMENSIONS, type TemplateBase } from "@/types";
 
 interface PlaceholderEditorProps {
-  template: Template;
+  template: TemplateBase;
   placeholderImage: string;
   initialScale?: number;
   initialX?: number;
   initialY?: number;
   onPositionChange: (x: number, y: number, scale: number) => void;
 }
-
-const FORMAT_DIMENSIONS: Record<string, { width: number; height: number }> = {
-  square: { width: 1080, height: 1080 },
-  story: { width: 1080, height: 1920 },
-  portrait: { width: 1080, height: 1350 },
-  landscape: { width: 1200, height: 630 },
-};
 
 const MAX_CANVAS_WIDTH = 300;
 const MAX_CANVAS_HEIGHT = 320;
