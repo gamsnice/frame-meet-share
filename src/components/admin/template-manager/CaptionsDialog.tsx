@@ -25,10 +25,7 @@ export function CaptionsDialog({ template, onClose }: CaptionsDialogProps) {
 
   const loadCaptions = async (templateId: string) => {
     try {
-      const { data, error } = await supabase
-        .from("template_captions")
-        .select("*")
-        .eq("template_id", templateId);
+      const { data, error } = await supabase.from("template_captions").select("*").eq("template_id", templateId);
 
       if (error) throw error;
       setCaptions(data || []);
@@ -87,7 +84,7 @@ export function CaptionsDialog({ template, onClose }: CaptionsDialogProps) {
           <div className="space-y-2">
             {captions.map((caption) => (
               <Card key={caption.id} className="p-3 flex justify-between items-start gap-2">
-                <p className="text-sm flex-1">{caption.caption_text}</p>
+                <p className="text-sm flex-1 whitespace-pre-wrap leading-relaxed">{caption.caption_text}</p>
                 <Button size="sm" variant="ghost" onClick={() => deleteCaption(caption.id)}>
                   <X className="h-4 w-4" />
                 </Button>
