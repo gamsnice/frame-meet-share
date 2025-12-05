@@ -5,15 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, Plus, Pencil, Trash2, Image as ImageIcon, X, User } from "lucide-react";
+import { ArrowLeft, Plus, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import PhotoFrameMapper from "./PhotoFrameMapper";
-import { PlaceholderEditor } from "./PlaceholderEditor";
-import TemplatePreview from "@/components/participant/TemplatePreview";
-import { FORMAT_DIMENSIONS_WITH_LABELS, FORMAT_ASPECT_RATIOS, type Template, type Caption } from "@/types";
+import { FORMAT_DIMENSIONS_WITH_LABELS, type Template } from "@/types";
+import { TemplateCard, CaptionsDialog, PlaceholderDialog } from "./template-manager";
 
 export default function TemplateManager() {
   const { eventId } = useParams();
@@ -23,15 +21,8 @@ export default function TemplateManager() {
   const [showDialog, setShowDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [captions, setCaptions] = useState<Caption[]>([]);
-  const [newCaption, setNewCaption] = useState("");
   const [showPlaceholderDialog, setShowPlaceholderDialog] = useState(false);
   const [placeholderTemplate, setPlaceholderTemplate] = useState<Template | null>(null);
-  const [placeholderFile, setPlaceholderFile] = useState<File | null>(null);
-  const [placeholderPreview, setPlaceholderPreview] = useState<string>("");
-  const [placeholderScale, setPlaceholderScale] = useState(1);
-  const [placeholderPosition, setPlaceholderPosition] = useState({ x: 0, y: 0 });
-  const [savingPlaceholder, setSavingPlaceholder] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -64,17 +55,6 @@ export default function TemplateManager() {
       console.error(error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadCaptions = async (templateId: string) => {
-    try {
-      const { data, error } = await supabase.from("template_captions").select("*").eq("template_id", templateId);
-
-      if (error) throw error;
-      setCaptions(data || []);
-    } catch (error: any) {
-      toast.error("Failed to load captions");
     }
   };
 
@@ -248,144 +228,6 @@ export default function TemplateManager() {
     });
   };
 
-  const openCaptionsDialog = (template: Template) => {
-    setSelectedTemplate(template);
-    loadCaptions(template.id);
-  };
-
-  const addCaption = async () => {
-    if (!newCaption.trim() || !selectedTemplate) return;
-
-    try {
-      const { error } = await supabase
-        .from("template_captions")
-        .insert([{ template_id: selectedTemplate.id, caption_text: newCaption }]);
-
-      if (error) throw error;
-      toast.success("Caption added!");
-      setNewCaption("");
-      loadCaptions(selectedTemplate.id);
-    } catch (error: any) {
-      toast.error("Failed to add caption");
-    }
-  };
-
-  const deleteCaption = async (id: string) => {
-    try {
-      const { error } = await supabase.from("template_captions").delete().eq("id", id);
-      if (error) throw error;
-      toast.success("Caption deleted");
-      if (selectedTemplate) loadCaptions(selectedTemplate.id);
-    } catch (error: any) {
-      toast.error("Failed to delete caption");
-    }
-  };
-
-  const openPlaceholderDialog = (template: Template) => {
-    setPlaceholderTemplate(template);
-    setPlaceholderPreview(template.placeholder_image_url || "");
-    setPlaceholderScale(template.placeholder_scale || 1);
-    setPlaceholderPosition({ x: template.placeholder_x || 0, y: template.placeholder_y || 0 });
-    setPlaceholderFile(null);
-    setShowPlaceholderDialog(true);
-  };
-
-  const handlePlaceholderFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File size must be less than 10MB");
-      return;
-    }
-
-    setPlaceholderFile(file);
-    const previewUrl = URL.createObjectURL(file);
-    setPlaceholderPreview(previewUrl);
-  };
-
-  const savePlaceholder = async () => {
-    if (!placeholderTemplate) return;
-
-    setSavingPlaceholder(true);
-    try {
-      let placeholderUrl = placeholderTemplate.placeholder_image_url || "";
-
-      if (placeholderFile) {
-        const fileExt = placeholderFile.name.split(".").pop();
-        const fileName = `${eventId}/placeholders/${placeholderTemplate.id}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage.from("event-assets").upload(fileName, placeholderFile, {
-          cacheControl: "3600",
-          upsert: true,
-        });
-
-        if (uploadError) throw uploadError;
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("event-assets").getPublicUrl(fileName);
-
-        placeholderUrl = publicUrl;
-      }
-
-      const { error } = await supabase
-        .from("templates")
-        .update({
-          placeholder_image_url: placeholderUrl,
-          placeholder_scale: placeholderScale,
-          placeholder_x: placeholderPosition.x,
-          placeholder_y: placeholderPosition.y,
-        })
-        .eq("id", placeholderTemplate.id);
-
-      if (error) throw error;
-      toast.success("Placeholder saved!");
-      setShowPlaceholderDialog(false);
-      loadTemplates();
-    } catch (error: any) {
-      console.error("Placeholder save error:", error);
-      toast.error(error.message || "Failed to save placeholder");
-    } finally {
-      setSavingPlaceholder(false);
-    }
-  };
-
-  const removePlaceholder = async () => {
-    if (!placeholderTemplate) return;
-
-    try {
-      if (placeholderTemplate.placeholder_image_url) {
-        const path = placeholderTemplate.placeholder_image_url.split("/event-assets/")[1];
-        if (path) {
-          await supabase.storage.from("event-assets").remove([path]);
-        }
-      }
-
-      const { error } = await supabase
-        .from("templates")
-        .update({
-          placeholder_image_url: null,
-          placeholder_scale: 1,
-          placeholder_x: 0,
-          placeholder_y: 0,
-        })
-        .eq("id", placeholderTemplate.id);
-
-      if (error) throw error;
-      toast.success("Placeholder removed!");
-      setShowPlaceholderDialog(false);
-      loadTemplates();
-    } catch (error: any) {
-      toast.error("Failed to remove placeholder");
-    }
-  };
-
   if (loading) {
     return <div className="text-center py-12">Loading templates...</div>;
   }
@@ -422,45 +264,17 @@ export default function TemplateManager() {
       ) : (
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => (
-            <Card key={template.id} className="p-4 group hover:shadow-hover transition-shadow">
-              <div
-                className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} rounded-lg bg-muted mb-4 relative overflow-hidden`}
-              >
-                <TemplatePreview template={template} className="w-full h-full object-contain" />
-              </div>
-              {/* Note about image resolution */}
-              <div className="text-center text-xs text-muted-foreground mt-2 mb-4">
-                <p>
-                  Please note that the resolution displayed here is lower for preview purposes. The final download will
-                  be in full quality.
-                </p>
-              </div>
-              <h3 className="font-semibold mb-1">{template.name}</h3>
-              <div className="flex gap-2 text-xs mb-3">
-                <span className="px-2 py-1 bg-primary/10 text-primary rounded">{template.type}</span>
-              <span className="px-2 py-1 bg-secondary/10 text-secondary rounded">
-                  {FORMAT_DIMENSIONS_WITH_LABELS[template.format as keyof typeof FORMAT_DIMENSIONS_WITH_LABELS]?.label}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <div className="grid grid-cols-3 gap-2">
-                  <Button size="sm" variant="outline" className="min-h-[40px]" onClick={() => openEditDialog(template)}>
-                    <Pencil className="h-3 w-3 sm:mr-1" />
-                    <span className="hidden sm:inline">Edit</span>
-                  </Button>
-                  <Button size="sm" variant="outline" className="min-h-[40px]" onClick={() => openCaptionsDialog(template)}>
-                    <span className="text-xs sm:text-sm">Captions</span>
-                  </Button>
-                  <Button size="sm" variant="outline" className="min-h-[40px]" onClick={() => handleDelete(template.id)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-                <Button size="sm" variant="outline" className="w-full min-h-[40px]" onClick={() => openPlaceholderDialog(template)}>
-                  <User className="mr-1 h-3 w-3" />
-                  Placeholder
-                </Button>
-              </div>
-            </Card>
+            <TemplateCard
+              key={template.id}
+              template={template}
+              onEdit={openEditDialog}
+              onDelete={handleDelete}
+              onOpenCaptions={setSelectedTemplate}
+              onOpenPlaceholder={(t) => {
+                setPlaceholderTemplate(t);
+                setShowPlaceholderDialog(true);
+              }}
+            />
           ))}
         </div>
       )}
@@ -520,10 +334,9 @@ export default function TemplateManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="square">Square (1080x1080)</SelectItem>
-                  <SelectItem value="story">Story (1080x1920)</SelectItem>
-                  <SelectItem value="landscape">Landscape (1200x630)</SelectItem>
-                  <SelectItem value="portrait">Portrait (1080x1350)</SelectItem>
+                  {Object.entries(FORMAT_DIMENSIONS_WITH_LABELS).map(([key, { label }]) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -568,84 +381,19 @@ export default function TemplateManager() {
       </Dialog>
 
       {/* Captions Dialog */}
-      <Dialog open={!!selectedTemplate} onOpenChange={() => setSelectedTemplate(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Manage Captions - {selectedTemplate?.name}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <Textarea
-                value={newCaption}
-                onChange={(e) => setNewCaption(e.target.value)}
-                placeholder="Add a suggested caption..."
-                rows={3}
-              />
-            </div>
-            <Button onClick={addCaption} className="w-full">
-              Add Caption
-            </Button>
-
-            <div className="space-y-2">
-              {captions.map((caption) => (
-                <Card key={caption.id} className="p-3 flex justify-between items-start gap-2">
-                  <p className="text-sm flex-1">{caption.caption_text}</p>
-                  <Button size="sm" variant="ghost" onClick={() => deleteCaption(caption.id)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <CaptionsDialog
+        template={selectedTemplate}
+        onClose={() => setSelectedTemplate(null)}
+      />
 
       {/* Placeholder Dialog */}
-      <Dialog open={showPlaceholderDialog} onOpenChange={setShowPlaceholderDialog}>
-        <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-hidden flex flex-col p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>Manage Placeholder - {placeholderTemplate?.name}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 overflow-y-auto flex-1 pr-2">
-            <div>
-              <Label>Placeholder Photo</Label>
-              <Input type="file" accept="image/*" onChange={handlePlaceholderFileUpload} className="cursor-pointer" />
-              <p className="text-xs text-muted-foreground mt-1">Upload a sample photo to show in previews (max 10MB)</p>
-            </div>
-
-            {placeholderPreview && placeholderTemplate && (
-              <PlaceholderEditor
-                template={placeholderTemplate}
-                placeholderImage={placeholderPreview}
-                initialScale={placeholderScale}
-                initialX={placeholderPosition.x}
-                initialY={placeholderPosition.y}
-                onPositionChange={(x, y, scale) => {
-                  setPlaceholderPosition({ x, y });
-                  setPlaceholderScale(scale);
-                }}
-              />
-            )}
-          </div>
-          <div className="flex justify-between gap-2 pt-4 border-t sticky bottom-0 bg-background">
-            <Button
-              variant="outline"
-              onClick={removePlaceholder}
-              disabled={!placeholderTemplate?.placeholder_image_url}
-            >
-              Remove Placeholder
-            </Button>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowPlaceholderDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={savePlaceholder} disabled={!placeholderPreview || savingPlaceholder}>
-                {savingPlaceholder ? "Saving..." : "Save Placeholder"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PlaceholderDialog
+        template={placeholderTemplate}
+        eventId={eventId || ""}
+        open={showPlaceholderDialog}
+        onOpenChange={setShowPlaceholderDialog}
+        onSaved={loadTemplates}
+      />
     </div>
   );
 }
