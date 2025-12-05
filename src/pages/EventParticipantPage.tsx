@@ -10,47 +10,11 @@ import TemplateSelector from "@/components/participant/TemplateSelector";
 import ImageEditor from "@/components/participant/ImageEditor";
 import { trackEvent } from "@/lib/analytics";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface Event {
-  id: string;
-  name: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  location: string;
-  brand_primary_color: string;
-  brand_secondary_color: string;
-  brand_text_color: string;
-  logo_url?: string;
-  secondary_logo_url?: string;
-  favicon_url?: string;
-  hero_title: string;
-  hero_subtitle: string;
-  helper_text: string;
-  homepage_url?: string;
-  instagram_url?: string;
-  linkedin_url?: string;
-}
-
-interface Template {
-  id: string;
-  name: string;
-  type: string;
-  format: string;
-  image_url: string;
-  photo_frame_x: number;
-  photo_frame_y: number;
-  photo_frame_width: number;
-  photo_frame_height: number;
-  placeholder_image_url?: string;
-  placeholder_scale?: number;
-  placeholder_x?: number;
-  placeholder_y?: number;
-}
+import { EventBase, Template } from "@/types";
 
 export default function EventParticipantPage() {
   const { slug } = useParams();
-  const [event, setEvent] = useState<Event | null>(null);
+  const [event, setEvent] = useState<EventBase | null>(null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [userImage, setUserImage] = useState<string | null>(null);

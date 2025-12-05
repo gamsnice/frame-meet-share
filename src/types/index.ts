@@ -24,7 +24,7 @@ export const FORMAT_ASPECT_RATIOS = {
 
 export type TemplateFormat = keyof typeof FORMAT_DIMENSIONS;
 
-// Base template interface (minimum required fields)
+// Base template interface (minimum required fields for rendering)
 export interface TemplateBase {
   format: string;
   image_url: string;
@@ -45,34 +45,37 @@ export interface Template extends TemplateBase {
   type: string;
 }
 
+// Event interface matching database schema
+export interface EventBase {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  location?: string | null;
+  owner_user_id: string;
+  hero_title: string;
+  hero_subtitle?: string | null;
+  logo_url?: string | null;
+  secondary_logo_url?: string | null;
+  favicon_url?: string | null;
+  brand_primary_color?: string | null;
+  brand_secondary_color?: string | null;
+  brand_text_color?: string | null;
+  homepage_url?: string | null;
+  instagram_url?: string | null;
+  linkedin_url?: string | null;
+  helper_text?: string | null;
+  layout_preset?: string | null;
+}
+
 // Caption interface
 export interface Caption {
   id: string;
   caption_text: string;
 }
 
-// Event interface
-export interface Event {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  location: string;
-  owner_user_id?: string;
-  hero_title?: string;
-  hero_subtitle?: string;
-  logo_url?: string;
-  secondary_logo_url?: string;
-  favicon_url?: string;
-  primary_color?: string;
-  secondary_color?: string;
-  background_color?: string;
-  homepage_url?: string;
-  instagram_url?: string;
-  linkedin_url?: string;
-}
 
 // Analytics data interfaces
 export interface DailyData {
