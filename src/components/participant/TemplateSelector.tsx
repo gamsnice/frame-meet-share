@@ -2,22 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
 import TemplatePreview from "./TemplatePreview";
-
-interface Template {
-  id: string;
-  name: string;
-  type: string;
-  format: string;
-  image_url: string;
-  photo_frame_x: number;
-  photo_frame_y: number;
-  photo_frame_width: number;
-  photo_frame_height: number;
-  placeholder_image_url?: string;
-  placeholder_scale?: number;
-  placeholder_x?: number;
-  placeholder_y?: number;
-}
+import { Template, FORMAT_ASPECT_RATIOS } from "@/types";
 
 interface TemplateSelectorProps {
   templates: Template[];
@@ -38,13 +23,6 @@ const FORMAT_LABELS_FULL = {
   story: "Story (1080x1920)",
   landscape: "Landscape (1200x630)",
   portrait: "Portrait (1080x1350)",
-};
-
-const FORMAT_ASPECT_RATIOS = {
-  square: "aspect-square",
-  story: "aspect-[9/16]",
-  landscape: "aspect-[1200/630]",
-  portrait: "aspect-[4/5]",
 };
 
 export default function TemplateSelector({

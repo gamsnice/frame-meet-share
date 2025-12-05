@@ -1,12 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-interface Event {
-  id: string;
-  name: string;
-}
+import { EventBase } from "@/types";
 
 interface EventFilterProps {
-  events: Event[];
+  events: Pick<EventBase, "id" | "name">[];
   selectedEventId: string | null;
   onEventChange: (eventId: string | null) => void;
 }

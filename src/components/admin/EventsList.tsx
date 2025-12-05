@@ -6,16 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Plus, Calendar, Copy, ExternalLink, Pencil, BarChart3, Eye, Download } from "lucide-react";
 import { toast } from "sonner";
-
-interface Event {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  location: string;
-}
+import { EventBase } from "@/types";
 
 interface EventStats {
   views: number;
@@ -23,7 +14,7 @@ interface EventStats {
 }
 
 export default function EventsList({ userId }: { userId: string }) {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventBase[]>([]);
   const [eventStats, setEventStats] = useState<Map<string, EventStats>>(new Map());
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

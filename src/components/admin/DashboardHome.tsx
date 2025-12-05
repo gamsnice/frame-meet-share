@@ -14,10 +14,10 @@ import HourlyHeatmap from "./analytics/HourlyHeatmap";
 import WeekdayChart from "./analytics/WeekdayChart";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
-import type { Event } from "@/types";
+import type { EventBase } from "@/types";
 
 export default function DashboardHome({ userId }: { userId: string }) {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventBase[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
