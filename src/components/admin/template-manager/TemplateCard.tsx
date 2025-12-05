@@ -12,13 +12,7 @@ interface TemplateCardProps {
   onOpenPlaceholder: (template: Template) => void;
 }
 
-export function TemplateCard({
-  template,
-  onEdit,
-  onDelete,
-  onOpenCaptions,
-  onOpenPlaceholder,
-}: TemplateCardProps) {
+export function TemplateCard({ template, onEdit, onDelete, onOpenCaptions, onOpenPlaceholder }: TemplateCardProps) {
   return (
     <Card className="p-4 group hover:shadow-hover transition-shadow">
       <div
@@ -26,13 +20,7 @@ export function TemplateCard({
       >
         <TemplatePreview template={template} className="w-full h-full object-contain" />
       </div>
-      {/* Note about image resolution */}
-      <div className="text-center text-xs text-muted-foreground mt-2 mb-4">
-        <p>
-          Please note that the resolution displayed here is lower for preview purposes. The final download will
-          be in full quality.
-        </p>
-      </div>
+
       <h3 className="font-semibold mb-1">{template.name}</h3>
       <div className="flex gap-2 text-xs mb-3">
         <span className="px-2 py-1 bg-primary/10 text-primary rounded">{template.type}</span>
