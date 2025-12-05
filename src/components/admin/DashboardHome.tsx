@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Plus, Copy, ExternalLink, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
-import { subDays, format, getDay, parseISO } from "date-fns";
+import { subDays } from "date-fns";
 import DateRangePicker from "./analytics/DateRangePicker";
 import EventFilter from "./analytics/EventFilter";
 import StatsCards from "./analytics/StatsCards";
@@ -13,49 +13,18 @@ import DailyTrendChart from "./analytics/DailyTrendChart";
 import HourlyHeatmap from "./analytics/HourlyHeatmap";
 import WeekdayChart from "./analytics/WeekdayChart";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
-
-interface Event {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  start_date: string;
-  end_date: string;
-  location: string;
-}
-
-interface DailyData {
-  date: string;
-  views: number;
-  uploads: number;
-  downloads: number;
-}
-
-interface HourlyData {
-  hour: number;
-  views: number;
-  uploads: number;
-  downloads: number;
-}
-
-interface WeekdayData {
-  day: string;
-  views: number;
-  uploads: number;
-  downloads: number;
-}
+import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import type { Event } from "@/types";
 
 export default function DashboardHome({ userId }: { userId: string }) {
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [eventsLoading, setEventsLoading] = useState(true);
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [dailyData, setDailyData] = useState<DailyData[]>([]);
-  const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
-  const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
-  const [stats, setStats] = useState({ totalViews: 0, totalUploads: 0, totalDownloads: 0, conversionRate: 0 });
   const navigate = useNavigate();
+  
+  const { dailyData, hourlyData, weekdayData, stats, loadAnalytics } = useAnalyticsData();
 
   useEffect(() => {
     loadEvents();
@@ -63,9 +32,10 @@ export default function DashboardHome({ userId }: { userId: string }) {
 
   useEffect(() => {
     if (events.length > 0) {
-      loadAnalytics();
+      const eventIds = selectedEventId ? [selectedEventId] : events.map((e) => e.id);
+      loadAnalytics(eventIds, startDate, endDate);
     }
-  }, [events, startDate, endDate, selectedEventId]);
+  }, [events, startDate, endDate, selectedEventId, loadAnalytics]);
 
   const loadEvents = async () => {
     try {
@@ -81,92 +51,13 @@ export default function DashboardHome({ userId }: { userId: string }) {
       toast.error("Failed to load events");
       console.error(error);
     } finally {
-      setLoading(false);
+      setEventsLoading(false);
     }
   };
 
-  const loadAnalytics = async () => {
-    try {
-      const eventIds = selectedEventId ? [selectedEventId] : events.map((e) => e.id);
-      
-      if (eventIds.length === 0) return;
-
-      // Build date filter
-      let dailyQuery = supabase.from("event_stats_daily").select("*").in("event_id", eventIds);
-      if (startDate) dailyQuery = dailyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
-      if (endDate) dailyQuery = dailyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
-
-      const { data: dailyStats } = await dailyQuery;
-
-      // Build hourly query
-      let hourlyQuery = supabase.from("event_stats_hourly").select("*").in("event_id", eventIds);
-      if (startDate) hourlyQuery = hourlyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
-      if (endDate) hourlyQuery = hourlyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
-
-      const { data: hourlyStats } = await hourlyQuery;
-
-      // Calculate overall stats
-      if (dailyStats) {
-        const totalViews = dailyStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
-        const totalUploads = dailyStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
-        const totalDownloads = dailyStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
-        const conversionRate = totalViews > 0 ? (totalDownloads / totalViews) * 100 : 0;
-        
-        setStats({ totalViews, totalUploads, totalDownloads, conversionRate });
-
-        // Process daily trend data
-        const dailyMap = new Map<string, DailyData>();
-        dailyStats.forEach((stat) => {
-          const dateStr = stat.date;
-          const existing = dailyMap.get(dateStr) || { date: dateStr, views: 0, uploads: 0, downloads: 0 };
-          dailyMap.set(dateStr, {
-            date: dateStr,
-            views: existing.views + (stat.views_count || 0),
-            uploads: existing.uploads + (stat.uploads_count || 0),
-            downloads: existing.downloads + (stat.downloads_count || 0),
-          });
-        });
-        setDailyData(Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date)));
-
-        // Process weekday data
-        const weekdayMap = new Map<number, WeekdayData>();
-        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        dailyStats.forEach((stat) => {
-          const dayOfWeek = getDay(parseISO(stat.date));
-          const existing = weekdayMap.get(dayOfWeek) || { day: dayNames[dayOfWeek], views: 0, uploads: 0, downloads: 0 };
-          weekdayMap.set(dayOfWeek, {
-            day: dayNames[dayOfWeek],
-            views: existing.views + (stat.views_count || 0),
-            uploads: existing.uploads + (stat.uploads_count || 0),
-            downloads: existing.downloads + (stat.downloads_count || 0),
-          });
-        });
-        const sortedWeekdays = Array.from(weekdayMap.entries())
-          .sort(([a], [b]) => a - b)
-          .map(([, data]) => data);
-        setWeekdayData(sortedWeekdays);
-      }
-
-      // Process hourly data
-      if (hourlyStats) {
-        const hourlyMap = new Map<number, HourlyData>();
-        for (let i = 0; i < 24; i++) {
-          hourlyMap.set(i, { hour: i, views: 0, uploads: 0, downloads: 0 });
-        }
-        hourlyStats.forEach((stat) => {
-          const existing = hourlyMap.get(stat.hour)!;
-          hourlyMap.set(stat.hour, {
-            hour: stat.hour,
-            views: existing.views + (stat.views_count || 0),
-            uploads: existing.uploads + (stat.uploads_count || 0),
-            downloads: existing.downloads + (stat.downloads_count || 0),
-          });
-        });
-        setHourlyData(Array.from(hourlyMap.values()));
-      }
-    } catch (error: any) {
-      console.error("Failed to load analytics:", error);
-    }
+  const handleRefreshAnalytics = () => {
+    const eventIds = selectedEventId ? [selectedEventId] : events.map((e) => e.id);
+    loadAnalytics(eventIds, startDate, endDate);
   };
 
   const copyEventLink = (slug: string) => {
@@ -175,7 +66,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
     toast.success("Event link copied to clipboard!");
   };
 
-  if (loading) {
+  if (eventsLoading) {
     return <div className="text-center py-12">Loading dashboard...</div>;
   }
 
@@ -212,7 +103,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
           eventId={selectedEventId || undefined}
           startDate={startDate}
           endDate={endDate}
-          onSuccess={loadAnalytics}
+          onSuccess={handleRefreshAnalytics}
         />
       </div>
 
