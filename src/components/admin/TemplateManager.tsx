@@ -193,7 +193,7 @@ export default function TemplateManager() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this template? This will also remove all associated captions and placeholder images.")) return;
+    if (!confirm("Delete this template? This will also remove all associated captions, placeholder images, and template-specific analytics data.")) return;
 
     try {
       const template = templates.find((t) => t.id === id);
