@@ -21,9 +21,10 @@ import {
 import { toast } from "sonner";
 import TemplatePreview from "./TemplatePreview";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { supabase } from "@/lib/supabase";
-import { trackEvent } from "@/lib/analytics";
-import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
+import { FORMAT_DIMENSIONS, type Template } from "@/types";
+import { useImageDragging } from "@/hooks/useImageDragging";
+import { useImageExport } from "@/hooks/useImageExport";
+import { useCaptions } from "@/hooks/useCaptions";
 
 interface ImageEditorProps {
   template: Template;
@@ -54,51 +55,51 @@ export default function ImageEditor({
   const [templateImageElement, setTemplateImageElement] = useState<HTMLImageElement | null>(null);
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
 
-  // 🔍 Dynamic preview quality: higher on mobile / high-DPI screens
+  // Dynamic preview quality: higher on mobile / high-DPI screens
   const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
   const previewQuality = isMobile
-    ? Math.min(devicePixelRatioSafe * 1.2, 3) // e.g. iPhone: ~3x
-    : Math.min(devicePixelRatioSafe, 2); // desktop usually 1–2x
+    ? Math.min(devicePixelRatioSafe * 1.2, 3)
+    : Math.min(devicePixelRatioSafe, 2);
 
-  // Pinch-to-zoom state
-  const [pinchStartDistance, setPinchStartDistance] = useState<number | null>(null);
-  const [pinchStartScale, setPinchStartScale] = useState<number>(1);
+  // Use extracted hooks
+  const { captions, captionsExpanded, setCaptionsExpanded, copyCaption } = useCaptions({
+    templateId: template.id,
+    eventId,
+    isMobile,
+  });
 
-  // Captions state
-  const [captions, setCaptions] = useState<Caption[]>([]);
-  const [captionsExpanded, setCaptionsExpanded] = useState(!isMobile);
+  const {
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchStart,
+    handleTouchMove,
+    handleScaleChange,
+  } = useImageDragging({
+    template,
+    userImageElement,
+    canvasRef: previewCanvasRef,
+    scale,
+    initialScale,
+    position,
+    previewQuality,
+    setScale,
+    setPosition,
+  });
 
-  // Load captions
-  useEffect(() => {
-    const loadCaptions = async () => {
-      try {
-        const { data, error } = await supabase.from("template_captions").select("*").eq("template_id", template.id);
-
-        if (error) throw error;
-        setCaptions(data || []);
-      } catch (error: any) {
-        console.error("Failed to load captions:", error);
-      }
-    };
-    loadCaptions();
-  }, [template.id]);
-
-  const copyCaption = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success("Caption copied to clipboard!");
-      if (eventId) {
-        await trackEvent(eventId, template.id, "caption_copy");
-      }
-    } catch (error) {
-      toast.error("Failed to copy caption");
-    }
-  };
+  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick } = useImageExport({
+    template,
+    userImageElement,
+    templateImageElement,
+    scale,
+    position,
+    eventSlug,
+    onDownload,
+    setIsDownloadDrawerOpen,
+  });
 
   // Load template image
   useEffect(() => {
@@ -210,181 +211,6 @@ export default function ImageEditor({
     ctx.drawImage(templateImageElement, 0, 0, canvas.width, canvas.height);
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!userImageElement) return;
-
-    const canvas = previewCanvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * previewQuality;
-    const y = (e.clientY - rect.top) * previewQuality;
-
-    const frameX = template.photo_frame_x * canvas.width;
-    const frameY = template.photo_frame_y * canvas.height;
-    const frameWidth = template.photo_frame_width * canvas.width;
-    const frameHeight = template.photo_frame_height * canvas.height;
-
-    // Check if click is inside frame
-    if (x >= frameX && x <= frameX + frameWidth && y >= frameY && y <= frameY + frameHeight) {
-      setIsDragging(true);
-
-      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-      const displayScale = canvas.width / dimensions.width;
-
-      setDragStart({
-        x: x - frameX - position.x * displayScale,
-        y: y - frameY - position.y * displayScale,
-      });
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDragging || !userImageElement) return;
-
-    const canvas = previewCanvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * previewQuality;
-    const y = (e.clientY - rect.top) * previewQuality;
-
-    const frameX = template.photo_frame_x * canvas.width;
-    const frameY = template.photo_frame_y * canvas.height;
-    const frameWidth = template.photo_frame_width * canvas.width;
-    const frameHeight = template.photo_frame_height * canvas.height;
-
-    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-    const displayScale = canvas.width / dimensions.width;
-
-    let newX = (x - frameX - dragStart.x) / displayScale;
-    let newY = (y - frameY - dragStart.y) / displayScale;
-
-    // Constrain to keep frame filled
-    const scaledUserWidth = userImageElement.width * scale;
-    const scaledUserHeight = userImageElement.height * scale;
-    const actualFrameWidth = frameWidth / displayScale;
-    const actualFrameHeight = frameHeight / displayScale;
-
-    newX = Math.min(0, Math.max(newX, actualFrameWidth - scaledUserWidth));
-    newY = Math.min(0, Math.max(newY, actualFrameHeight - scaledUserHeight));
-
-    setPosition({ x: newX, y: newY });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setPinchStartDistance(null);
-  };
-
-  // Calculate distance between two touch points
-  const getTouchDistance = (touch1: React.Touch, touch2: React.Touch) => {
-    return Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!userImageElement) return;
-
-    const canvas = previewCanvasRef.current;
-    if (!canvas) return;
-
-    // Pinch-to-zoom: 2 fingers
-    if (e.touches.length === 2) {
-      const distance = getTouchDistance(e.touches[0], e.touches[1]);
-      setPinchStartDistance(distance);
-      setPinchStartScale(scale);
-      return;
-    }
-
-    // Single finger drag
-    if (e.touches.length !== 1) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * previewQuality;
-    const y = (touch.clientY - rect.top) * previewQuality;
-
-    const frameX = template.photo_frame_x * canvas.width;
-    const frameY = template.photo_frame_y * canvas.height;
-    const frameWidth = template.photo_frame_width * canvas.width;
-    const frameHeight = template.photo_frame_height * canvas.height;
-
-    if (x >= frameX && x <= frameX + frameWidth && y >= frameY && y <= frameY + frameHeight) {
-      setIsDragging(true);
-
-      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-      const displayScale = canvas.width / dimensions.width;
-
-      setDragStart({
-        x: x - frameX - position.x * displayScale,
-        y: y - frameY - position.y * displayScale,
-      });
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!userImageElement) return;
-
-    const canvas = previewCanvasRef.current;
-    if (!canvas) return;
-
-    // Pinch-to-zoom: 2 fingers
-    if (e.touches.length === 2 && pinchStartDistance !== null) {
-      e.preventDefault();
-      const newDistance = getTouchDistance(e.touches[0], e.touches[1]);
-      const scaleRatio = newDistance / pinchStartDistance;
-      const newScale = Math.max(initialScale, Math.min(pinchStartScale * scaleRatio, initialScale * 3));
-
-      setScale(newScale);
-
-      // Adjust position to keep image constrained
-      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-      const frameWidth = template.photo_frame_width * dimensions.width;
-      const frameHeight = template.photo_frame_height * dimensions.height;
-
-      const scaledUserWidth = userImageElement.width * newScale;
-      const scaledUserHeight = userImageElement.height * newScale;
-
-      let newX = position.x;
-      let newY = position.y;
-
-      newX = Math.min(0, Math.max(newX, frameWidth - scaledUserWidth));
-      newY = Math.min(0, Math.max(newY, frameHeight - scaledUserHeight));
-
-      setPosition({ x: newX, y: newY });
-      return;
-    }
-
-    // Single finger drag
-    if (!isDragging || e.touches.length !== 1) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const touch = e.touches[0];
-    const x = (touch.clientX - rect.left) * previewQuality;
-    const y = (touch.clientY - rect.top) * previewQuality;
-
-    const frameX = template.photo_frame_x * canvas.width;
-    const frameY = template.photo_frame_y * canvas.height;
-    const frameWidth = template.photo_frame_width * canvas.width;
-    const frameHeight = template.photo_frame_height * canvas.height;
-
-    const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-    const displayScale = canvas.width / dimensions.width;
-
-    let newX = (x - frameX - dragStart.x) / displayScale;
-    let newY = (y - frameY - dragStart.y) / displayScale;
-
-    const scaledUserWidth = userImageElement.width * scale;
-    const scaledUserHeight = userImageElement.height * scale;
-    const actualFrameWidth = frameWidth / displayScale;
-    const actualFrameHeight = frameHeight / displayScale;
-
-    newX = Math.min(0, Math.max(newX, actualFrameWidth - scaledUserWidth));
-    newY = Math.min(0, Math.max(newY, actualFrameHeight - scaledUserHeight));
-
-    setPosition({ x: newX, y: newY });
-  };
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -402,141 +228,6 @@ export default function ImageEditor({
     reader.readAsDataURL(file);
   };
 
-  const generateImageBlob = (): Promise<Blob | null> => {
-    return new Promise((resolve) => {
-      if (!userImageElement || !templateImageElement) {
-        resolve(null);
-        return;
-      }
-
-      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-      const canvas = document.createElement("canvas");
-      canvas.width = dimensions.width;
-      canvas.height = dimensions.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        resolve(null);
-        return;
-      }
-
-      // Calculate frame position at full resolution
-      const frameX = template.photo_frame_x * dimensions.width;
-      const frameY = template.photo_frame_y * dimensions.height;
-      const frameWidth = template.photo_frame_width * dimensions.width;
-      const frameHeight = template.photo_frame_height * dimensions.height;
-
-      // Draw user image clipped to frame
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(frameX, frameY, frameWidth, frameHeight);
-      ctx.clip();
-
-      const scaledUserWidth = userImageElement.width * scale;
-      const scaledUserHeight = userImageElement.height * scale;
-
-      ctx.drawImage(userImageElement, frameX + position.x, frameY + position.y, scaledUserWidth, scaledUserHeight);
-      ctx.restore();
-
-      // Draw template overlay
-      ctx.drawImage(templateImageElement, 0, 0, dimensions.width, dimensions.height);
-
-      canvas.toBlob((blob) => resolve(blob), "image/png", 1.0);
-    });
-  };
-
-  const handleDownloadAsFile = async () => {
-    const blob = await generateImageBlob();
-    if (!blob) {
-      toast.error("Please upload a photo first");
-      return;
-    }
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    const filename = `${eventSlug}-${template.name.replace(/\s+/g, "-").toLowerCase()}-meetme.png`;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("Image downloaded!");
-    onDownload();
-    setIsDownloadDrawerOpen(false);
-  };
-
-  const handleSaveToPhotos = async () => {
-    const blob = await generateImageBlob();
-    if (!blob) {
-      toast.error("Please upload a photo first");
-      return;
-    }
-
-    const filename = `${eventSlug}-${template.name.replace(/\s+/g, "-").toLowerCase()}-meetme.png`;
-    const file = new File([blob], filename, { type: "image/png" });
-
-    // Try Web Share API first (works on mobile for saving to photos)
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          files: [file],
-          title: "My Event Visual",
-        });
-        toast.success("Saved! Share it everywhere 🎉");
-        onDownload();
-        setIsDownloadDrawerOpen(false);
-        return;
-      } catch (err: any) {
-        // User cancelled or share failed
-        if (err.name !== "AbortError") {
-          console.error("Share failed:", err);
-        }
-      }
-    }
-
-    // Fallback to regular download
-    handleDownloadAsFile();
-  };
-
-  const handleDownloadClick = () => {
-    if (!userImageElement || !templateImageElement) {
-      toast.error("Please upload a photo first");
-      return;
-    }
-
-    // On mobile, show options drawer
-    if (isMobile) {
-      setIsDownloadDrawerOpen(true);
-      return;
-    }
-
-    // On desktop, direct download
-    handleDownloadAsFile();
-  };
-
-  const handleScaleChange = (values: number[]) => {
-    const newScale = values[0];
-    setScale(newScale);
-
-    // Adjust position to keep image constrained
-    if (userImageElement) {
-      const dimensions = FORMAT_DIMENSIONS[template.format as keyof typeof FORMAT_DIMENSIONS];
-      const frameWidth = template.photo_frame_width * dimensions.width;
-      const frameHeight = template.photo_frame_height * dimensions.height;
-
-      const scaledUserWidth = userImageElement.width * newScale;
-      const scaledUserHeight = userImageElement.height * newScale;
-
-      let newX = position.x;
-      let newY = position.y;
-
-      newX = Math.min(0, Math.max(newX, frameWidth - scaledUserWidth));
-      newY = Math.min(0, Math.max(newY, frameHeight - scaledUserHeight));
-
-      setPosition({ x: newX, y: newY });
-    }
-  };
-
   // Resize handling
   useEffect(() => {
     const handleResize = () => {
@@ -544,10 +235,7 @@ export default function ImageEditor({
     };
 
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, [previewQuality]);
 
   // Captions Section Component
@@ -632,7 +320,6 @@ export default function ImageEditor({
             <div className="border border-primary/20 rounded-lg overflow-hidden bg-muted">
               <TemplatePreview template={template} className="w-full" />
             </div>
-            {/* Single upload button overlay */}
             <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] rounded-lg flex items-center justify-center">
               <Button
                 size="lg"
@@ -643,12 +330,10 @@ export default function ImageEditor({
                 Add Your Photo
               </Button>
             </div>
-            {/* Hidden file input - native OS will offer camera or gallery */}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Canvas with touch-pan-y to allow vertical scroll outside the image manipulation */}
             <div
               className="border border-primary/20 rounded-lg overflow-hidden bg-muted"
               style={{ touchAction: "pan-y" }}
@@ -688,7 +373,6 @@ export default function ImageEditor({
                 />
               </div>
 
-              {/* Inline buttons: Change Photo, Download, Back */}
               <div className="flex gap-2">
                 <Button
                   onClick={() => fileInputRef.current?.click()}
@@ -698,7 +382,7 @@ export default function ImageEditor({
                 >
                   Change Photo
                 </Button>
-                <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[40px] text-xs">
+                <Button onClick={() => handleDownloadClick(isMobile)} size="sm" className="flex-1 min-h-[40px] text-xs">
                   <Download className="h-3.5 w-3.5 mr-1" />
                   Download
                 </Button>
@@ -740,11 +424,9 @@ export default function ImageEditor({
                 </p>
               </div>
 
-              {/* Captions Section - below social share */}
               <CaptionsSection />
             </div>
 
-            {/* Download Options Drawer */}
             <Drawer open={isDownloadDrawerOpen} onOpenChange={setIsDownloadDrawerOpen}>
               <DrawerContent>
                 <DrawerHeader>
@@ -808,7 +490,6 @@ export default function ImageEditor({
         </div>
       ) : (
         <div className="space-y-3">
-          {/* Constrain canvas to reasonable max width on desktop */}
           <div className="max-w-sm mx-auto">
             <div className="border-2 border-primary/20 rounded-lg overflow-hidden bg-muted">
               <canvas
@@ -826,7 +507,6 @@ export default function ImageEditor({
             </div>
           </div>
 
-          {/* All controls centered and constrained to match canvas width */}
           <div className="max-w-sm mx-auto space-y-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
               <Move className="h-3 w-3" />
@@ -858,13 +538,12 @@ export default function ImageEditor({
                 >
                   Change Photo
                 </Button>
-                <Button onClick={handleDownloadClick} size="sm" className="flex-1 min-h-[44px]">
+                <Button onClick={() => handleDownloadClick(isMobile)} size="sm" className="flex-1 min-h-[44px]">
                   <Download className="mr-1.5 h-3.5 w-3.5" />
                   Download
                 </Button>
               </div>
 
-              {/* Quick Share Buttons */}
               <div className="mt-4 pt-4 border-t border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Share2 className="h-4 w-4 text-muted-foreground" />
@@ -895,7 +574,6 @@ export default function ImageEditor({
                 </p>
               </div>
 
-              {/* Captions Section - below social share */}
               <CaptionsSection />
             </div>
           </div>
