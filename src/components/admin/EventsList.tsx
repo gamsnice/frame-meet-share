@@ -77,7 +77,7 @@ export default function EventsList({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in overflow-hidden max-w-full">
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Events</h1>
@@ -100,11 +100,11 @@ export default function EventsList({ userId }: { userId: string }) {
           </Button>
         </Card>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-6 max-w-full overflow-hidden">
           {events.map((event) => {
             const stats = eventStats.get(event.id) || { views: 0, downloads: 0 };
             return (
-              <Card key={event.id} className="p-6">
+              <Card key={event.id} className="p-4 sm:p-6 overflow-hidden max-w-full">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
