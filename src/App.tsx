@@ -6,8 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
-import AdminForgotPassword from "./pages/admin/AdminForgotPassword";
-import AdminUpdatePassword from "./pages/admin/AdminUpdatePassword";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import EventParticipantPage from "./pages/EventParticipantPage";
 import NotFound from "./pages/NotFound";
@@ -24,8 +22,6 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/register" element={<AdminRegister />} />
-          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-          <Route path="/admin/update-password" element={<AdminUpdatePassword />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/:slug" element={<EventParticipantPage />} />
           <Route path="*" element={<NotFound />} />
