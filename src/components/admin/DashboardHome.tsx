@@ -114,7 +114,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
       {dailyData.length > 0 && (
         <>
           <DailyTrendChart data={dailyData} />
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 overflow-hidden">
             <WeekdayChart data={weekdayData} />
             <HourlyHeatmap data={hourlyData} />
           </div>
