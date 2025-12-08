@@ -40,12 +40,17 @@ export default function HourlyHeatmap({ data }: HourlyHeatmapProps) {
       <CardHeader>
         <CardTitle>Activity by Hour of Day</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
+      <CardContent className="overflow-hidden p-3 sm:p-6">
+        <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={formattedData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="hourLabel" className="text-xs" />
+              <XAxis 
+                dataKey="hourLabel" 
+                className="text-xs" 
+                tick={{ fontSize: 9 }}
+                interval="preserveStartEnd"
+              />
               <YAxis className="text-xs" />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="views" fill="hsl(var(--primary))" name="Views" />

@@ -13,7 +13,7 @@ export default function EventFilter({ events, selectedEventId, onEventChange }: 
       value={selectedEventId || "all"}
       onValueChange={(value) => onEventChange(value === "all" ? null : value)}
     >
-      <SelectTrigger className="w-[280px]">
+      <SelectTrigger className="w-full sm:w-[280px]">
         <SelectValue placeholder="Select event" />
       </SelectTrigger>
       <SelectContent>

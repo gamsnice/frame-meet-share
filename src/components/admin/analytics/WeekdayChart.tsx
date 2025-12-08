@@ -34,12 +34,17 @@ export default function WeekdayChart({ data }: WeekdayChartProps) {
       <CardHeader>
         <CardTitle>Activity by Day of Week</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px]">
+      <CardContent className="overflow-hidden p-3 sm:p-6">
+        <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full min-w-0">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis dataKey="day" className="text-xs" />
+              <XAxis 
+                dataKey="day" 
+                className="text-xs" 
+                tick={{ fontSize: 10 }}
+                tickFormatter={(value) => value.substring(0, 3)}
+              />
               <YAxis className="text-xs" />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="views" fill="hsl(var(--primary))" name="Views" />
