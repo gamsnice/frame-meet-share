@@ -309,8 +309,8 @@ export default function EventParticipantPage() {
                   />
                 </div>
 
-                {/* Right Column: Image Editor (with captions inside) */}
-                <div>
+                {/* Right Column: Image Editor - Sticky on scroll */}
+                <div className="sticky top-4 self-start">
                   {!selectedTemplate ? (
                     <Card className="p-12 text-center">
                       <p className="text-muted-foreground mb-2">Choose your frame first</p>
