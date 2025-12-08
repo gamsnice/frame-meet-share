@@ -23,28 +23,30 @@ export default function DateRangePicker({ startDate, endDate, onDateChange }: Da
   ];
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="w-full sm:w-auto">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <Button variant="outline" className={cn("justify-start text-left font-normal w-[280px]", !startDate && "text-muted-foreground")}>
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {startDate && endDate ? (
-              `${format(startDate, "MMM dd, yyyy")} - ${format(endDate, "MMM dd, yyyy")}`
-            ) : (
-              "Select date range"
-            )}
+          <Button variant="outline" className={cn("justify-start text-left font-normal w-full sm:w-[280px]", !startDate && "text-muted-foreground")}>
+            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">
+              {startDate && endDate ? (
+                `${format(startDate, "MMM dd, yyyy")} - ${format(endDate, "MMM dd, yyyy")}`
+              ) : (
+                "Select date range"
+              )}
+            </span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-          <div className="flex">
-            <div className="p-3 border-r">
-              <div className="space-y-1">
+        <PopoverContent className="w-auto p-0 pointer-events-auto max-h-[80vh] overflow-y-auto" align="start">
+          <div className="flex flex-col sm:flex-row">
+            <div className="p-3 border-b sm:border-b-0 sm:border-r">
+              <div className="flex flex-wrap gap-1 sm:flex-col sm:space-y-1 sm:gap-0">
                 {presets.map((preset) => (
                   <Button
                     key={preset.label}
                     variant="ghost"
                     size="sm"
-                    className="w-full justify-start"
+                    className="justify-start text-sm"
                     onClick={() => {
                       const { start, end } = preset.getValue();
                       onDateChange(start, end);
@@ -56,7 +58,7 @@ export default function DateRangePicker({ startDate, endDate, onDateChange }: Da
                 ))}
               </div>
             </div>
-            <div className="flex gap-2 p-3">
+            <div className="flex flex-col sm:flex-row gap-2 p-3">
               <div>
                 <p className="text-sm font-medium mb-2">Start Date</p>
                 <Calendar
@@ -64,7 +66,7 @@ export default function DateRangePicker({ startDate, endDate, onDateChange }: Da
                   selected={startDate}
                   onSelect={(date) => onDateChange(date, endDate)}
                   disabled={(date) => date > new Date()}
-                  className={cn("p-3 pointer-events-auto")}
+                  className={cn("p-2 sm:p-3 pointer-events-auto")}
                 />
               </div>
               <div>
@@ -74,7 +76,7 @@ export default function DateRangePicker({ startDate, endDate, onDateChange }: Da
                   selected={endDate}
                   onSelect={(date) => onDateChange(startDate, date)}
                   disabled={(date) => date > new Date() || (startDate ? date < startDate : false)}
-                  className={cn("p-3 pointer-events-auto")}
+                  className={cn("p-2 sm:p-3 pointer-events-auto")}
                 />
               </div>
             </div>

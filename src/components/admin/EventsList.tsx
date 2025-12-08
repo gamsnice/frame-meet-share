@@ -78,12 +78,12 @@ export default function EventsList({ userId }: { userId: string }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold">Events</h1>
-          <p className="text-muted-foreground mt-1">Manage your event visuals pages</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Events</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage your event visuals pages</p>
         </div>
-        <Button onClick={() => navigate("/admin/events/new")} size="lg">
+        <Button onClick={() => navigate("/admin/events/new")} size="lg" className="w-full sm:w-auto">
           <Plus className="mr-2 h-5 w-5" />
           Create New Event
         </Button>
@@ -132,8 +132,8 @@ export default function EventsList({ userId }: { userId: string }) {
                       {event.location && <span>📍 {event.location}</span>}
                     </div>
 
-                    <div className="flex items-center gap-2 p-3 bg-muted rounded-lg mt-4 max-w-md">
-                      <code className="text-sm flex-1 truncate">{window.location.origin}/{event.slug}</code>
+                    <div className="flex items-center gap-2 p-2 sm:p-3 bg-muted rounded-lg mt-4 w-full lg:max-w-md overflow-hidden">
+                      <code className="text-xs sm:text-sm flex-1 truncate">{window.location.origin}/{event.slug}</code>
                       <Button size="sm" variant="ghost" onClick={() => copyEventLink(event.slug)}>
                         <Copy className="h-4 w-4" />
                       </Button>

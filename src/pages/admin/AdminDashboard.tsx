@@ -181,7 +181,7 @@ export default function AdminDashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 py-6 sm:px-4 sm:py-8">
         <Routes>
           <Route path="/" element={<DashboardHome userId={user.id} />} />
           <Route path="/events" element={<EventsList userId={user.id} />} />

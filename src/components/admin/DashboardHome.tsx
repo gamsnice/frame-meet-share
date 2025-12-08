@@ -71,21 +71,21 @@ export default function DashboardHome({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">Track performance across all your events</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Analytics Dashboard</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">Track performance across all your events</p>
         </div>
-        <Button onClick={() => navigate("/admin/events/new")} size="lg">
+        <Button onClick={() => navigate("/admin/events/new")} size="lg" className="w-full sm:w-auto">
           <Plus className="mr-2 h-5 w-5" />
           Create New Event
         </Button>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4 sm:items-center w-full">
         <DateRangePicker
           startDate={startDate}
           endDate={endDate}
