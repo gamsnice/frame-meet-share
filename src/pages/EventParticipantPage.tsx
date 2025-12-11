@@ -80,7 +80,7 @@ export default function EventParticipantPage() {
   const handleTemplateSelect = async (template: Template) => {
     setSelectedTemplate(template);
     setUserImage(null); // Reset image when changing templates
-    
+
     // Track template view
     if (event) {
       await trackEvent(event.id, template.id, "view");
@@ -197,7 +197,8 @@ export default function EventParticipantPage() {
                 >
                   <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="whitespace-nowrap">
-                    {new Date(event.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – {new Date(event.end_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    {new Date(event.start_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })} –{" "}
+                    {new Date(event.end_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                   </span>
                 </Badge>
 
@@ -260,7 +261,9 @@ export default function EventParticipantPage() {
         {templates.length === 0 ? (
           <Card className="p-8 sm:p-12 text-center">
             <h3 className="text-lg sm:text-xl font-semibold mb-2">No templates available yet</h3>
-            <p className="text-sm sm:text-base text-muted-foreground">The organizer hasn't created any frames yet. Check back soon!</p>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              The organizer hasn't created any frames yet. Check back soon!
+            </p>
           </Card>
         ) : (
           <>
@@ -342,7 +345,9 @@ export default function EventParticipantPage() {
             {event.secondary_logo_url && (
               <img src={event.secondary_logo_url} alt="Partner logo" className="h-6 sm:h-8 w-auto object-contain" />
             )}
-            <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left flex-1">Powered by MeetMeFrame</p>
+            <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left flex-1">
+              Powered by MeetMe
+            </p>
           </div>
         </div>
       </footer>
