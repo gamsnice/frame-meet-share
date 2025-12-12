@@ -33,6 +33,7 @@ interface EventFormData {
   photo_folder_button_text: string;
   photo_folder_button_url: string;
   photo_folder_button_color: string;
+  photo_folder_button_opacity: number;
 }
 
 export default function EventEditor({ userId }: { userId: string }) {
@@ -63,6 +64,7 @@ export default function EventEditor({ userId }: { userId: string }) {
     photo_folder_button_text: "",
     photo_folder_button_url: "",
     photo_folder_button_color: "#FFFFFF",
+    photo_folder_button_opacity: 1,
   });
 
   useEffect(() => {
@@ -101,6 +103,7 @@ export default function EventEditor({ userId }: { userId: string }) {
           photo_folder_button_text: data.photo_folder_button_text || "",
           photo_folder_button_url: data.photo_folder_button_url || "",
           photo_folder_button_color: data.photo_folder_button_color || "#FFFFFF",
+          photo_folder_button_opacity: data.photo_folder_button_opacity ?? 1,
         });
       }
     } catch (error) {
@@ -486,8 +489,8 @@ export default function EventEditor({ userId }: { userId: string }) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="photo_folder_button_color">Button Color</Label>
-                    <div className="flex gap-2">
+                    <Label htmlFor="photo_folder_button_color">Button Color & Opacity</Label>
+                    <div className="flex gap-2 items-center">
                       <Input
                         id="photo_folder_button_color"
                         type="color"
@@ -508,7 +511,27 @@ export default function EventEditor({ userId }: { userId: string }) {
                             photo_folder_button_color: e.target.value,
                           })
                         }
+                        className="flex-1"
                       />
+                      <div className="flex items-center gap-2 ml-2">
+                        <Label htmlFor="photo_folder_button_opacity" className="text-xs whitespace-nowrap">Opacity</Label>
+                        <Input
+                          id="photo_folder_button_opacity"
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={formData.photo_folder_button_opacity}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              photo_folder_button_opacity: parseFloat(e.target.value),
+                            })
+                          }
+                          className="w-20 h-6"
+                        />
+                        <span className="text-xs text-muted-foreground w-8">{Math.round(formData.photo_folder_button_opacity * 100)}%</span>
+                      </div>
                     </div>
                   </div>
                 </div>
