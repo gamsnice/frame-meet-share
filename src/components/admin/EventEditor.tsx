@@ -30,6 +30,8 @@ interface EventFormData {
   homepage_url: string;
   instagram_url: string;
   linkedin_url: string;
+  photo_folder_button_text: string;
+  photo_folder_button_url: string;
 }
 
 export default function EventEditor({ userId }: { userId: string }) {
@@ -57,6 +59,8 @@ export default function EventEditor({ userId }: { userId: string }) {
     homepage_url: "",
     instagram_url: "",
     linkedin_url: "",
+    photo_folder_button_text: "",
+    photo_folder_button_url: "",
   });
 
   useEffect(() => {
@@ -92,6 +96,8 @@ export default function EventEditor({ userId }: { userId: string }) {
           homepage_url: data.homepage_url || "",
           instagram_url: data.instagram_url || "",
           linkedin_url: data.linkedin_url || "",
+          photo_folder_button_text: data.photo_folder_button_text || "",
+          photo_folder_button_url: data.photo_folder_button_url || "",
         });
       }
     } catch (error) {
@@ -432,6 +438,50 @@ export default function EventEditor({ userId }: { userId: string }) {
                     placeholder="https://linkedin.com/company/yourbrand"
                     type="url"
                   />
+                </div>
+              </div>
+
+              {/* Photo Folder Button */}
+              <div className="border-t pt-4 mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span>📷</span>
+                  <h4 className="font-medium">Photo Folder Button (Optional)</h4>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add a button that links to an external photo folder (e.g., Google Drive, Dropbox, event gallery).
+                  Leave empty to hide the button.
+                </p>
+                
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="photo_folder_button_text">Button Text</Label>
+                    <Input
+                      id="photo_folder_button_text"
+                      value={formData.photo_folder_button_text}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          photo_folder_button_text: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., View Event Photos"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="photo_folder_button_url">Button Link (URL)</Label>
+                    <Input
+                      id="photo_folder_button_url"
+                      value={formData.photo_folder_button_url}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          photo_folder_button_url: e.target.value,
+                        })
+                      }
+                      placeholder="https://drive.google.com/..."
+                      type="url"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
