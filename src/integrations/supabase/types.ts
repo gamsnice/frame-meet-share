@@ -158,6 +158,7 @@ export type Database = {
           logo_url: string | null
           name: string
           owner_user_id: string
+          photo_folder_button_color: string | null
           photo_folder_button_text: string | null
           photo_folder_button_url: string | null
           secondary_logo_url: string | null
@@ -184,6 +185,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           owner_user_id: string
+          photo_folder_button_color?: string | null
           photo_folder_button_text?: string | null
           photo_folder_button_url?: string | null
           secondary_logo_url?: string | null
@@ -210,6 +212,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_user_id?: string
+          photo_folder_button_color?: string | null
           photo_folder_button_text?: string | null
           photo_folder_button_url?: string | null
           secondary_logo_url?: string | null

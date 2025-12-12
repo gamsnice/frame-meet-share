@@ -70,6 +70,7 @@ export interface EventBase {
   layout_preset?: string | null;
   photo_folder_button_text?: string | null;
   photo_folder_button_url?: string | null;
+  photo_folder_button_color?: string | null;
 }
 
 // Caption interface

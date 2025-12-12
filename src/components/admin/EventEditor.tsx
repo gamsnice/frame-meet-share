@@ -32,6 +32,7 @@ interface EventFormData {
   linkedin_url: string;
   photo_folder_button_text: string;
   photo_folder_button_url: string;
+  photo_folder_button_color: string;
 }
 
 export default function EventEditor({ userId }: { userId: string }) {
@@ -61,6 +62,7 @@ export default function EventEditor({ userId }: { userId: string }) {
     linkedin_url: "",
     photo_folder_button_text: "",
     photo_folder_button_url: "",
+    photo_folder_button_color: "#FFFFFF",
   });
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export default function EventEditor({ userId }: { userId: string }) {
           linkedin_url: data.linkedin_url || "",
           photo_folder_button_text: data.photo_folder_button_text || "",
           photo_folder_button_url: data.photo_folder_button_url || "",
+          photo_folder_button_color: data.photo_folder_button_color || "#FFFFFF",
         });
       }
     } catch (error) {
@@ -452,7 +455,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                   Leave empty to hide the button.
                 </p>
                 
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                   <div>
                     <Label htmlFor="photo_folder_button_text">Button Text</Label>
                     <Input
@@ -481,6 +484,32 @@ export default function EventEditor({ userId }: { userId: string }) {
                       placeholder="https://drive.google.com/..."
                       type="url"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="photo_folder_button_color">Button Color</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="photo_folder_button_color"
+                        type="color"
+                        value={formData.photo_folder_button_color}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            photo_folder_button_color: e.target.value,
+                          })
+                        }
+                        className="w-16 h-10 p-1"
+                      />
+                      <Input
+                        value={formData.photo_folder_button_color}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            photo_folder_button_color: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
