@@ -192,13 +192,13 @@ export default function EventParticipantPage() {
                     href={event.photo_folder_button_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 sm:gap-2.5 rounded-full px-4 sm:px-6 py-2 sm:py-3 transition-all hover:scale-105 hover:shadow-lg text-sm sm:text-base font-semibold shadow-md"
+                    className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 mt-3 sm:mt-4 transition-all hover:scale-105 hover:shadow-lg text-xs sm:text-sm font-medium shadow-sm"
                     style={{
-                      backgroundColor: event.photo_folder_button_color || '#FFFFFF',
+                      backgroundColor: `${event.photo_folder_button_color || '#FFFFFF'}${Math.round((event.photo_folder_button_opacity ?? 1) * 255).toString(16).padStart(2, '0')}`,
                       color: event.brand_text_color || '#000000',
                     }}
                   >
-                    <Images className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                    <Images className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
                     <span>{event.photo_folder_button_text}</span>
                   </a>
                 )}
