@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Globe, Instagram, Linkedin } from "lucide-react";
+import { Calendar, MapPin, Globe, Instagram, Linkedin, Image } from "lucide-react";
 import { toast } from "sonner";
 import TemplateSelector from "@/components/participant/TemplateSelector";
 import ImageEditor from "@/components/participant/ImageEditor";
@@ -213,9 +213,9 @@ export default function EventParticipantPage() {
                 )}
               </div>
 
-              {/* Social Media Icons */}
-              {(event.homepage_url || event.instagram_url || event.linkedin_url) && (
-                <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Social Media Icons & Photo Folder Button */}
+              {(event.homepage_url || event.instagram_url || event.linkedin_url || (event.photo_folder_button_text && event.photo_folder_button_url)) && (
+                <div className="flex flex-wrap items-center justify-center lg:justify-end gap-1.5 sm:gap-2">
                   {event.homepage_url && (
                     <a
                       href={event.homepage_url}
@@ -247,6 +247,19 @@ export default function EventParticipantPage() {
                       aria-label="Connect on LinkedIn"
                     >
                       <Linkedin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    </a>
+                  )}
+                  
+                  {/* Photo Folder Button */}
+                  {event.photo_folder_button_text && event.photo_folder_button_url && (
+                    <a
+                      href={event.photo_folder_button_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/30 rounded-full px-2.5 sm:px-4 py-1 sm:py-2 transition-all hover:scale-105 text-[10px] sm:text-sm font-medium"
+                    >
+                      <Image className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{event.photo_folder_button_text}</span>
                     </a>
                   )}
                 </div>

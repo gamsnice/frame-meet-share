@@ -68,6 +68,8 @@ export interface EventBase {
   linkedin_url?: string | null;
   helper_text?: string | null;
   layout_preset?: string | null;
+  photo_folder_button_text?: string | null;
+  photo_folder_button_url?: string | null;
 }
 
 // Caption interface
