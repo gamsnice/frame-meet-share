@@ -19,17 +19,18 @@ export default function TemplatePreview({ template, className = "" }: TemplatePr
     img.src = template.image_url;
   }, [template.image_url]);
 
-  // Load placeholder image
+  // Load placeholder image (prefer joined relation, fallback to direct URL)
   useEffect(() => {
-    if (template.placeholder_image_url) {
+    const placeholderUrl = template.placeholder_image?.image_url || template.placeholder_image_url;
+    if (placeholderUrl) {
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.onload = () => setPlaceholderImg(img);
-      img.src = template.placeholder_image_url;
+      img.src = placeholderUrl;
     } else {
       setPlaceholderImg(null);
     }
-  }, [template.placeholder_image_url]);
+  }, [template.placeholder_image?.image_url, template.placeholder_image_url]);
 
   // Draw composite
   useEffect(() => {

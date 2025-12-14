@@ -24,6 +24,15 @@ export const FORMAT_ASPECT_RATIOS = {
 
 export type TemplateFormat = keyof typeof FORMAT_DIMENSIONS;
 
+// Placeholder image from library
+export interface PlaceholderImage {
+  id: string;
+  user_id: string;
+  image_url: string;
+  original_filename: string;
+  created_at: string;
+}
+
 // Base template interface (minimum required fields for rendering)
 export interface TemplateBase {
   format: string;
@@ -32,10 +41,12 @@ export interface TemplateBase {
   photo_frame_y: number;
   photo_frame_width: number;
   photo_frame_height: number;
-  placeholder_image_url?: string;
+  placeholder_image_id?: string | null;
+  placeholder_image_url?: string | null; // For backward compatibility during transition
   placeholder_scale?: number;
   placeholder_x?: number;
   placeholder_y?: number;
+  placeholder_image?: { image_url: string } | null; // Joined relation
 }
 
 // Full template interface (includes id, name, type for database records)

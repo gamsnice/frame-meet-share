@@ -57,10 +57,13 @@ export default function EventParticipantPage() {
 
       setEvent(eventData);
 
-      // Load templates
+      // Load templates with placeholder image relation
       const { data: templatesData, error: templatesError } = await supabase
         .from("templates")
-        .select("*")
+        .select(`
+          *,
+          placeholder_image:placeholder_images(image_url)
+        `)
         .eq("event_id", eventData.id)
         .order("created_at");
 
