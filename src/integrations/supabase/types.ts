@@ -232,6 +232,30 @@ export type Database = {
           },
         ]
       }
+      placeholder_images: {
+        Row: {
+          created_at: string | null
+          id: string
+          image_url: string
+          original_filename: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          image_url: string
+          original_filename: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          original_filename?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       template_captions: {
         Row: {
           caption_text: string
@@ -274,6 +298,7 @@ export type Database = {
           photo_frame_width: number
           photo_frame_x: number
           photo_frame_y: number
+          placeholder_image_id: string | null
           placeholder_image_url: string | null
           placeholder_scale: number | null
           placeholder_x: number | null
@@ -292,6 +317,7 @@ export type Database = {
           photo_frame_width: number
           photo_frame_x: number
           photo_frame_y: number
+          placeholder_image_id?: string | null
           placeholder_image_url?: string | null
           placeholder_scale?: number | null
           placeholder_x?: number | null
@@ -310,6 +336,7 @@ export type Database = {
           photo_frame_width?: number
           photo_frame_x?: number
           photo_frame_y?: number
+          placeholder_image_id?: string | null
           placeholder_image_url?: string | null
           placeholder_scale?: number | null
           placeholder_x?: number | null
@@ -322,6 +349,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "templates_placeholder_image_id_fkey"
+            columns: ["placeholder_image_id"]
+            isOneToOne: false
+            referencedRelation: "placeholder_images"
             referencedColumns: ["id"]
           },
         ]

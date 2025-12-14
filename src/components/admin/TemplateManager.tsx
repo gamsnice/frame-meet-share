@@ -46,7 +46,14 @@ export default function TemplateManager() {
 
   const loadTemplates = async () => {
     try {
-      const { data, error } = await supabase.from("templates").select("*").eq("event_id", eventId).order("created_at");
+      const { data, error } = await supabase
+        .from("templates")
+        .select(`
+          *,
+          placeholder_image:placeholder_images(image_url)
+        `)
+        .eq("event_id", eventId)
+        .order("created_at");
 
       if (error) throw error;
       setTemplates(data || []);
@@ -202,16 +209,9 @@ export default function TemplateManager() {
         return;
       }
 
-      // Collect storage paths to delete
+      // Collect storage paths to delete - Note: placeholder images are NOT deleted here
+      // They remain in the library and can be reused
       const pathsToDelete: string[] = [];
-
-      // Add placeholder image path if exists
-      if (template.placeholder_image_url) {
-        const placeholderPath = template.placeholder_image_url.split("/event-assets/")[1];
-        if (placeholderPath) {
-          pathsToDelete.push(placeholderPath);
-        }
-      }
 
       // Add template image path if exists
       if (template.image_url) {

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import PlaceholderLibrary from "./PlaceholderLibrary";
 
 export default function AccountSettings({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(false);
@@ -112,6 +113,9 @@ export default function AccountSettings({ userId }: { userId: string }) {
           </div>
         </form>
       </Card>
+
+      {/* Placeholder Library Section */}
+      <PlaceholderLibrary userId={userId} />
     </div>
   );
 }
