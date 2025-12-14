@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LogOut, LayoutDashboard, Calendar, Settings, Menu } from "lucide-react";
+import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import DashboardHome from "@/components/admin/DashboardHome";
 import EventsList from "@/components/admin/EventsList";
@@ -12,6 +12,7 @@ import EventEditor from "@/components/admin/EventEditor";
 import TemplateManager from "@/components/admin/TemplateManager";
 import EventAnalytics from "@/components/admin/EventAnalytics";
 import AccountSettings from "@/components/admin/AccountSettings";
+import Guide from "@/components/admin/Guide";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
@@ -109,6 +110,15 @@ export default function AdminDashboard() {
                         Events
                       </Button>
                     </Link>
+                    <Link to="/admin/guide">
+                      <Button 
+                        variant={isActive("/admin/guide") ? "default" : "ghost"} 
+                        className="w-full justify-start gap-2"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        Guide
+                      </Button>
+                    </Link>
                     <Link to="/admin/account">
                       <Button 
                         variant={isActive("/admin/account") ? "default" : "ghost"} 
@@ -160,6 +170,16 @@ export default function AdminDashboard() {
                   Events
                 </Button>
               </Link>
+              <Link to="/admin/guide">
+                <Button 
+                  variant={isActive("/admin/guide") ? "default" : "ghost"} 
+                  size="sm"
+                  className="gap-2"
+                >
+                  <BookOpen className="h-4 w-4" />
+                  Guide
+                </Button>
+              </Link>
               <Link to="/admin/account">
                 <Button 
                   variant={isActive("/admin/account") ? "default" : "ghost"} 
@@ -189,6 +209,7 @@ export default function AdminDashboard() {
           <Route path="/events/:eventId/edit" element={<EventEditor userId={user.id} />} />
           <Route path="/events/:eventId/templates" element={<TemplateManager />} />
           <Route path="/events/:eventId/analytics" element={<EventAnalytics />} />
+          <Route path="/guide" element={<Guide />} />
           <Route path="/account" element={<AccountSettings userId={user.id} />} />
           <Route path="*" element={<Navigate to="/admin" />} />
         </Routes>
