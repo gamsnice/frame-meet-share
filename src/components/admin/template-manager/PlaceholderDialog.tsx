@@ -200,6 +200,13 @@ export function PlaceholderDialog({
         .eq("id", template.id);
 
       if (error) throw error;
+      
+      // Reset local state so dialog shows empty state
+      setSelectedImageId(null);
+      setSelectedImageUrl("");
+      setPlaceholderScale(1);
+      setPlaceholderPosition({ x: 0, y: 0 });
+      
       toast.success("Placeholder removed from template");
       onOpenChange(false);
       onSaved();
@@ -247,12 +254,12 @@ export function PlaceholderDialog({
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {libraryImages.map((img) => (
                   <button
                     key={img.id}
                     onClick={() => selectImageFromLibrary(img)}
-                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:opacity-90 ${
+                    className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:opacity-90 bg-muted/50 ${
                       selectedImageId === img.id
                         ? "border-primary ring-2 ring-primary/20"
                         : "border-transparent hover:border-muted-foreground/20"
@@ -261,7 +268,7 @@ export function PlaceholderDialog({
                     <img
                       src={img.image_url}
                       alt={img.original_filename}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain p-1"
                     />
                     {selectedImageId === img.id && (
                       <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
