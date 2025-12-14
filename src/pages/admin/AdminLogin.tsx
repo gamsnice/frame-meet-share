@@ -39,21 +39,14 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 animate-scale-in">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mb-4"
-          onClick={() => navigate("/")}
-        >
+        <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate("/")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to home
         </Button>
 
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-muted-foreground">
-            Sign in to manage your event visuals
-          </p>
+          <p className="text-muted-foreground">Sign in to manage your event visuals</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,9 +72,7 @@ export default function AdminLogin() {
               id="password"
               type="password"
               value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
               placeholder="••••••••"
             />
@@ -94,21 +85,10 @@ export default function AdminLogin() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
-          <button
-            onClick={() => navigate("/admin/register")}
-            className="text-primary font-medium hover:underline"
-          >
+          <button onClick={() => navigate("/admin/register")} className="text-primary font-medium hover:underline">
             Create one
           </button>
         </p>
-
-        <div className="mt-8 p-4 bg-muted/50 rounded-lg border">
-          <p className="text-sm font-medium mb-2">Demo Credentials</p>
-          <p className="text-xs text-muted-foreground">
-            Email: demo@meetmeframe.example<br />
-            Password: demo1234
-          </p>
-        </div>
       </Card>
     </div>
   );
