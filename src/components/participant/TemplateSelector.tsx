@@ -50,18 +50,26 @@ export default function TemplateSelector({
                   onClick={() => onSelect(template)}
                   className={`relative rounded-lg border overflow-hidden transition-all flex-shrink-0 ${
                     isSelected
-                      ? "border-primary bg-primary/5 shadow-md"
-                      : "border-border bg-card hover:border-primary/50"
+                      ? "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/30"
+                      : "border-border bg-card"
                   }`}
                   style={{ width: "140px" }}
                 >
                   <div
-                    className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}
+                    className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden relative`}
                   >
                     <TemplatePreview template={template} />
+                    {/* Tap to select hint for unselected */}
+                    {!isSelected && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                        <span className="text-[10px] font-medium text-foreground/90 bg-background/80 px-2 py-1 rounded-full border border-primary/20">
+                          Tap to select
+                        </span>
+                      </div>
+                    )}
                   </div>
                   {isSelected && (
-                    <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                    <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center shadow-md">
                       <Check className="h-3 w-3 text-primary-foreground" />
                     </div>
                   )}
@@ -81,7 +89,7 @@ export default function TemplateSelector({
           </div>
         </div>
 
-        <p className="text-[10px] text-muted-foreground text-center mt-1">Swipe to see all frames</p>
+        <p className="text-[10px] text-muted-foreground text-center mt-1">Tap a frame to select it • Swipe for more</p>
       </Card>
     );
   }
@@ -89,7 +97,10 @@ export default function TemplateSelector({
   // Desktop Layout
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Choose Your Frame</h2>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold">Choose Your Frame</h2>
+        <p className="text-sm text-muted-foreground mt-1">Click on a frame to select it</p>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {templates.map((template) => {
@@ -98,17 +109,27 @@ export default function TemplateSelector({
             <button
               key={template.id}
               onClick={() => onSelect(template)}
-              className={`relative rounded-lg border-2 overflow-hidden transition-all hover:shadow-lg ${
-                isSelected ? "border-primary ring-2 ring-primary" : "border-border"
+              className={`group relative rounded-lg border-2 overflow-hidden transition-all ${
+                isSelected 
+                  ? "border-primary ring-2 ring-primary shadow-lg shadow-primary/20" 
+                  : "border-border hover:border-primary/50 hover:shadow-md"
               }`}
             >
               <div
-                className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden`}
+                className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden relative`}
               >
                 <TemplatePreview template={template} />
+                {/* Click to select hint for unselected on hover */}
+                {!isSelected && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-sm font-medium text-foreground bg-background/90 px-4 py-2 rounded-full border border-primary/30 shadow-sm">
+                      Click to select
+                    </span>
+                  </div>
+                )}
               </div>
               {isSelected && (
-                <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary flex items-center justify-center shadow-md">
                   <Check className="h-4 w-4 text-primary-foreground" />
                 </div>
               )}
