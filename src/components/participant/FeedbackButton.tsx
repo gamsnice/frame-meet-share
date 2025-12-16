@@ -14,11 +14,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -72,7 +68,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
       toast.success(
         feedbackType === "feedback"
           ? "Thanks for your feedback!"
-          : "Bug report submitted. Thanks for helping us improve!"
+          : "Bug report submitted. Thanks for helping us improve!",
       );
 
       resetForm();
@@ -135,11 +131,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
             Get a response?
           </Label>
         </div>
-        <Switch
-          id="want-response"
-          checked={wantResponse}
-          onCheckedChange={setWantResponse}
-        />
+        <Switch id="want-response" checked={wantResponse} onCheckedChange={setWantResponse} />
       </div>
 
       {/* Email Input */}
@@ -154,11 +146,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
       )}
 
       {/* Submit */}
-      <Button
-        onClick={handleSubmit}
-        disabled={isSubmitting || !message.trim()}
-        className="w-full gap-2"
-      >
+      <Button onClick={handleSubmit} disabled={isSubmitting || !message.trim()} className="w-full gap-2">
         <Send className="h-4 w-4" />
         {isSubmitting ? "Sending..." : "Send"}
       </Button>
@@ -183,7 +171,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
       aria-label="Send feedback"
     >
       <MessageSquarePlus className="h-5 w-5" />
-      <span className="font-medium">Give Feedback</span>
+      <span className="font-medium">Feedback or Bugs</span>
     </Button>
   );
 
@@ -196,9 +184,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Send Feedback</DrawerTitle>
-              <DrawerDescription>
-                Help us improve your experience
-              </DrawerDescription>
+              <DrawerDescription>Help us improve your experience</DrawerDescription>
             </DrawerHeader>
             <div className="px-4 pb-6">
               <FormContent />
@@ -214,23 +200,13 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
     <div className="fixed bottom-6 right-6 z-50">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>{DesktopTriggerButton}</PopoverTrigger>
-        <PopoverContent
-          side="top"
-          align="end"
-          className="w-80 p-4"
-          sideOffset={12}
-        >
+        <PopoverContent side="top" align="end" className="w-80 p-4" sideOffset={12}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold">Send Feedback</h3>
               <p className="text-xs text-muted-foreground">Help us improve</p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
