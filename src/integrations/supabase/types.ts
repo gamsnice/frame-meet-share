@@ -232,6 +232,47 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          created_at: string
+          email: string | null
+          event_id: string | null
+          event_slug: string | null
+          feedback_type: string
+          id: string
+          message: string
+          page_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          event_id?: string | null
+          event_slug?: string | null
+          feedback_type?: string
+          id?: string
+          message: string
+          page_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          event_id?: string | null
+          event_slug?: string | null
+          feedback_type?: string
+          id?: string
+          message?: string
+          page_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       placeholder_images: {
         Row: {
           created_at: string | null
