@@ -8,6 +8,7 @@ import { Calendar, MapPin, Globe, Instagram, Linkedin, Images } from "lucide-rea
 import { toast } from "sonner";
 import TemplateSelector from "@/components/participant/TemplateSelector";
 import ImageEditor from "@/components/participant/ImageEditor";
+import FeedbackButton from "@/components/participant/FeedbackButton";
 import { trackEvent } from "@/lib/analytics";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventBase, Template } from "@/types";
@@ -357,6 +358,9 @@ export default function EventParticipantPage() {
           </>
         )}
       </main>
+
+      {/* Feedback Button */}
+      <FeedbackButton eventId={event.id} eventSlug={slug} />
 
       {/* Footer */}
       <footer className="border-t mt-8 sm:mt-16 py-6 sm:py-8 bg-card">
