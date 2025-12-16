@@ -165,14 +165,25 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
     </div>
   );
 
-  const TriggerButton = (
+  const MobileTriggerButton = (
     <Button
-      size="icon"
       variant="outline"
-      className="h-12 w-12 rounded-full shadow-lg bg-background/80 backdrop-blur-sm border-primary/20 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:scale-110"
+      className="h-11 px-4 rounded-full shadow-lg bg-background/90 backdrop-blur-sm border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all gap-2"
+      aria-label="Send feedback"
+    >
+      <MessageSquarePlus className="h-4 w-4" />
+      <span className="text-sm font-medium">Feedback</span>
+    </Button>
+  );
+
+  const DesktopTriggerButton = (
+    <Button
+      variant="outline"
+      className="h-12 px-5 rounded-full shadow-xl bg-background/95 backdrop-blur-md border-primary/40 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all gap-2.5 hover:scale-105 hover:shadow-primary/20 hover:shadow-2xl"
       aria-label="Send feedback"
     >
       <MessageSquarePlus className="h-5 w-5" />
+      <span className="font-medium">Give Feedback</span>
     </Button>
   );
 
@@ -181,7 +192,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
-          <DrawerTrigger asChild>{TriggerButton}</DrawerTrigger>
+          <DrawerTrigger asChild>{MobileTriggerButton}</DrawerTrigger>
           <DrawerContent>
             <DrawerHeader>
               <DrawerTitle>Send Feedback</DrawerTitle>
@@ -202,7 +213,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>{TriggerButton}</PopoverTrigger>
+        <PopoverTrigger asChild>{DesktopTriggerButton}</PopoverTrigger>
         <PopoverContent
           side="top"
           align="end"
