@@ -245,7 +245,7 @@ export default function ImageEditor({
       <div className={`border ${isMobile ? "border-primary/20" : "border-2 border-primary/20"} rounded-lg overflow-hidden bg-muted`}>
         <TemplatePreview template={template} className="w-full" />
       </div>
-      <div className={`absolute inset-0 ${isMobile ? "bg-background/60 backdrop-blur-[2px]" : "bg-background/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"} rounded-lg flex items-center justify-center`}>
+      <div className={`absolute inset-0 ${isMobile ? "bg-background/60 backdrop-blur-[2px]" : "bg-background/70 backdrop-blur-sm"} rounded-lg flex items-center justify-center`}>
         {isMobile ? (
           <Button
             size="lg"

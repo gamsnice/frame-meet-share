@@ -65,7 +65,7 @@ export default function TemplateSelector({
                       <Check className="h-3 w-3 text-primary-foreground" />
                     </div>
                   )}
-                  <div className="p-1.5 bg-card/80 backdrop-blur-sm">
+                  <div className="p-1.5 bg-card/80 backdrop-blur-sm pointer-events-none">
                     <div className="flex items-center gap-1 justify-center">
                       <Badge variant="secondary" className="text-[9px] px-1.5 py-0 h-4 font-normal">
                         {template.type}
@@ -112,7 +112,7 @@ export default function TemplateSelector({
                   <Check className="h-4 w-4 text-primary-foreground" />
                 </div>
               )}
-              <div className="p-3 bg-card">
+              <div className="p-3 bg-card pointer-events-none">
                 <div className="flex gap-2">
                   <Badge variant="secondary" className="text-xs">
                     {template.type}
