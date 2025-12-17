@@ -128,7 +128,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
         <div className="flex items-center gap-2">
           <Mail className="h-4 w-4 text-primary" />
           <Label htmlFor="want-response" className="text-sm font-medium cursor-pointer">
-            You want to get a response?
+            You want a response?
           </Label>
         </div>
         <Switch
