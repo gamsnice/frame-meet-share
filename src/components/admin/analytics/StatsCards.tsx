@@ -22,7 +22,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       color: "text-muted-foreground",
     },
     {
-      title: "Template Views",
+      title: "Template Clicks",
       value: stats.totalViews.toLocaleString(),
       icon: Eye,
       color: "text-primary",
