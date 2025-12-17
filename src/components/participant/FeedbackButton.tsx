@@ -81,7 +81,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
     }
   };
 
-  const FormContent = () => (
+  const formContent = (
     <div className="space-y-4">
       {/* Type Toggle */}
       <div className="flex gap-2">
@@ -123,15 +123,20 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
         <p className="text-xs text-muted-foreground text-right">{message.length}/1000</p>
       </div>
 
-      {/* Email Toggle */}
-      <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-muted/50">
+      {/* Email Toggle - Enhanced visibility */}
+      <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5">
         <div className="flex items-center gap-2">
-          <Mail className="h-4 w-4 text-muted-foreground" />
-          <Label htmlFor="want-response" className="text-sm cursor-pointer">
+          <Mail className="h-4 w-4 text-primary" />
+          <Label htmlFor="want-response" className="text-sm font-medium cursor-pointer">
             Get a response?
           </Label>
         </div>
-        <Switch id="want-response" checked={wantResponse} onCheckedChange={setWantResponse} />
+        <Switch 
+          id="want-response" 
+          checked={wantResponse} 
+          onCheckedChange={setWantResponse}
+          className="data-[state=unchecked]:bg-muted-foreground/40"
+        />
       </div>
 
       {/* Email Input */}
@@ -187,7 +192,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
               <DrawerDescription>Help us improve your experience</DrawerDescription>
             </DrawerHeader>
             <div className="px-4 pb-6">
-              <FormContent />
+              {formContent}
             </div>
           </DrawerContent>
         </Drawer>
@@ -210,7 +215,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <FormContent />
+          {formContent}
         </PopoverContent>
       </Popover>
     </div>
