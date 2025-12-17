@@ -40,7 +40,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
       color: "text-accent",
     },
     {
-      title: "Conversion",
+      title: "Conversion (Clicks)",
       value: `${stats.conversionRate.toFixed(1)}%`,
       icon: TrendingUp,
       color: "text-primary",
