@@ -59,14 +59,6 @@ export default function TemplateSelector({
                     className={`${FORMAT_ASPECT_RATIOS[template.format as keyof typeof FORMAT_ASPECT_RATIOS]} bg-muted overflow-hidden relative`}
                   >
                     <TemplatePreview template={template} />
-                    {/* Tap to select hint for unselected */}
-                    {!isSelected && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/50">
-                        <span className="text-[10px] font-medium text-foreground/90 bg-background/80 px-2 py-1 rounded-full border border-primary/20">
-                          Tap to select
-                        </span>
-                      </div>
-                    )}
                   </div>
                   {isSelected && (
                     <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center shadow-md">
@@ -89,7 +81,9 @@ export default function TemplateSelector({
           </div>
         </div>
 
-        <p className="text-[10px] text-muted-foreground text-center mt-1">Tap a frame to select it • Swipe for more</p>
+        <p className="text-xs text-primary font-medium text-center mt-2 py-1.5 bg-primary/10 rounded-full mx-2">
+          👆 Tap a frame to select it • Swipe for more
+        </p>
       </Card>
     );
   }
