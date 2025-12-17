@@ -125,6 +125,7 @@ export interface TemplateStats {
 }
 
 export interface AnalyticsStats {
+  pageVisits: number;
   totalViews: number;
   totalUploads: number;
   totalDownloads: number;

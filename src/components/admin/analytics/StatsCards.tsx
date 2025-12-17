@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Upload, Download, TrendingUp } from "lucide-react";
+import { Eye, Upload, Download, TrendingUp, Users } from "lucide-react";
 
 interface Stats {
+  pageVisits: number;
   totalViews: number;
   totalUploads: number;
   totalDownloads: number;
@@ -15,25 +16,31 @@ interface StatsCardsProps {
 export default function StatsCards({ stats }: StatsCardsProps) {
   const cards = [
     {
-      title: "Total Views",
+      title: "Page Visits",
+      value: stats.pageVisits.toLocaleString(),
+      icon: Users,
+      color: "text-muted-foreground",
+    },
+    {
+      title: "Template Views",
       value: stats.totalViews.toLocaleString(),
       icon: Eye,
       color: "text-primary",
     },
     {
-      title: "Total Uploads",
+      title: "Uploads",
       value: stats.totalUploads.toLocaleString(),
       icon: Upload,
       color: "text-secondary",
     },
     {
-      title: "Total Downloads",
+      title: "Downloads",
       value: stats.totalDownloads.toLocaleString(),
       icon: Download,
       color: "text-accent",
     },
     {
-      title: "Conversion Rate",
+      title: "Conversion",
       value: `${stats.conversionRate.toFixed(1)}%`,
       icon: TrendingUp,
       color: "text-primary",
@@ -41,7 +48,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
   ];
 
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
       {cards.map((card) => (
         <Card key={card.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
