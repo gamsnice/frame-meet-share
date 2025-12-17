@@ -19,6 +19,7 @@ export function useAnalyticsData(): UseAnalyticsDataReturn {
   const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
   const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
   const [stats, setStats] = useState<AnalyticsStats>({
+    pageVisits: 0,
     totalViews: 0,
     totalUploads: 0,
     totalDownloads: 0,
@@ -47,13 +48,18 @@ export function useAnalyticsData(): UseAnalyticsDataReturn {
 
       // Process daily stats
       if (dailyStats) {
-        // Calculate overall stats
-        const totalViews = dailyStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
-        const totalUploads = dailyStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
-        const totalDownloads = dailyStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
+        // Calculate page visits (page-level views with template_id = null)
+        const pageStats = dailyStats.filter(s => s.template_id === null);
+        const pageVisits = pageStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
+        
+        // Calculate overall stats - only count template-specific stats
+        const templateStats = dailyStats.filter(s => s.template_id !== null);
+        const totalViews = templateStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
+        const totalUploads = templateStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
+        const totalDownloads = templateStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
         const conversionRate = totalViews > 0 ? (totalDownloads / totalViews) * 100 : 0;
 
-        setStats({ totalViews, totalUploads, totalDownloads, conversionRate });
+        setStats({ pageVisits, totalViews, totalUploads, totalDownloads, conversionRate });
 
         // Process daily trend data
         const dailyMap = new Map<string, DailyData>();
