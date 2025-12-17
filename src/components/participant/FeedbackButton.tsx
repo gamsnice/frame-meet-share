@@ -128,12 +128,12 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
         <div className="flex items-center gap-2">
           <Mail className="h-4 w-4 text-primary" />
           <Label htmlFor="want-response" className="text-sm font-medium cursor-pointer">
-            Get a response?
+            You want to get a response?
           </Label>
         </div>
-        <Switch 
-          id="want-response" 
-          checked={wantResponse} 
+        <Switch
+          id="want-response"
+          checked={wantResponse}
           onCheckedChange={setWantResponse}
           className="data-[state=unchecked]:bg-muted-foreground/40"
         />
@@ -191,9 +191,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
               <DrawerTitle>Send Feedback</DrawerTitle>
               <DrawerDescription>Help us improve your experience</DrawerDescription>
             </DrawerHeader>
-            <div className="px-4 pb-6">
-              {formContent}
-            </div>
+            <div className="px-4 pb-6">{formContent}</div>
           </DrawerContent>
         </Drawer>
       </div>
