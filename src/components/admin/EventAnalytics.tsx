@@ -48,10 +48,11 @@ export default function EventAnalytics() {
 
       // Process daily stats
       if (dailyStats) {
-        // Calculate overall stats
-        const totalViews = dailyStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
-        const totalUploads = dailyStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
-        const totalDownloads = dailyStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
+        // Calculate overall stats - only count template-specific stats (exclude page-level views with template_id = null)
+        const templateStats = dailyStats.filter(s => s.template_id !== null);
+        const totalViews = templateStats.reduce((sum, s) => sum + (s.views_count || 0), 0);
+        const totalUploads = templateStats.reduce((sum, s) => sum + (s.uploads_count || 0), 0);
+        const totalDownloads = templateStats.reduce((sum, s) => sum + (s.downloads_count || 0), 0);
         const conversionRate = totalViews > 0 ? (totalDownloads / totalViews) * 100 : 0;
 
         setStats({ totalViews, totalUploads, totalDownloads, conversionRate });
