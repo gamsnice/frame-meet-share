@@ -38,7 +38,7 @@ export default function TemplatePerformanceTable({ data }: TemplatePerformanceTa
     const aValue = a[sortKey];
     const bValue = b[sortKey];
     const multiplier = sortDirection === "asc" ? 1 : -1;
-    
+
     if (typeof aValue === "string") {
       return multiplier * aValue.localeCompare(bValue as string);
     }
@@ -68,7 +68,7 @@ export default function TemplatePerformanceTable({ data }: TemplatePerformanceTa
               <TableHead>Type</TableHead>
               <TableHead>
                 <Button variant="ghost" size="sm" onClick={() => handleSort("views")} className="h-8 px-2">
-                  Views <ArrowUpDown className="ml-2 h-4 w-4" />
+                  Clicks <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
               <TableHead>
@@ -110,9 +110,9 @@ export default function TemplatePerformanceTable({ data }: TemplatePerformanceTa
                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full"
-                        style={{ 
+                        style={{
                           width: `${maxValues.uploads > 0 ? (template.uploads / maxValues.uploads) * 100 : 0}%`,
-                          backgroundColor: "hsl(55 85% 55%)"
+                          backgroundColor: "hsl(55 85% 55%)",
                         }}
                       />
                     </div>
@@ -124,7 +124,9 @@ export default function TemplatePerformanceTable({ data }: TemplatePerformanceTa
                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-accent"
-                        style={{ width: `${maxValues.downloads > 0 ? (template.downloads / maxValues.downloads) * 100 : 0}%` }}
+                        style={{
+                          width: `${maxValues.downloads > 0 ? (template.downloads / maxValues.downloads) * 100 : 0}%`,
+                        }}
                       />
                     </div>
                   </div>
