@@ -61,10 +61,12 @@ export default function EventParticipantPage() {
       // Load templates with placeholder image relation
       const { data: templatesData, error: templatesError } = await supabase
         .from("templates")
-        .select(`
+        .select(
+          `
           *,
           placeholder_image:placeholder_images(image_url)
-        `)
+        `,
+        )
         .eq("event_id", eventData.id)
         .order("created_at");
 
@@ -132,7 +134,7 @@ export default function EventParticipantPage() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="p-12 text-center max-w-md">
           <h1 className="text-3xl font-bold mb-4">404</h1>
-          <p className="text-xl text-muted-foreground mb-6">This MeetMeFrame page doesn't exist.</p>
+          <p className="text-xl text-muted-foreground mb-6">This page doesn't exist. Maybe a Typo?</p>
           <Button onClick={() => (window.location.href = "/")}>Go to Homepage</Button>
         </Card>
       </div>
@@ -189,7 +191,7 @@ export default function EventParticipantPage() {
                     {event.hero_subtitle}
                   </p>
                 )}
-                
+
                 {/* Photo Folder Button - Below Headline */}
                 {event.photo_folder_button_text && event.photo_folder_button_url && (
                   <a
@@ -198,8 +200,12 @@ export default function EventParticipantPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 mt-3 sm:mt-4 transition-all hover:scale-105 hover:shadow-lg text-xs sm:text-sm font-medium shadow-sm"
                     style={{
-                      backgroundColor: `${event.photo_folder_button_color || '#FFFFFF'}${Math.round((event.photo_folder_button_opacity ?? 1) * 255).toString(16).padStart(2, '0')}`,
-                      color: event.brand_text_color || '#000000',
+                      backgroundColor: `${event.photo_folder_button_color || "#FFFFFF"}${Math.round(
+                        (event.photo_folder_button_opacity ?? 1) * 255,
+                      )
+                        .toString(16)
+                        .padStart(2, "0")}`,
+                      color: event.brand_text_color || "#000000",
                     }}
                   >
                     <Images className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
