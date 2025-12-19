@@ -21,6 +21,7 @@ export type Database = {
           id: string
           message: string
           name: string
+          read_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           message: string
           name: string
+          read_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -35,6 +37,7 @@ export type Database = {
           id?: string
           message?: string
           name?: string
+          read_at?: string | null
         }
         Relationships: []
       }
@@ -242,6 +245,7 @@ export type Database = {
           id: string
           message: string
           page_url: string | null
+          status: string | null
         }
         Insert: {
           created_at?: string
@@ -252,6 +256,7 @@ export type Database = {
           id?: string
           message: string
           page_url?: string | null
+          status?: string | null
         }
         Update: {
           created_at?: string
@@ -262,6 +267,7 @@ export type Database = {
           id?: string
           message?: string
           page_url?: string | null
+          status?: string | null
         }
         Relationships: [
           {
@@ -293,6 +299,51 @@ export type Database = {
           id?: string
           image_url?: string
           original_filename?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          events_limit: number | null
+          id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          templates_per_event_limit: number | null
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          events_limit?: number | null
+          id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          templates_per_event_limit?: number | null
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          events_limit?: number | null
+          id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          templates_per_event_limit?: number | null
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -401,6 +452,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string | null
@@ -430,6 +502,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_event_stat: {
         Args: { p_event_id: string; p_stat_type: string; p_template_id: string }
         Returns: undefined
@@ -453,7 +532,9 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "admin" | "super_admin"
+      subscription_status: "active" | "cancelled" | "expired" | "pending"
+      subscription_tier: "free" | "starter" | "pro" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -580,6 +661,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "admin", "super_admin"],
+      subscription_status: ["active", "cancelled", "expired", "pending"],
+      subscription_tier: ["free", "starter", "pro", "enterprise"],
+    },
   },
 } as const
