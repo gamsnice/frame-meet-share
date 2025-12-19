@@ -522,6 +522,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      promote_to_super_admin: { Args: never; Returns: boolean }
       reset_event_stats: {
         Args: {
           p_end_date?: string
