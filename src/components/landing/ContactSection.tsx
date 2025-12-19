@@ -5,13 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const contactSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  email: z.string().trim().email("Please enter a valid email address").max(255, "Email must be less than 255 characters"),
-  message: z.string().trim().min(1, "Message is required").max(1000, "Message must be less than 1000 characters"),
-});
 
 export default function ContactSection() {
   const [contactForm, setContactForm] = useState({
@@ -20,26 +13,11 @@ export default function ContactSection() {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({});
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
-    
-    const result = contactSchema.safeParse(contactForm);
-    if (!result.success) {
-      const fieldErrors: { name?: string; email?: string; message?: string } = {};
-      result.error.errors.forEach((err) => {
-        const field = err.path[0] as keyof typeof fieldErrors;
-        fieldErrors[field] = err.message;
-      });
-      setErrors(fieldErrors);
-      return;
-    }
-
     setIsSubmitting(true);
-    const validatedData = { name: result.data.name, email: result.data.email, message: result.data.message };
-    const { error } = await supabase.from("contact_messages").insert([validatedData]);
+    const { error } = await supabase.from("contact_messages").insert([contactForm]);
     if (error) {
       toast.error("Failed to send message");
     } else {
@@ -72,7 +50,6 @@ export default function ContactSection() {
                 required
                 className="bg-background/50 border-border/50 focus:border-primary"
               />
-              {errors.name && <p className="text-destructive text-sm mt-1">{errors.name}</p>}
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">
@@ -86,7 +63,6 @@ export default function ContactSection() {
                 required
                 className="bg-background/50 border-border/50 focus:border-primary"
               />
-              {errors.email && <p className="text-destructive text-sm mt-1">{errors.email}</p>}
             </div>
             <div>
               <label htmlFor="message" className="block text-sm font-medium mb-2">
@@ -100,7 +76,6 @@ export default function ContactSection() {
                 required
                 className="bg-background/50 border-border/50 focus:border-primary"
               />
-              {errors.message && <p className="text-destructive text-sm mt-1">{errors.message}</p>}
             </div>
             <Button
               type="submit"

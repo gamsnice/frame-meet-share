@@ -1,4 +1,3 @@
-import { usePageTracking } from "@/hooks/usePageTracking";
 import Navigation from "@/components/landing/Navigation";
 import HeroSection from "@/components/landing/HeroSection";
 import ProcessFlow from "@/components/landing/ProcessFlow";
@@ -11,8 +10,6 @@ import ContactSection from "@/components/landing/ContactSection";
 import Footer from "@/components/landing/Footer";
 
 export default function Landing() {
-  usePageTracking("/");
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
