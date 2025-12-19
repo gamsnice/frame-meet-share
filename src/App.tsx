@@ -7,6 +7,7 @@ import Landing from "./pages/Landing";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
 import EventParticipantPage from "./pages/EventParticipantPage";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/:slug" element={<EventParticipantPage />} />
           <Route path="*" element={<NotFound />} />

@@ -4,8 +4,9 @@ import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen } from "lucide-react";
+import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { useUserRole } from "@/hooks/useUserRole";
 import DashboardHome from "@/components/admin/DashboardHome";
 import EventsList from "@/components/admin/EventsList";
 import EventEditor from "@/components/admin/EventEditor";
@@ -17,6 +18,7 @@ import Guide from "@/components/admin/Guide";
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { isSuperAdmin } = useUserRole();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -128,6 +130,17 @@ export default function AdminDashboard() {
                         Account
                       </Button>
                     </Link>
+                    {isSuperAdmin && (
+                      <Link to="/super-admin">
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        >
+                          <Shield className="h-4 w-4" />
+                          Super Admin
+                        </Button>
+                      </Link>
+                    )}
                   </nav>
                   <div className="p-4 border-t">
                     <Button variant="outline" onClick={handleSignOut} className="w-full">
@@ -190,6 +203,18 @@ export default function AdminDashboard() {
                   Account
                 </Button>
               </Link>
+              {isSuperAdmin && (
+                <Link to="/super-admin">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Super Admin
+                  </Button>
+                </Link>
+              )}
             </nav>
           </div>
 
