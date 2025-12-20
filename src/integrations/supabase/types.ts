@@ -303,11 +303,40 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_tier_config: {
+        Row: {
+          downloads_limit: number
+          events_limit: number
+          id: string
+          templates_per_event_limit: number
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string | null
+        }
+        Insert: {
+          downloads_limit: number
+          events_limit: number
+          id?: string
+          templates_per_event_limit: number
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string | null
+        }
+        Update: {
+          downloads_limit?: number
+          events_limit?: number
+          id?: string
+          templates_per_event_limit?: number
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null
           current_period_end: string | null
           current_period_start: string | null
+          downloads_limit: number | null
+          downloads_used: number | null
           events_limit: number | null
           id: string
           status: Database["public"]["Enums"]["subscription_status"]
@@ -322,6 +351,8 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          downloads_limit?: number | null
+          downloads_used?: number | null
           events_limit?: number | null
           id?: string
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -336,6 +367,8 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          downloads_limit?: number | null
+          downloads_used?: number | null
           events_limit?: number | null
           id?: string
           status?: Database["public"]["Enums"]["subscription_status"]
@@ -473,6 +506,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_usage_stats: {
+        Row: {
+          created_at: string | null
+          id: string
+          total_downloads: number | null
+          total_events_created: number | null
+          total_templates_created: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          total_downloads?: number | null
+          total_events_created?: number | null
+          total_templates_created?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          total_downloads?: number | null
+          total_events_created?: number | null
+          total_templates_created?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string | null
@@ -502,6 +565,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_subscription_limit: {
+        Args: { p_action: string; p_user_id: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -522,6 +589,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      increment_user_download: { Args: { p_event_id: string }; Returns: Json }
       promote_to_super_admin: { Args: never; Returns: boolean }
       reset_event_stats: {
         Args: {
@@ -535,7 +603,7 @@ export type Database = {
     Enums: {
       app_role: "user" | "admin" | "super_admin"
       subscription_status: "active" | "cancelled" | "expired" | "pending"
-      subscription_tier: "free" | "starter" | "pro" | "enterprise"
+      subscription_tier: "free" | "starter" | "pro" | "enterprise" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -665,7 +733,7 @@ export const Constants = {
     Enums: {
       app_role: ["user", "admin", "super_admin"],
       subscription_status: ["active", "cancelled", "expired", "pending"],
-      subscription_tier: ["free", "starter", "pro", "enterprise"],
+      subscription_tier: ["free", "starter", "pro", "enterprise", "premium"],
     },
   },
 } as const

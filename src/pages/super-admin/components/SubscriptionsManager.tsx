@@ -41,10 +41,12 @@ import { toast } from 'sonner';
 interface SubscriptionWithUser {
   id: string;
   user_id: string;
-  tier: 'free' | 'starter' | 'pro' | 'enterprise';
-  status: 'active' | 'cancelled' | 'expired' | 'pending';
+  tier: string;
+  status: string;
   events_limit: number;
   templates_per_event_limit: number;
+  downloads_limit: number;
+  downloads_used: number;
   created_at: string;
   current_period_end: string | null;
   stripe_customer_id: string | null;
@@ -52,14 +54,15 @@ interface SubscriptionWithUser {
   user_name: string;
 }
 
-type SubscriptionTier = 'free' | 'starter' | 'pro' | 'enterprise';
+type SubscriptionTier = 'free' | 'starter' | 'pro' | 'premium' | 'enterprise';
 type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'pending';
 
-const TIER_LIMITS: Record<SubscriptionTier, { events: number; templates: number }> = {
-  free: { events: 1, templates: 3 },
-  starter: { events: 3, templates: 5 },
-  pro: { events: 10, templates: 10 },
-  enterprise: { events: 999, templates: 999 },
+const TIER_LIMITS: Record<SubscriptionTier, { events: number; templates: number; downloads: number }> = {
+  free: { events: 1, templates: 1, downloads: 50 },
+  starter: { events: 2, templates: 2, downloads: 100 },
+  pro: { events: 5, templates: 3, downloads: 400 },
+  premium: { events: -1, templates: -1, downloads: 1000 },
+  enterprise: { events: -1, templates: -1, downloads: 5000 },
 };
 
 export default function SubscriptionsManager() {
@@ -72,7 +75,8 @@ export default function SubscriptionsManager() {
     tier: 'free' as SubscriptionTier,
     status: 'active' as SubscriptionStatus,
     events_limit: 1,
-    templates_per_event_limit: 3,
+    templates_per_event_limit: 1,
+    downloads_limit: 50,
   });
 
   const fetchSubscriptions = async () => {
@@ -132,6 +136,7 @@ export default function SubscriptionsManager() {
       tier,
       events_limit: limits.events,
       templates_per_event_limit: limits.templates,
+      downloads_limit: limits.downloads,
     });
   };
 

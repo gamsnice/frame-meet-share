@@ -26,3 +26,40 @@ export async function trackEvent(
     console.error("Failed to track event:", error);
   }
 }
+
+export async function trackDownloadWithLimit(
+  eventId: string,
+  templateId: string | null
+): Promise<{ success: boolean; limitReached?: boolean; message?: string }> {
+  try {
+    // First, check and increment the download counter via RPC
+    const { data, error } = await supabase.rpc('increment_user_download', {
+      p_event_id: eventId
+    });
+
+    if (error) {
+      console.error("Failed to track download:", error);
+      return { success: false, message: "Failed to track download" };
+    }
+
+    // Parse the response - it comes back as jsonb
+    const result = data as { success?: boolean; limit_reached?: boolean; message?: string } | null;
+
+    // Check if limit was reached
+    if (result && !result.success) {
+      return { 
+        success: false, 
+        limitReached: result.limit_reached || false,
+        message: result.message || "Download failed" 
+      };
+    }
+
+    // If successful, also track in analytics
+    await trackEvent(eventId, templateId, "download");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to track download with limit:", error);
+    return { success: false, message: "An error occurred" };
+  }
+}
