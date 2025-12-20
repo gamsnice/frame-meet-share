@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FORMAT_DIMENSIONS, type Template } from "@/types";
+import { trackDownloadWithLimit } from "@/lib/analytics";
 
 interface Position {
   x: number;
@@ -14,6 +15,7 @@ interface UseImageExportProps {
   scale: number;
   position: Position;
   eventSlug: string;
+  eventId: string;
   onDownload: () => void;
   setIsDownloadDrawerOpen: (open: boolean) => void;
 }
@@ -23,6 +25,7 @@ interface UseImageExportReturn {
   handleDownloadAsFile: () => Promise<void>;
   handleSaveToPhotos: () => Promise<void>;
   handleDownloadClick: (isMobile: boolean) => void;
+  isCheckingLimit: boolean;
 }
 
 export function useImageExport({
@@ -32,9 +35,11 @@ export function useImageExport({
   scale,
   position,
   eventSlug,
+  eventId,
   onDownload,
   setIsDownloadDrawerOpen,
 }: UseImageExportProps): UseImageExportReturn {
+  const [isCheckingLimit, setIsCheckingLimit] = useState(false);
   
   const generateImageBlob = useCallback((): Promise<Blob | null> => {
     return new Promise((resolve) => {
@@ -82,7 +87,32 @@ export function useImageExport({
     return `${eventSlug}-${template.name.replace(/\s+/g, "-").toLowerCase()}-meetme.png`;
   }, [eventSlug, template.name]);
 
+  const checkLimitAndDownload = useCallback(async (): Promise<boolean> => {
+    setIsCheckingLimit(true);
+    try {
+      const result = await trackDownloadWithLimit(eventId, template.id);
+      
+      if (!result.success) {
+        if (result.limitReached) {
+          toast.error("Download limit reached. The event organizer needs to upgrade their plan.");
+        } else {
+          toast.error(result.message || "Unable to download at this time.");
+        }
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error checking download limit:", error);
+      return true; // Allow download on error to not block users
+    } finally {
+      setIsCheckingLimit(false);
+    }
+  }, [eventId, template.id]);
+
   const handleDownloadAsFile = useCallback(async () => {
+    const canDownload = await checkLimitAndDownload();
+    if (!canDownload) return;
+
     const blob = await generateImageBlob();
     if (!blob) {
       toast.error("Please upload a photo first");
@@ -100,9 +130,12 @@ export function useImageExport({
     toast.success("Image downloaded!");
     onDownload();
     setIsDownloadDrawerOpen(false);
-  }, [generateImageBlob, getFilename, onDownload, setIsDownloadDrawerOpen]);
+  }, [checkLimitAndDownload, generateImageBlob, getFilename, onDownload, setIsDownloadDrawerOpen]);
 
   const handleSaveToPhotos = useCallback(async () => {
+    const canDownload = await checkLimitAndDownload();
+    if (!canDownload) return;
+
     const blob = await generateImageBlob();
     if (!blob) {
       toast.error("Please upload a photo first");
@@ -131,9 +164,19 @@ export function useImageExport({
       }
     }
 
-    // Fallback to regular download
-    await handleDownloadAsFile();
-  }, [generateImageBlob, getFilename, handleDownloadAsFile, onDownload, setIsDownloadDrawerOpen]);
+    // Fallback to regular download (limit already checked)
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Image downloaded!");
+    onDownload();
+    setIsDownloadDrawerOpen(false);
+  }, [checkLimitAndDownload, generateImageBlob, getFilename, onDownload, setIsDownloadDrawerOpen]);
 
   const handleDownloadClick = useCallback((isMobile: boolean) => {
     if (!userImageElement || !templateImageElement) {
@@ -156,5 +199,6 @@ export function useImageExport({
     handleDownloadAsFile,
     handleSaveToPhotos,
     handleDownloadClick,
+    isCheckingLimit,
   };
 }

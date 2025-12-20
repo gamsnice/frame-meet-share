@@ -81,13 +81,14 @@ export default function ImageEditor({
     setPosition,
   });
 
-  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick } = useImageExport({
+  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick, isCheckingLimit } = useImageExport({
     template,
     userImageElement,
     templateImageElement,
     scale,
     position,
     eventSlug,
+    eventId: eventId || '',
     onDownload,
     setIsDownloadDrawerOpen,
   });

@@ -121,10 +121,11 @@ export default function SubscriptionsManager() {
   const openEditDialog = (sub: SubscriptionWithUser) => {
     setSelectedSub(sub);
     setEditForm({
-      tier: sub.tier,
-      status: sub.status,
+      tier: sub.tier as SubscriptionTier,
+      status: sub.status as SubscriptionStatus,
       events_limit: sub.events_limit,
       templates_per_event_limit: sub.templates_per_event_limit,
+      downloads_limit: sub.downloads_limit || 50,
     });
     setEditDialogOpen(true);
   };
@@ -151,6 +152,7 @@ export default function SubscriptionsManager() {
           status: editForm.status,
           events_limit: editForm.events_limit,
           templates_per_event_limit: editForm.templates_per_event_limit,
+          downloads_limit: editForm.downloads_limit,
           updated_at: new Date().toISOString(),
         })
         .eq('id', selectedSub.id);
@@ -171,7 +173,8 @@ export default function SubscriptionsManager() {
       free: 'bg-muted text-muted-foreground',
       starter: 'bg-blue-500/20 text-blue-400',
       pro: 'bg-primary/20 text-primary',
-      enterprise: 'bg-secondary/20 text-secondary',
+      premium: 'bg-secondary/20 text-secondary',
+      enterprise: 'bg-amber-500/20 text-amber-400',
     };
     return <Badge className={colors[tier] || colors.free}>{tier}</Badge>;
   };
@@ -274,8 +277,8 @@ export default function SubscriptionsManager() {
                     <TableCell>{getStatusBadge(sub.status)}</TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <div>{sub.events_limit} events</div>
-                        <div className="text-muted-foreground">{sub.templates_per_event_limit} templates/event</div>
+                        <div>{sub.downloads_used || 0} / {sub.downloads_limit === -1 ? '∞' : sub.downloads_limit} downloads</div>
+                        <div className="text-muted-foreground">{sub.events_limit === -1 ? '∞' : sub.events_limit} events, {sub.templates_per_event_limit === -1 ? '∞' : sub.templates_per_event_limit} templates/event</div>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">

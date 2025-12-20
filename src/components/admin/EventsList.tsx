@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Calendar, Copy, ExternalLink, Pencil, BarChart3, Eye, Download } from "lucide-react";
 import { toast } from "sonner";
 import { EventBase } from "@/types";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
+import UpgradePromptDialog from "./UpgradePromptDialog";
 
 interface EventStats {
   views: number;
@@ -17,7 +19,9 @@ export default function EventsList({ userId }: { userId: string }) {
   const [events, setEvents] = useState<EventBase[]>([]);
   const [eventStats, setEventStats] = useState<Map<string, EventStats>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const navigate = useNavigate();
+  const { subscription, canCreateEvent, eventsRemaining } = useSubscriptionLimits(userId);
 
   useEffect(() => {
     loadEvents();
@@ -72,6 +76,14 @@ export default function EventsList({ userId }: { userId: string }) {
     toast.success("Event link copied!");
   };
 
+  const handleCreateEvent = () => {
+    if (!canCreateEvent) {
+      setShowUpgradeDialog(true);
+      return;
+    }
+    navigate("/admin/events/new");
+  };
+
   if (loading) {
     return <div className="text-center py-12">Loading events...</div>;
   }
@@ -83,9 +95,12 @@ export default function EventsList({ userId }: { userId: string }) {
           <h1 className="text-2xl sm:text-3xl font-bold">Events</h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">Manage your event visuals pages</p>
         </div>
-        <Button onClick={() => navigate("/admin/events/new")} size="lg" className="w-full sm:w-auto">
+        <Button onClick={handleCreateEvent} size="lg" className="w-full sm:w-auto">
           <Plus className="mr-2 h-5 w-5" />
           Create New Event
+          {eventsRemaining !== null && eventsRemaining <= 2 && (
+            <span className="ml-2 text-xs opacity-75">({eventsRemaining} left)</span>
+          )}
         </Button>
       </div>
 
@@ -94,7 +109,7 @@ export default function EventsList({ userId }: { userId: string }) {
           <Calendar className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold mb-2">No events yet</h3>
           <p className="text-muted-foreground mb-6">Create your first event visuals page to get started</p>
-          <Button onClick={() => navigate("/admin/events/new")}>
+          <Button onClick={handleCreateEvent}>
             <Plus className="mr-2 h-4 w-4" />
             Create Your First Event
           </Button>
@@ -163,6 +178,15 @@ export default function EventsList({ userId }: { userId: string }) {
           })}
         </div>
       )}
+
+      <UpgradePromptDialog
+        open={showUpgradeDialog}
+        onOpenChange={setShowUpgradeDialog}
+        limitType="events"
+        currentTier={subscription?.tier || 'free'}
+        currentUsage={events.length}
+        currentLimit={subscription?.events_limit || 1}
+      />
     </div>
   );
 }

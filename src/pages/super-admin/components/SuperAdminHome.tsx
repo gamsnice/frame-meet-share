@@ -8,9 +8,13 @@ import {
   CreditCard,
   TrendingUp,
   Eye,
-  Download
+  Download,
+  Crown,
+  Zap,
+  Rocket
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 
 interface PlatformStats {
@@ -21,6 +25,7 @@ interface PlatformStats {
   totalPageVisits: number;
   totalDownloads: number;
   activeSubscriptions: number;
+  tierCounts: Record<string, number>;
 }
 
 export default function SuperAdminHome() {
@@ -32,6 +37,7 @@ export default function SuperAdminHome() {
     totalPageVisits: 0,
     totalDownloads: 0,
     activeSubscriptions: 0,
+    tierCounts: {},
   });
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +50,8 @@ export default function SuperAdminHome() {
           feedbackRes,
           contactRes,
           dailyStatsRes,
-          subscriptionsRes
+          subscriptionsRes,
+          subscriptionsTiersRes
         ] = await Promise.all([
           supabase.from('users').select('id', { count: 'exact', head: true }),
           supabase.from('events').select('id', { count: 'exact', head: true }),
@@ -52,10 +59,17 @@ export default function SuperAdminHome() {
           supabase.from('contact_messages').select('id', { count: 'exact', head: true }),
           supabase.from('event_stats_daily').select('views_count, downloads_count'),
           supabase.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+          supabase.from('subscriptions').select('tier'),
         ]);
 
         const totalPageVisits = dailyStatsRes.data?.reduce((sum, row) => sum + (row.views_count || 0), 0) || 0;
         const totalDownloads = dailyStatsRes.data?.reduce((sum, row) => sum + (row.downloads_count || 0), 0) || 0;
+
+        // Count by tier
+        const tierCounts: Record<string, number> = {};
+        subscriptionsTiersRes.data?.forEach((sub) => {
+          tierCounts[sub.tier] = (tierCounts[sub.tier] || 0) + 1;
+        });
 
         setStats({
           totalUsers: usersRes.count || 0,
@@ -65,6 +79,7 @@ export default function SuperAdminHome() {
           totalPageVisits,
           totalDownloads,
           activeSubscriptions: subscriptionsRes.count || 0,
+          tierCounts,
         });
       } catch (error) {
         console.error('Error fetching platform stats:', error);
@@ -161,6 +176,36 @@ export default function SuperAdminHome() {
         ))}
       </div>
 
+      {/* Subscription Tier Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Crown className="h-5 w-5 text-secondary" />
+            Subscription Distribution
+          </CardTitle>
+          <CardDescription>Users by subscription tier</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { tier: 'free', icon: Zap, color: 'text-muted-foreground' },
+              { tier: 'starter', icon: Zap, color: 'text-blue-500' },
+              { tier: 'pro', icon: Rocket, color: 'text-primary' },
+              { tier: 'premium', icon: Crown, color: 'text-secondary' },
+              { tier: 'enterprise', icon: Crown, color: 'text-amber-500' },
+            ].map(({ tier, icon: Icon, color }) => (
+              <div key={tier} className="flex items-center gap-3 p-3 rounded-lg bg-muted">
+                <Icon className={`h-5 w-5 ${color}`} />
+                <div>
+                  <div className="text-lg font-bold">{stats.tierCounts[tier] || 0}</div>
+                  <div className="text-xs text-muted-foreground capitalize">{tier}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -188,6 +233,12 @@ export default function SuperAdminHome() {
               className="block p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
             >
               Manage user subscriptions
+            </Link>
+            <Link 
+              to="/super-admin/tiers" 
+              className="block p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+            >
+              Configure tier limits
             </Link>
           </CardContent>
         </Card>

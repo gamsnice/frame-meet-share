@@ -13,7 +13,10 @@ import DailyTrendChart from "./analytics/DailyTrendChart";
 import HourlyHeatmap from "./analytics/HourlyHeatmap";
 import WeekdayChart from "./analytics/WeekdayChart";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
+import UsageCard from "./UsageCard";
+import UpgradePromptDialog from "./UpgradePromptDialog";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
 import type { EventBase } from "@/types";
 
 export default function DashboardHome({ userId }: { userId: string }) {
@@ -22,9 +25,12 @@ export default function DashboardHome({ userId }: { userId: string }) {
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const [upgradeLimitType, setUpgradeLimitType] = useState<'events' | 'templates' | 'downloads'>('events');
   const navigate = useNavigate();
   
   const { dailyData, hourlyData, weekdayData, stats, loadAnalytics } = useAnalyticsData();
+  const { subscription, usage, canCreateEvent, eventsRemaining } = useSubscriptionLimits(userId);
 
   useEffect(() => {
     loadEvents();
@@ -66,6 +72,20 @@ export default function DashboardHome({ userId }: { userId: string }) {
     toast.success("Event link copied to clipboard!");
   };
 
+  const handleCreateEvent = () => {
+    if (!canCreateEvent) {
+      setUpgradeLimitType('events');
+      setShowUpgradeDialog(true);
+      return;
+    }
+    navigate("/admin/events/new");
+  };
+
+  const handleUpgrade = () => {
+    setUpgradeLimitType('downloads');
+    setShowUpgradeDialog(true);
+  };
+
   if (eventsLoading) {
     return <div className="text-center py-12">Loading dashboard...</div>;
   }
@@ -78,11 +98,27 @@ export default function DashboardHome({ userId }: { userId: string }) {
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Analytics Dashboard</h1>
           <p className="text-muted-foreground text-sm sm:text-base">Track performance across all your events</p>
         </div>
-        <Button onClick={() => navigate("/admin/events/new")} size="lg" className="w-full sm:w-auto">
+        <Button onClick={handleCreateEvent} size="lg" className="w-full sm:w-auto">
           <Plus className="mr-2 h-5 w-5" />
           Create New Event
+          {eventsRemaining !== null && eventsRemaining <= 2 && (
+            <span className="ml-2 text-xs opacity-75">({eventsRemaining} left)</span>
+          )}
         </Button>
       </div>
+
+      {/* Usage Card */}
+      {subscription && (
+        <UsageCard
+          tier={subscription.tier}
+          downloadsUsed={subscription.downloads_used}
+          downloadsLimit={subscription.downloads_limit}
+          eventsCreated={usage?.total_events_created || events.length}
+          eventsLimit={subscription.events_limit}
+          templatesCreated={usage?.total_templates_created || 0}
+          onUpgrade={handleUpgrade}
+        />
+      )}
 
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4 sm:items-center w-full">
@@ -182,6 +218,28 @@ export default function DashboardHome({ userId }: { userId: string }) {
           </div>
         )}
       </Card>
+
+      {/* Upgrade Dialog */}
+      <UpgradePromptDialog
+        open={showUpgradeDialog}
+        onOpenChange={setShowUpgradeDialog}
+        limitType={upgradeLimitType}
+        currentTier={subscription?.tier || 'free'}
+        currentUsage={
+          upgradeLimitType === 'events' 
+            ? events.length 
+            : upgradeLimitType === 'downloads'
+              ? subscription?.downloads_used || 0
+              : 0
+        }
+        currentLimit={
+          upgradeLimitType === 'events' 
+            ? subscription?.events_limit || 1 
+            : upgradeLimitType === 'downloads'
+              ? subscription?.downloads_limit || 50
+              : 1
+        }
+      />
     </div>
   );
 }
