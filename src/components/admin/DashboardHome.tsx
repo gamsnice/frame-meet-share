@@ -30,7 +30,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
   const navigate = useNavigate();
   
   const { dailyData, hourlyData, weekdayData, stats, loadAnalytics } = useAnalyticsData();
-  const { subscription, usage, canCreateEvent, eventsRemaining } = useSubscriptionLimits(userId);
+  const { subscription, usage, canCreateEvent, eventsRemaining, templatesRemaining } = useSubscriptionLimits(userId);
 
   useEffect(() => {
     loadEvents();
@@ -116,6 +116,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
           eventsCreated={usage?.total_events_created || events.length}
           eventsLimit={subscription.events_limit}
           templatesCreated={usage?.total_templates_created || 0}
+          templatesLimit={subscription.templates_limit}
           onUpgrade={handleUpgrade}
         />
       )}

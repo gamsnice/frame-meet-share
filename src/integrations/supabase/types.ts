@@ -308,7 +308,7 @@ export type Database = {
           downloads_limit: number
           events_limit: number
           id: string
-          templates_per_event_limit: number
+          templates_limit: number
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string | null
         }
@@ -316,7 +316,7 @@ export type Database = {
           downloads_limit: number
           events_limit: number
           id?: string
-          templates_per_event_limit: number
+          templates_limit: number
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string | null
         }
@@ -324,7 +324,7 @@ export type Database = {
           downloads_limit?: number
           events_limit?: number
           id?: string
-          templates_per_event_limit?: number
+          templates_limit?: number
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string | null
         }
@@ -342,7 +342,7 @@ export type Database = {
           status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
-          templates_per_event_limit: number | null
+          templates_limit: number | null
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string | null
           user_id: string
@@ -358,7 +358,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
-          templates_per_event_limit?: number | null
+          templates_limit?: number | null
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string | null
           user_id: string
@@ -374,7 +374,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
-          templates_per_event_limit?: number | null
+          templates_limit?: number | null
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string | null
           user_id?: string

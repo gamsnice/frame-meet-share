@@ -9,7 +9,7 @@ interface Subscription {
   downloads_limit: number;
   downloads_used: number;
   events_limit: number;
-  templates_per_event_limit: number;
+  templates_limit: number;
 }
 
 interface UsageStats {
@@ -23,10 +23,11 @@ interface SubscriptionLimits {
   usage: UsageStats | null;
   loading: boolean;
   canCreateEvent: boolean;
+  canCreateTemplate: boolean;
   canDownload: boolean;
   eventsRemaining: number | null; // null = unlimited
+  templatesRemaining: number | null; // null = unlimited
   downloadsRemaining: number | null; // null = unlimited
-  checkTemplateLimit: (eventId: string) => Promise<{ allowed: boolean; current: number; limit: number }>;
   refresh: () => Promise<void>;
 }
 
@@ -87,6 +88,12 @@ export function useSubscriptionLimits(userId: string | null): SubscriptionLimits
     return eventCount < subscription.events_limit;
   })();
 
+  const canCreateTemplate = (() => {
+    if (!subscription || !usage) return false;
+    if (subscription.templates_limit === -1) return true;
+    return (usage.total_templates_created || 0) < subscription.templates_limit;
+  })();
+
   const canDownload = (() => {
     if (!subscription) return false;
     if (subscription.downloads_limit === -1) return true;
@@ -99,46 +106,28 @@ export function useSubscriptionLimits(userId: string | null): SubscriptionLimits
     return Math.max(0, subscription.events_limit - eventCount);
   })();
 
+  const templatesRemaining = (() => {
+    if (!subscription || !usage) return 0;
+    if (subscription.templates_limit === -1) return null;
+    return Math.max(0, subscription.templates_limit - (usage.total_templates_created || 0));
+  })();
+
   const downloadsRemaining = (() => {
     if (!subscription) return 0;
     if (subscription.downloads_limit === -1) return null;
     return Math.max(0, subscription.downloads_limit - subscription.downloads_used);
   })();
 
-  const checkTemplateLimit = useCallback(async (eventId: string): Promise<{ allowed: boolean; current: number; limit: number }> => {
-    if (!subscription) {
-      return { allowed: false, current: 0, limit: 0 };
-    }
-
-    if (subscription.templates_per_event_limit === -1) {
-      return { allowed: true, current: 0, limit: -1 };
-    }
-
-    try {
-      const { count } = await supabase
-        .from('templates')
-        .select('id', { count: 'exact', head: true })
-        .eq('event_id', eventId);
-
-      const current = count || 0;
-      const allowed = current < subscription.templates_per_event_limit;
-      
-      return { allowed, current, limit: subscription.templates_per_event_limit };
-    } catch (error) {
-      console.error('Error checking template limit:', error);
-      return { allowed: false, current: 0, limit: subscription.templates_per_event_limit };
-    }
-  }, [subscription]);
-
   return {
     subscription,
     usage,
     loading,
     canCreateEvent,
+    canCreateTemplate,
     canDownload,
     eventsRemaining,
+    templatesRemaining,
     downloadsRemaining,
-    checkTemplateLimit,
     refresh: fetchData,
   };
 }
