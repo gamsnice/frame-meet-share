@@ -94,7 +94,9 @@ export function useImageExport({
 
       if (!result.success) {
         if (result.limitReached) {
-          toast.error("Download limit reached - please contact the event organizers to get downloads unblocked.");
+          toast.error(
+            "Download limit reached. Contact the event organizers to let them know that downloads are currently blocked.",
+          );
         } else {
           toast.error(result.message || "Unable to download at this time.");
         }
