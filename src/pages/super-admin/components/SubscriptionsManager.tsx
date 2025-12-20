@@ -54,19 +54,19 @@ interface SubscriptionWithUser {
   user_name: string;
 }
 
+interface TierConfig {
+  tier: string;
+  downloads_limit: number;
+  events_limit: number;
+  templates_per_event_limit: number;
+}
+
 type SubscriptionTier = 'free' | 'starter' | 'pro' | 'premium' | 'enterprise';
 type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'pending';
 
-const TIER_LIMITS: Record<SubscriptionTier, { events: number; templates: number; downloads: number }> = {
-  free: { events: 1, templates: 1, downloads: 50 },
-  starter: { events: 2, templates: 2, downloads: 100 },
-  pro: { events: 5, templates: 3, downloads: 400 },
-  premium: { events: -1, templates: -1, downloads: 1000 },
-  enterprise: { events: -1, templates: -1, downloads: 5000 },
-};
-
 export default function SubscriptionsManager() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionWithUser[]>([]);
+  const [tierConfigs, setTierConfigs] = useState<TierConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSub, setSelectedSub] = useState<SubscriptionWithUser | null>(null);
@@ -77,26 +77,23 @@ export default function SubscriptionsManager() {
     events_limit: 1,
     templates_per_event_limit: 1,
     downloads_limit: 50,
+    downloads_used: 0,
   });
 
   const fetchSubscriptions = async () => {
     try {
-      // Fetch subscriptions
-      const { data: subsData, error: subsError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Fetch subscriptions and tier configs in parallel
+      const [subsResult, usersResult, tierResult] = await Promise.all([
+        supabase.from('subscriptions').select('*').order('created_at', { ascending: false }),
+        supabase.from('users').select('id, email, name'),
+        supabase.from('subscription_tier_config').select('*'),
+      ]);
 
-      if (subsError) throw subsError;
+      if (subsResult.error) throw subsResult.error;
 
-      // Fetch users
-      const { data: usersData } = await supabase
-        .from('users')
-        .select('id, email, name');
+      const usersMap = new Map(usersResult.data?.map((u) => [u.id, u]) || []);
 
-      const usersMap = new Map(usersData?.map((u) => [u.id, u]) || []);
-
-      const subscriptionsWithUsers: SubscriptionWithUser[] = (subsData || []).map((sub) => {
+      const subscriptionsWithUsers: SubscriptionWithUser[] = (subsResult.data || []).map((sub) => {
         const user = usersMap.get(sub.user_id);
         return {
           ...sub,
@@ -106,6 +103,7 @@ export default function SubscriptionsManager() {
       });
 
       setSubscriptions(subscriptionsWithUsers);
+      setTierConfigs(tierResult.data || []);
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
       toast.error('Failed to load subscriptions');
@@ -126,19 +124,24 @@ export default function SubscriptionsManager() {
       events_limit: sub.events_limit,
       templates_per_event_limit: sub.templates_per_event_limit,
       downloads_limit: sub.downloads_limit || 50,
+      downloads_used: sub.downloads_used || 0,
     });
     setEditDialogOpen(true);
   };
 
   const handleTierChange = (tier: SubscriptionTier) => {
-    const limits = TIER_LIMITS[tier];
-    setEditForm({
-      ...editForm,
-      tier,
-      events_limit: limits.events,
-      templates_per_event_limit: limits.templates,
-      downloads_limit: limits.downloads,
-    });
+    const config = tierConfigs.find((c) => c.tier === tier);
+    if (config) {
+      setEditForm({
+        ...editForm,
+        tier,
+        events_limit: config.events_limit,
+        templates_per_event_limit: config.templates_per_event_limit,
+        downloads_limit: config.downloads_limit,
+      });
+    } else {
+      setEditForm({ ...editForm, tier });
+    }
   };
 
   const handleSaveChanges = async () => {
@@ -153,6 +156,7 @@ export default function SubscriptionsManager() {
           events_limit: editForm.events_limit,
           templates_per_event_limit: editForm.templates_per_event_limit,
           downloads_limit: editForm.downloads_limit,
+          downloads_used: editForm.downloads_used,
           updated_at: new Date().toISOString(),
         })
         .eq('id', selectedSub.id);
@@ -325,6 +329,7 @@ export default function SubscriptionsManager() {
                   <SelectItem value="free">Free</SelectItem>
                   <SelectItem value="starter">Starter</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
                   <SelectItem value="enterprise">Enterprise</SelectItem>
                 </SelectContent>
               </Select>
@@ -347,12 +352,36 @@ export default function SubscriptionsManager() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label>Downloads Used</Label>
+                <Input
+                  type="number"
+                  value={editForm.downloads_used}
+                  onChange={(e) => setEditForm({ ...editForm, downloads_used: parseInt(e.target.value) || 0 })}
+                  min={0}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Downloads Limit</Label>
+                <Input
+                  type="number"
+                  value={editForm.downloads_limit}
+                  onChange={(e) => setEditForm({ ...editForm, downloads_limit: parseInt(e.target.value) || 50 })}
+                  min={-1}
+                />
+                <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label>Events Limit</Label>
                 <Input
                   type="number"
                   value={editForm.events_limit}
                   onChange={(e) => setEditForm({ ...editForm, events_limit: parseInt(e.target.value) || 1 })}
+                  min={-1}
                 />
+                <p className="text-xs text-muted-foreground">-1 = unlimited</p>
               </div>
               <div className="space-y-2">
                 <Label>Templates/Event</Label>
@@ -360,7 +389,9 @@ export default function SubscriptionsManager() {
                   type="number"
                   value={editForm.templates_per_event_limit}
                   onChange={(e) => setEditForm({ ...editForm, templates_per_event_limit: parseInt(e.target.value) || 1 })}
+                  min={-1}
                 />
+                <p className="text-xs text-muted-foreground">-1 = unlimited</p>
               </div>
             </div>
           </div>
