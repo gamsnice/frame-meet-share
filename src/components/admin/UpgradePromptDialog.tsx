@@ -48,7 +48,7 @@ const TIER_FEATURES = {
 
 const LIMIT_MESSAGES = {
   events: "You've reached your event limit",
-  templates: "You've reached your template limit for this event",
+  templates: "You've reached your template limit",
   downloads: "You've reached your download limit",
 };
 
@@ -135,7 +135,7 @@ export default function UpgradePromptDialog({
                   <div className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-green-500" />
                     <span>
-                      {formatLimit(nextTierInfo.templates)} templates per event
+                      {formatLimit(nextTierInfo.templates)} templates
                     </span>
                   </div>
                 </div>

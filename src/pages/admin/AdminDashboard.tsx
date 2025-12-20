@@ -207,7 +207,7 @@ export default function AdminDashboard() {
           <Route path="/events" element={<EventsList userId={user.id} />} />
           <Route path="/events/new" element={<EventEditor userId={user.id} />} />
           <Route path="/events/:eventId/edit" element={<EventEditor userId={user.id} />} />
-          <Route path="/events/:eventId/templates" element={<TemplateManager />} />
+          <Route path="/events/:eventId/templates" element={<TemplateManager userId={user.id} />} />
           <Route path="/events/:eventId/analytics" element={<EventAnalytics />} />
           <Route path="/guide" element={<Guide />} />
           <Route path="/account" element={<AccountSettings userId={user.id} />} />

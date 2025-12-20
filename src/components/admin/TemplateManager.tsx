@@ -12,8 +12,10 @@ import { toast } from "sonner";
 import PhotoFrameMapper from "./PhotoFrameMapper";
 import { FORMAT_DIMENSIONS_WITH_LABELS, type Template } from "@/types";
 import { TemplateCard, CaptionsDialog, PlaceholderDialog } from "./template-manager";
+import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
+import UpgradePromptDialog from "./UpgradePromptDialog";
 
-export default function TemplateManager() {
+export default function TemplateManager({ userId }: { userId?: string }) {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -23,6 +25,9 @@ export default function TemplateManager() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [showPlaceholderDialog, setShowPlaceholderDialog] = useState(false);
   const [placeholderTemplate, setPlaceholderTemplate] = useState<Template | null>(null);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  
+  const { subscription, usage, canCreateTemplate, templatesRemaining, refresh: refreshLimits } = useSubscriptionLimits(userId || null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -66,6 +71,12 @@ export default function TemplateManager() {
   };
 
   const openCreateDialog = () => {
+    // Check template limit before opening create dialog
+    if (!canCreateTemplate) {
+      setShowUpgradeDialog(true);
+      return;
+    }
+    
     setEditingTemplate(null);
     setFormData({
       name: "",
@@ -186,6 +197,7 @@ export default function TemplateManager() {
 
         if (error) throw error;
         toast.success("Template created!");
+        refreshLimits(); // Refresh limits after creating template
       }
 
       setShowDialog(false);
@@ -235,6 +247,7 @@ export default function TemplateManager() {
 
       toast.success("Template and all related data deleted successfully");
       loadTemplates();
+      refreshLimits(); // Refresh limits after deleting template
     } catch (error: any) {
       console.error("Delete error:", error);
       toast.error(`Failed to delete template: ${error.message || "Unknown error"}`);
@@ -271,6 +284,9 @@ export default function TemplateManager() {
         <Button onClick={openCreateDialog} className="w-full sm:w-auto min-h-[44px]">
           <Plus className="mr-2 h-4 w-4" />
           Add Template
+          {templatesRemaining !== null && templatesRemaining <= 2 && (
+            <span className="ml-2 text-xs opacity-75">({templatesRemaining} left)</span>
+          )}
         </Button>
       </div>
 
@@ -416,6 +432,16 @@ export default function TemplateManager() {
         open={showPlaceholderDialog}
         onOpenChange={setShowPlaceholderDialog}
         onSaved={loadTemplates}
+      />
+
+      {/* Upgrade Dialog */}
+      <UpgradePromptDialog
+        open={showUpgradeDialog}
+        onOpenChange={setShowUpgradeDialog}
+        limitType="templates"
+        currentTier={subscription?.tier || 'free'}
+        currentUsage={usage?.total_templates_created || 0}
+        currentLimit={subscription?.templates_limit || 1}
       />
     </div>
   );

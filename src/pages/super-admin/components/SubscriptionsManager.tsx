@@ -44,7 +44,7 @@ interface SubscriptionWithUser {
   tier: string;
   status: string;
   events_limit: number;
-  templates_per_event_limit: number;
+  templates_limit: number;
   downloads_limit: number;
   downloads_used: number;
   created_at: string;
@@ -58,7 +58,7 @@ interface TierConfig {
   tier: string;
   downloads_limit: number;
   events_limit: number;
-  templates_per_event_limit: number;
+  templates_limit: number;
 }
 
 type SubscriptionTier = 'free' | 'starter' | 'pro' | 'premium' | 'enterprise';
@@ -75,7 +75,7 @@ export default function SubscriptionsManager() {
     tier: 'free' as SubscriptionTier,
     status: 'active' as SubscriptionStatus,
     events_limit: 1,
-    templates_per_event_limit: 1,
+    templates_limit: 1,
     downloads_limit: 50,
     downloads_used: 0,
   });
@@ -122,7 +122,7 @@ export default function SubscriptionsManager() {
       tier: sub.tier as SubscriptionTier,
       status: sub.status as SubscriptionStatus,
       events_limit: sub.events_limit,
-      templates_per_event_limit: sub.templates_per_event_limit,
+      templates_limit: sub.templates_limit,
       downloads_limit: sub.downloads_limit || 50,
       downloads_used: sub.downloads_used || 0,
     });
@@ -136,7 +136,7 @@ export default function SubscriptionsManager() {
         ...editForm,
         tier,
         events_limit: config.events_limit,
-        templates_per_event_limit: config.templates_per_event_limit,
+        templates_limit: config.templates_limit,
         downloads_limit: config.downloads_limit,
       });
     } else {
@@ -154,7 +154,7 @@ export default function SubscriptionsManager() {
           tier: editForm.tier,
           status: editForm.status,
           events_limit: editForm.events_limit,
-          templates_per_event_limit: editForm.templates_per_event_limit,
+          templates_limit: editForm.templates_limit,
           downloads_limit: editForm.downloads_limit,
           downloads_used: editForm.downloads_used,
           updated_at: new Date().toISOString(),
@@ -282,7 +282,7 @@ export default function SubscriptionsManager() {
                     <TableCell>
                       <div className="text-sm">
                         <div>{sub.downloads_used || 0} / {sub.downloads_limit === -1 ? '∞' : sub.downloads_limit} downloads</div>
-                        <div className="text-muted-foreground">{sub.events_limit === -1 ? '∞' : sub.events_limit} events, {sub.templates_per_event_limit === -1 ? '∞' : sub.templates_per_event_limit} templates/event</div>
+                        <div className="text-muted-foreground">{sub.events_limit === -1 ? '∞' : sub.events_limit} events, {sub.templates_limit === -1 ? '∞' : sub.templates_limit} templates</div>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">
@@ -384,11 +384,11 @@ export default function SubscriptionsManager() {
                 <p className="text-xs text-muted-foreground">-1 = unlimited</p>
               </div>
               <div className="space-y-2">
-                <Label>Templates/Event</Label>
+                <Label>Templates Limit</Label>
                 <Input
                   type="number"
-                  value={editForm.templates_per_event_limit}
-                  onChange={(e) => setEditForm({ ...editForm, templates_per_event_limit: parseInt(e.target.value) || 1 })}
+                  value={editForm.templates_limit}
+                  onChange={(e) => setEditForm({ ...editForm, templates_limit: parseInt(e.target.value) || 1 })}
                   min={-1}
                 />
                 <p className="text-xs text-muted-foreground">-1 = unlimited</p>

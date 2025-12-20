@@ -11,6 +11,7 @@ interface UsageCardProps {
   eventsCreated: number;
   eventsLimit: number;
   templatesCreated: number;
+  templatesLimit: number;
   onUpgrade: () => void;
 }
 
@@ -29,6 +30,7 @@ export default function UsageCard({
   eventsCreated,
   eventsLimit,
   templatesCreated,
+  templatesLimit,
   onUpgrade,
 }: UsageCardProps) {
   const formatLimit = (used: number, limit: number) => {
@@ -114,9 +116,17 @@ export default function UsageCard({
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Image className="h-4 w-4 text-muted-foreground" />
-              <span>Total Templates</span>
+              <span>Templates</span>
             </div>
-            <span className="font-medium">{templatesCreated}</span>
+            <span className={`font-medium ${isAtLimit(templatesCreated, templatesLimit) ? 'text-destructive' : ''}`}>
+              {formatLimit(templatesCreated, templatesLimit)}
+            </span>
+          </div>
+          <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className={`h-full transition-all ${getProgressColor(templatesCreated, templatesLimit)}`}
+              style={{ width: `${getProgress(templatesCreated, templatesLimit)}%` }}
+            />
           </div>
         </div>
 

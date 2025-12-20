@@ -13,7 +13,7 @@ interface TierConfig {
   tier: string;
   downloads_limit: number;
   events_limit: number;
-  templates_per_event_limit: number;
+  templates_limit: number;
   updated_at: string;
 }
 
@@ -79,7 +79,7 @@ export default function TierConfigManager() {
     return (
       edited.downloads_limit !== config.downloads_limit ||
       edited.events_limit !== config.events_limit ||
-      edited.templates_per_event_limit !== config.templates_per_event_limit
+      edited.templates_limit !== config.templates_limit
     );
   };
 
@@ -94,7 +94,7 @@ export default function TierConfigManager() {
         .update({
           downloads_limit: edited.downloads_limit,
           events_limit: edited.events_limit,
-          templates_per_event_limit: edited.templates_per_event_limit,
+          templates_limit: edited.templates_limit,
           updated_at: new Date().toISOString(),
         })
         .eq('id', config.id);
@@ -141,7 +141,7 @@ export default function TierConfigManager() {
           const displayConfig = getDisplayConfig(config);
           const isUnlimitedDownloads = displayConfig.downloads_limit === -1;
           const isUnlimitedEvents = displayConfig.events_limit === -1;
-          const isUnlimitedTemplates = displayConfig.templates_per_event_limit === -1;
+          const isUnlimitedTemplates = displayConfig.templates_limit === -1;
 
           return (
             <Card 
@@ -223,13 +223,13 @@ export default function TierConfigManager() {
                 {/* Templates Limit */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Templates per Event</Label>
+                    <Label>Total Templates</Label>
                     <div className="flex items-center gap-2">
                       <Infinity className="h-4 w-4 text-muted-foreground" />
                       <Switch
                         checked={isUnlimitedTemplates}
                         onCheckedChange={(checked) => 
-                          handleChange(config, 'templates_per_event_limit', checked)
+                          handleChange(config, 'templates_limit', checked)
                         }
                       />
                     </div>
@@ -238,9 +238,9 @@ export default function TierConfigManager() {
                     <Input
                       type="number"
                       min={1}
-                      value={displayConfig.templates_per_event_limit}
+                      value={displayConfig.templates_limit}
                       onChange={(e) => 
-                        handleChange(config, 'templates_per_event_limit', parseInt(e.target.value) || 1)
+                        handleChange(config, 'templates_limit', parseInt(e.target.value) || 1)
                       }
                     />
                   )}
