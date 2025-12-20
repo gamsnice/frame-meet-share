@@ -21,6 +21,7 @@ import FeedbackViewer from './components/FeedbackViewer';
 import ContactMessages from './components/ContactMessages';
 import SubscriptionsManager from './components/SubscriptionsManager';
 import SuperAdminHome from './components/SuperAdminHome';
+import TierConfigManager from './components/TierConfigManager';
 
 const navItems = [
   { title: 'Overview', path: '/super-admin', icon: LayoutDashboard },
@@ -29,6 +30,7 @@ const navItems = [
   { title: 'Feedback', path: '/super-admin/feedback', icon: MessageSquare },
   { title: 'Contact', path: '/super-admin/contact', icon: Mail },
   { title: 'Subscriptions', path: '/super-admin/subscriptions', icon: CreditCard },
+  { title: 'Tier Config', path: '/super-admin/tiers', icon: Shield },
 ];
 
 export default function SuperAdminDashboard() {
@@ -140,6 +142,7 @@ export default function SuperAdminDashboard() {
             <Route path="feedback" element={<FeedbackViewer />} />
             <Route path="contact" element={<ContactMessages />} />
             <Route path="subscriptions" element={<SubscriptionsManager />} />
+            <Route path="tiers" element={<TierConfigManager />} />
           </Routes>
         </main>
       </div>
