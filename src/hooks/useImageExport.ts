@@ -40,7 +40,7 @@ export function useImageExport({
   setIsDownloadDrawerOpen,
 }: UseImageExportProps): UseImageExportReturn {
   const [isCheckingLimit, setIsCheckingLimit] = useState(false);
-  
+
   const generateImageBlob = useCallback((): Promise<Blob | null> => {
     return new Promise((resolve) => {
       if (!userImageElement || !templateImageElement) {
@@ -91,10 +91,10 @@ export function useImageExport({
     setIsCheckingLimit(true);
     try {
       const result = await trackDownloadWithLimit(eventId, template.id);
-      
+
       if (!result.success) {
         if (result.limitReached) {
-          toast.error("Download limit reached. The event organizer needs to upgrade their plan.");
+          toast.error("Download limit reached - please contact the event organizers to get downloads unblocked.");
         } else {
           toast.error(result.message || "Unable to download at this time.");
         }
@@ -178,21 +178,24 @@ export function useImageExport({
     setIsDownloadDrawerOpen(false);
   }, [checkLimitAndDownload, generateImageBlob, getFilename, onDownload, setIsDownloadDrawerOpen]);
 
-  const handleDownloadClick = useCallback((isMobile: boolean) => {
-    if (!userImageElement || !templateImageElement) {
-      toast.error("Please upload a photo first");
-      return;
-    }
+  const handleDownloadClick = useCallback(
+    (isMobile: boolean) => {
+      if (!userImageElement || !templateImageElement) {
+        toast.error("Please upload a photo first");
+        return;
+      }
 
-    // On mobile, show options drawer
-    if (isMobile) {
-      setIsDownloadDrawerOpen(true);
-      return;
-    }
+      // On mobile, show options drawer
+      if (isMobile) {
+        setIsDownloadDrawerOpen(true);
+        return;
+      }
 
-    // On desktop, direct download
-    handleDownloadAsFile();
-  }, [handleDownloadAsFile, setIsDownloadDrawerOpen, templateImageElement, userImageElement]);
+      // On desktop, direct download
+      handleDownloadAsFile();
+    },
+    [handleDownloadAsFile, setIsDownloadDrawerOpen, templateImageElement, userImageElement],
+  );
 
   return {
     generateImageBlob,
