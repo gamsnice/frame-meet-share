@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen } from "lucide-react";
+import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import DashboardHome from "@/components/admin/DashboardHome";
 import EventsList from "@/components/admin/EventsList";
@@ -82,11 +82,11 @@ export default function AdminDashboard() {
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b">
                     <Link to="/admin" className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-gradient-accent flex items-center justify-center text-white font-bold">
-                        M
+                      <div className="h-8 w-8 rounded-full bg-gradient-accent flex items-center justify-center">
+                        <Sparkles className="h-4 w-4 text-primary-foreground" />
                       </div>
                       <div>
-                        <h1 className="text-lg font-bold">meetme</h1>
+                        <h1 className="text-lg font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</h1>
                         <p className="text-xs text-muted-foreground">Admin Dashboard</p>
                       </div>
                     </Link>
@@ -140,11 +140,11 @@ export default function AdminDashboard() {
             </Sheet>
 
             <Link to="/admin" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-accent flex items-center justify-center text-white font-bold">
-                M
+              <div className="h-8 w-8 rounded-full bg-gradient-accent flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-primary-foreground" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold">meetme</h1>
+                <h1 className="text-lg font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</h1>
                 <p className="text-xs text-muted-foreground">Admin Dashboard</p>
               </div>
             </Link>
