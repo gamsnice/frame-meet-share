@@ -15,7 +15,6 @@ export default function Landing() {
       <Navigation />
       <HeroSection />
       <ProcessFlow />
-      <TestimonialsSection />
       <FeaturesSection />
       <AnalyticsPreview />
       <PricingSection />
