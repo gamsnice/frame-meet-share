@@ -19,8 +19,8 @@ export default function EventAnalytics() {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [dailyData, setDailyData] = useState<DailyData[]>([]);
   const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
   const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
