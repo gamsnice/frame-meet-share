@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Check, Sparkles, Crown, Building2, ArrowRight, Loader2 } from "lucide-react";
-import { EnterpriseContactDialog } from "@/components/admin/EnterpriseContactDialog";
+import { CustomPackageDialog } from "@/components/admin/CustomPackageDialog";
 
 type TierKey = "free" | "starter" | "pro" | "premium" | "enterprise";
 
@@ -53,7 +53,7 @@ export default function SelectPlan() {
   const [configs, setConfigs] = useState<TierConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProTier, setSelectedProTier] = useState<TierKey>("pro");
-  const [enterpriseDialogOpen, setEnterpriseDialogOpen] = useState(false);
+  const [customPackageDialogOpen, setCustomPackageDialogOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [processingTier, setProcessingTier] = useState<string | null>(null);
@@ -351,7 +351,7 @@ export default function SelectPlan() {
               )}
             </ul>
 
-            <Button variant="secondary" className="w-full" onClick={() => setEnterpriseDialogOpen(true)}>
+            <Button variant="secondary" className="w-full" onClick={() => setCustomPackageDialogOpen(true)}>
               Contact Us
             </Button>
             <p className="text-xs text-muted-foreground text-center mt-3">Tailored to your needs</p>
@@ -364,9 +364,9 @@ export default function SelectPlan() {
         </p>
       </div>
 
-      <EnterpriseContactDialog
-        open={enterpriseDialogOpen}
-        onOpenChange={setEnterpriseDialogOpen}
+      <CustomPackageDialog
+        open={customPackageDialogOpen}
+        onOpenChange={setCustomPackageDialogOpen}
         userEmail={userEmail}
         userName={userName}
       />
