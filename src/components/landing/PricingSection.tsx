@@ -283,7 +283,7 @@ export default function PricingSection() {
             <ul className="mb-7 space-y-3">
               {enterprise ? (
                 [
-                  "Custom downloads (> 1000 or unlimited)",
+                  "Custom or undownloads (> 800 or unlimited)",
                   isUnlimited(enterprise.events_limit)
                     ? "Unlimited events"
                     : `Custom events (from ${enterprise.events_limit}+)`,
