@@ -1,29 +1,32 @@
-import { useEffect, useState } from 'react';
-import { Save, Settings2, Infinity } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { Save, Settings2, Infinity } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface TierConfig {
   id: string;
   tier: string;
-  downloads_limit: number;
-  events_limit: number;
-  templates_limit: number;
+  downloads_limit: number; // -1 = unlimited
+  events_limit: number; // -1 = unlimited
+  templates_limit: number; // -1 = unlimited
+  price_yearly_cents: number; // stored as cents
+  currency: string; // "EUR"
+  stripe_price_id: string | null;
   updated_at: string;
 }
 
-const TIER_ORDER = ['free', 'starter', 'pro', 'premium', 'enterprise'];
+const TIER_ORDER = ["free", "starter", "pro", "premium", "enterprise"];
 const TIER_COLORS: Record<string, string> = {
-  free: 'border-muted',
-  starter: 'border-blue-500/50',
-  pro: 'border-primary/50',
-  premium: 'border-secondary/50',
-  enterprise: 'border-amber-500/50',
+  free: "border-muted",
+  starter: "border-blue-500/50",
+  pro: "border-primary/50",
+  premium: "border-secondary/50",
+  enterprise: "border-amber-500/50",
 };
 
 export default function TierConfigManager() {
@@ -38,39 +41,61 @@ export default function TierConfigManager() {
 
   const fetchConfigs = async () => {
     try {
-      const { data, error } = await supabase
-        .from('subscription_tier_config')
-        .select('*')
-        .order('tier');
-
+      const { data, error } = await supabase.from("subscription_tier_config").select("*").order("tier");
       if (error) throw error;
 
-      // Sort by predefined order
-      const sorted = (data || []).sort((a, b) => 
-        TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier)
-      );
-      setConfigs(sorted);
+      const sorted = (data || []).sort((a: any, b: any) => TIER_ORDER.indexOf(a.tier) - TIER_ORDER.indexOf(b.tier));
+      setConfigs(sorted as TierConfig[]);
     } catch (error) {
-      console.error('Error fetching tier configs:', error);
-      toast.error('Failed to load tier configurations');
+      console.error("Error fetching tier configs:", error);
+      toast.error("Failed to load tier configurations");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (config: TierConfig, field: keyof TierConfig, value: number | boolean) => {
-    const newValue = typeof value === 'boolean' ? (value ? -1 : 1) : value;
-    const updated = { ...config, [field]: newValue };
-    
-    setEditedConfigs(prev => {
+  const getDisplayConfig = (config: TierConfig): TierConfig => {
+    return editedConfigs.get(config.id) || config;
+  };
+
+  const setEdited = (configId: string, updated: TierConfig) => {
+    setEditedConfigs((prev) => {
       const next = new Map(prev);
-      next.set(config.id, updated);
+      next.set(configId, updated);
       return next;
     });
   };
 
-  const getDisplayConfig = (config: TierConfig): TierConfig => {
-    return editedConfigs.get(config.id) || config;
+  const handleLimitToggle = (
+    config: TierConfig,
+    field: "downloads_limit" | "events_limit" | "templates_limit",
+    checked: boolean,
+  ) => {
+    // When turning ON unlimited -> -1
+    // When turning OFF unlimited -> fallback to 1
+    const updated = { ...getDisplayConfig(config), [field]: checked ? -1 : 1 };
+    setEdited(config.id, updated);
+  };
+
+  const handleLimitNumber = (
+    config: TierConfig,
+    field: "downloads_limit" | "events_limit" | "templates_limit",
+    value: number,
+  ) => {
+    const safe = Number.isFinite(value) && value >= 1 ? value : 1;
+    const updated = { ...getDisplayConfig(config), [field]: safe };
+    setEdited(config.id, updated);
+  };
+
+  const handlePriceEuros = (config: TierConfig, euros: number) => {
+    const safeEuros = Number.isFinite(euros) && euros >= 0 ? euros : 0;
+    const updated = { ...getDisplayConfig(config), price_yearly_cents: safeEuros * 100, currency: "EUR" };
+    setEdited(config.id, updated);
+  };
+
+  const handleStripePriceId = (config: TierConfig, stripePriceId: string) => {
+    const updated = { ...getDisplayConfig(config), stripe_price_id: stripePriceId.trim() || null };
+    setEdited(config.id, updated);
   };
 
   const hasChanges = (config: TierConfig): boolean => {
@@ -79,7 +104,10 @@ export default function TierConfigManager() {
     return (
       edited.downloads_limit !== config.downloads_limit ||
       edited.events_limit !== config.events_limit ||
-      edited.templates_limit !== config.templates_limit
+      edited.templates_limit !== config.templates_limit ||
+      edited.price_yearly_cents !== config.price_yearly_cents ||
+      (edited.stripe_price_id || null) !== (config.stripe_price_id || null) ||
+      edited.currency !== config.currency
     );
   };
 
@@ -90,27 +118,30 @@ export default function TierConfigManager() {
     setSaving(config.id);
     try {
       const { error } = await supabase
-        .from('subscription_tier_config')
+        .from("subscription_tier_config")
         .update({
           downloads_limit: edited.downloads_limit,
           events_limit: edited.events_limit,
           templates_limit: edited.templates_limit,
+          price_yearly_cents: edited.price_yearly_cents,
+          currency: edited.currency ?? "EUR",
+          stripe_price_id: edited.stripe_price_id ?? null,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', config.id);
+        .eq("id", config.id);
 
       if (error) throw error;
 
       toast.success(`${config.tier} tier updated`);
-      setEditedConfigs(prev => {
+      setEditedConfigs((prev) => {
         const next = new Map(prev);
         next.delete(config.id);
         return next;
       });
       fetchConfigs();
     } catch (error) {
-      console.error('Error saving tier config:', error);
-      toast.error('Failed to save changes');
+      console.error("Error saving tier config:", error);
+      toast.error("Failed to save changes");
     } finally {
       setSaving(null);
     }
@@ -132,36 +163,59 @@ export default function TierConfigManager() {
           Tier Configuration
         </h1>
         <p className="text-muted-foreground">
-          Configure default limits for each subscription tier. Changes apply to new subscriptions.
+          Configure default limits and pricing for each tier. Changes apply to new subscriptions.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {configs.map((config) => {
           const displayConfig = getDisplayConfig(config);
+
           const isUnlimitedDownloads = displayConfig.downloads_limit === -1;
           const isUnlimitedEvents = displayConfig.events_limit === -1;
           const isUnlimitedTemplates = displayConfig.templates_limit === -1;
 
+          const priceEuros = Math.round((displayConfig.price_yearly_cents || 0) / 100);
+
           return (
-            <Card 
-              key={config.id} 
-              className={`${TIER_COLORS[config.tier] || 'border-muted'} border-2`}
-            >
+            <Card key={config.id} className={`${TIER_COLORS[config.tier] || "border-muted"} border-2`}>
               <CardHeader className="pb-3">
                 <CardTitle className="capitalize flex items-center justify-between">
                   {config.tier}
                   {hasChanges(config) && (
-                    <span className="text-xs font-normal text-muted-foreground">
-                      Unsaved changes
-                    </span>
+                    <span className="text-xs font-normal text-muted-foreground">Unsaved changes</span>
                   )}
                 </CardTitle>
-                <CardDescription>
-                  Configure limits for {config.tier} tier
-                </CardDescription>
+                <CardDescription>Configure limits and pricing for {config.tier} tier</CardDescription>
               </CardHeader>
+
               <CardContent className="space-y-4">
+                {/* Price */}
+                <div className="space-y-2">
+                  <Label>Price (Yearly)</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">€</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={priceEuros}
+                      onChange={(e) => handlePriceEuros(config, parseInt(e.target.value || "0", 10))}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">Shown as one-time yearly payment. Stored in cents.</p>
+                </div>
+
+                {/* Stripe price id (optional) */}
+                <div className="space-y-2">
+                  <Label>Stripe price id (optional)</Label>
+                  <Input
+                    placeholder="price_123..."
+                    value={displayConfig.stripe_price_id || ""}
+                    onChange={(e) => handleStripePriceId(config, e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">Add later when Stripe is integrated.</p>
+                </div>
+
                 {/* Downloads Limit */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -170,23 +224,18 @@ export default function TierConfigManager() {
                       <Infinity className="h-4 w-4 text-muted-foreground" />
                       <Switch
                         checked={isUnlimitedDownloads}
-                        onCheckedChange={(checked) => 
-                          handleChange(config, 'downloads_limit', checked)
-                        }
+                        onCheckedChange={(checked) => handleLimitToggle(config, "downloads_limit", checked)}
                       />
                     </div>
                   </div>
-                  {!isUnlimitedDownloads && (
+                  {!isUnlimitedDownloads ? (
                     <Input
                       type="number"
                       min={1}
                       value={displayConfig.downloads_limit}
-                      onChange={(e) => 
-                        handleChange(config, 'downloads_limit', parseInt(e.target.value) || 1)
-                      }
+                      onChange={(e) => handleLimitNumber(config, "downloads_limit", parseInt(e.target.value) || 1)}
                     />
-                  )}
-                  {isUnlimitedDownloads && (
+                  ) : (
                     <p className="text-sm text-muted-foreground">Unlimited downloads</p>
                   )}
                 </div>
@@ -199,23 +248,18 @@ export default function TierConfigManager() {
                       <Infinity className="h-4 w-4 text-muted-foreground" />
                       <Switch
                         checked={isUnlimitedEvents}
-                        onCheckedChange={(checked) => 
-                          handleChange(config, 'events_limit', checked)
-                        }
+                        onCheckedChange={(checked) => handleLimitToggle(config, "events_limit", checked)}
                       />
                     </div>
                   </div>
-                  {!isUnlimitedEvents && (
+                  {!isUnlimitedEvents ? (
                     <Input
                       type="number"
                       min={1}
                       value={displayConfig.events_limit}
-                      onChange={(e) => 
-                        handleChange(config, 'events_limit', parseInt(e.target.value) || 1)
-                      }
+                      onChange={(e) => handleLimitNumber(config, "events_limit", parseInt(e.target.value) || 1)}
                     />
-                  )}
-                  {isUnlimitedEvents && (
+                  ) : (
                     <p className="text-sm text-muted-foreground">Unlimited events</p>
                   )}
                 </div>
@@ -228,23 +272,18 @@ export default function TierConfigManager() {
                       <Infinity className="h-4 w-4 text-muted-foreground" />
                       <Switch
                         checked={isUnlimitedTemplates}
-                        onCheckedChange={(checked) => 
-                          handleChange(config, 'templates_limit', checked)
-                        }
+                        onCheckedChange={(checked) => handleLimitToggle(config, "templates_limit", checked)}
                       />
                     </div>
                   </div>
-                  {!isUnlimitedTemplates && (
+                  {!isUnlimitedTemplates ? (
                     <Input
                       type="number"
                       min={1}
                       value={displayConfig.templates_limit}
-                      onChange={(e) => 
-                        handleChange(config, 'templates_limit', parseInt(e.target.value) || 1)
-                      }
+                      onChange={(e) => handleLimitNumber(config, "templates_limit", parseInt(e.target.value) || 1)}
                     />
-                  )}
-                  {isUnlimitedTemplates && (
+                  ) : (
                     <p className="text-sm text-muted-foreground">Unlimited templates</p>
                   )}
                 </div>
@@ -255,7 +294,7 @@ export default function TierConfigManager() {
                   className="w-full"
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {saving === config.id ? 'Saving...' : 'Save Changes'}
+                  {saving === config.id ? "Saving..." : "Save Changes"}
                 </Button>
               </CardContent>
             </Card>
@@ -266,9 +305,8 @@ export default function TierConfigManager() {
       <Card className="bg-muted/50">
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">
-            <strong>Note:</strong> Changes to tier configuration only affect new subscriptions. 
-            To update existing user limits, use the Subscriptions Manager to edit individual subscriptions 
-            or use the "Apply Default Limits" feature.
+            <strong>Note:</strong> Changes only affect new subscriptions. To update existing users, use your
+            subscriptions manager.
           </p>
         </CardContent>
       </Card>
