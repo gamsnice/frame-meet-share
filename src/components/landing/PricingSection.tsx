@@ -248,8 +248,7 @@ export default function PricingSection() {
                 })}
               </div>
 
-              )}
-            </div>
+        
 
             <ul className="mb-7 space-y-3">
               {selectedPro ? (
