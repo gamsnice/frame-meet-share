@@ -197,7 +197,7 @@ export default function PricingSection() {
 
             <div className="mb-2 mt-2">
               <h3 className="text-2xl font-bold">Pro</h3>
-              <p className="text-sm text-muted-foreground">Choose your yearly visual download package</p>
+              <p className="text-sm text-muted-foreground">Your perfect package for your needs</p>
             </div>
 
             <div className="mb-5">
