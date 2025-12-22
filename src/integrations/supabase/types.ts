@@ -81,6 +81,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "event_stats_daily_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "event_stats_daily_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
@@ -129,6 +136,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_stats_hourly_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
             referencedColumns: ["id"]
           },
           {
@@ -275,6 +289,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
             referencedColumns: ["id"]
           },
         ]
@@ -486,6 +507,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "templates_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "templates_placeholder_image_id_fkey"
             columns: ["placeholder_image_id"]
             isOneToOne: false
@@ -571,7 +599,135 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      events_public: {
+        Row: {
+          brand_primary_color: string | null
+          brand_secondary_color: string | null
+          brand_text_color: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          favicon_url: string | null
+          helper_text: string | null
+          hero_subtitle: string | null
+          hero_title: string | null
+          homepage_url: string | null
+          id: string | null
+          instagram_url: string | null
+          layout_preset: string | null
+          linkedin_url: string | null
+          location: string | null
+          logo_url: string | null
+          name: string | null
+          photo_folder_button_color: string | null
+          photo_folder_button_opacity: number | null
+          photo_folder_button_text: string | null
+          photo_folder_button_url: string | null
+          secondary_logo_url: string | null
+          slug: string | null
+          start_date: string | null
+        }
+        Insert: {
+          brand_primary_color?: string | null
+          brand_secondary_color?: string | null
+          brand_text_color?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          favicon_url?: string | null
+          helper_text?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          homepage_url?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          layout_preset?: string | null
+          linkedin_url?: string | null
+          location?: string | null
+          logo_url?: string | null
+          name?: string | null
+          photo_folder_button_color?: string | null
+          photo_folder_button_opacity?: number | null
+          photo_folder_button_text?: string | null
+          photo_folder_button_url?: string | null
+          secondary_logo_url?: string | null
+          slug?: string | null
+          start_date?: string | null
+        }
+        Update: {
+          brand_primary_color?: string | null
+          brand_secondary_color?: string | null
+          brand_text_color?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          favicon_url?: string | null
+          helper_text?: string | null
+          hero_subtitle?: string | null
+          hero_title?: string | null
+          homepage_url?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          layout_preset?: string | null
+          linkedin_url?: string | null
+          location?: string | null
+          logo_url?: string | null
+          name?: string | null
+          photo_folder_button_color?: string | null
+          photo_folder_button_opacity?: number | null
+          photo_folder_button_text?: string | null
+          photo_folder_button_url?: string | null
+          secondary_logo_url?: string | null
+          slug?: string | null
+          start_date?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions_safe: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          downloads_limit: number | null
+          downloads_used: number | null
+          events_limit: number | null
+          id: string | null
+          status: Database["public"]["Enums"]["subscription_status"] | null
+          templates_limit: number | null
+          tier: Database["public"]["Enums"]["subscription_tier"] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          downloads_limit?: number | null
+          downloads_used?: number | null
+          events_limit?: number | null
+          id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"] | null
+          templates_limit?: number | null
+          tier?: Database["public"]["Enums"]["subscription_tier"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          downloads_limit?: number | null
+          downloads_used?: number | null
+          events_limit?: number | null
+          id?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"] | null
+          templates_limit?: number | null
+          tier?: Database["public"]["Enums"]["subscription_tier"] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_subscription_limit: {
@@ -608,6 +764,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      user_owns_event: { Args: { event_id_text: string }; Returns: boolean }
     }
     Enums: {
       app_role: "user" | "admin" | "super_admin"

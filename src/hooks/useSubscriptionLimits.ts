@@ -45,9 +45,10 @@ export function useSubscriptionLimits(userId: string | null): SubscriptionLimits
 
     try {
       // Fetch subscription, usage stats, and event count in parallel
+      // Use subscriptions_safe view to exclude Stripe IDs from client
       const [subResult, usageResult, eventsResult] = await Promise.all([
         supabase
-          .from('subscriptions')
+          .from('subscriptions_safe')
           .select('*')
           .eq('user_id', userId)
           .maybeSingle(),

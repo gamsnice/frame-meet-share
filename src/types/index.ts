@@ -85,6 +85,9 @@ export interface EventBase {
   photo_folder_button_opacity?: number | null;
 }
 
+// Public event interface (excludes owner_user_id for security)
+export type EventPublic = Omit<EventBase, 'owner_user_id'>;
+
 // Caption interface
 export interface Caption {
   id: string;
