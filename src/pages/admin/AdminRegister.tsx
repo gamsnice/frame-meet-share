@@ -73,7 +73,7 @@ export default function AdminRegister() {
 
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">Let’s get you set up</h1>
-          <p className="text-muted-foreground">Turn your templates into share-ready event visuals - in minutes.</p>
+          <p className="text-muted-foreground">Turn your templates into share-ready event visuals</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
