@@ -45,7 +45,8 @@ export default function EventsList({ userId }: { userId: string }) {
         const { data: statsData } = await supabase
           .from("event_stats_daily")
           .select("event_id, views_count, downloads_count")
-          .in("event_id", eventIds);
+          .in("event_id", eventIds)
+          .is("template_id", null);
 
         if (statsData) {
           const statsMap = new Map<string, EventStats>();
