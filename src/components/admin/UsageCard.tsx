@@ -1,8 +1,9 @@
+import { useNavigate } from 'react-router-dom';
 import { Download, Calendar, Image, Crown, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import { navigateToUpgrade } from '@/lib/navigation';
 
 interface UsageCardProps {
   tier: string;
@@ -12,7 +13,6 @@ interface UsageCardProps {
   eventsLimit: number;
   templatesCreated: number;
   templatesLimit: number;
-  onUpgrade: () => void;
 }
 
 const TIER_COLORS: Record<string, string> = {
@@ -31,8 +31,8 @@ export default function UsageCard({
   eventsLimit,
   templatesCreated,
   templatesLimit,
-  onUpgrade,
 }: UsageCardProps) {
+  const navigate = useNavigate();
   const formatLimit = (used: number, limit: number) => {
     if (limit === -1) return `${used} / ∞`;
     return `${used} / ${limit}`;
@@ -131,7 +131,7 @@ export default function UsageCard({
         </div>
 
         {showUpgrade && (
-          <Button onClick={onUpgrade} variant="outline" className="w-full mt-2">
+          <Button onClick={() => navigateToUpgrade(navigate)} variant="outline" className="w-full mt-2">
             <Crown className="mr-2 h-4 w-4" />
             Upgrade Plan
           </Button>
