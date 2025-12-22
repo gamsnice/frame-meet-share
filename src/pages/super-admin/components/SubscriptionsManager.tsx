@@ -423,7 +423,7 @@ export default function SubscriptionsManager() {
       </Card>
 
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Subscription</DialogTitle>
             <DialogDescription>
@@ -431,79 +431,131 @@ export default function SubscriptionsManager() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Tier</Label>
-              <Select value={editForm.tier} onValueChange={(v) => handleTierChange(v as SubscriptionTier)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="free">Free</SelectItem>
-                  <SelectItem value="starter">Starter</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
-                  <SelectItem value="enterprise">Enterprise</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={editForm.status} onValueChange={(v) => setEditForm({ ...editForm, status: v as SubscriptionStatus })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Downloads Used</Label>
-                <Input
-                  type="number"
-                  value={editForm.downloads_used}
-                  onChange={(e) => setEditForm({ ...editForm, downloads_used: parseInt(e.target.value) || 0 })}
-                  min={0}
-                />
+                <Label>Tier</Label>
+                <Select value={editForm.tier} onValueChange={(v) => handleTierChange(v as SubscriptionTier)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {tierConfigs
+                      .sort((a, b) => {
+                        const order = ['free', 'starter', 'pro', 'premium', 'enterprise'];
+                        return order.indexOf(a.tier) - order.indexOf(b.tier);
+                      })
+                      .map((config) => (
+                        <SelectItem key={config.tier} value={config.tier}>
+                          <span className="capitalize">{config.tier}</span>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
+
               <div className="space-y-2">
-                <Label>Downloads Limit</Label>
-                <Input
-                  type="number"
-                  value={editForm.downloads_limit}
-                  onChange={(e) => setEditForm({ ...editForm, downloads_limit: parseInt(e.target.value) || 50 })}
-                  min={-1}
-                />
-                <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+                <Label>Status</Label>
+                <Select value={editForm.status} onValueChange={(v) => setEditForm({ ...editForm, status: v as SubscriptionStatus })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Events Limit</Label>
-                <Input
-                  type="number"
-                  value={editForm.events_limit}
-                  onChange={(e) => setEditForm({ ...editForm, events_limit: parseInt(e.target.value) || 1 })}
-                  min={-1}
-                />
-                <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+            {/* Tier defaults info */}
+            {tierConfigs.find((c) => c.tier === editForm.tier) && (
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <p className="text-xs text-muted-foreground mb-2">
+                  <span className="capitalize font-medium text-foreground">{editForm.tier}</span> tier defaults:
+                </p>
+                <div className="flex gap-4 text-xs">
+                  <span>
+                    Downloads: {tierConfigs.find((c) => c.tier === editForm.tier)?.downloads_limit === -1 ? '∞' : tierConfigs.find((c) => c.tier === editForm.tier)?.downloads_limit}
+                  </span>
+                  <span>
+                    Events: {tierConfigs.find((c) => c.tier === editForm.tier)?.events_limit === -1 ? '∞' : tierConfigs.find((c) => c.tier === editForm.tier)?.events_limit}
+                  </span>
+                  <span>
+                    Templates: {tierConfigs.find((c) => c.tier === editForm.tier)?.templates_limit === -1 ? '∞' : tierConfigs.find((c) => c.tier === editForm.tier)?.templates_limit}
+                  </span>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Templates Limit</Label>
-                <Input
-                  type="number"
-                  value={editForm.templates_limit}
-                  onChange={(e) => setEditForm({ ...editForm, templates_limit: parseInt(e.target.value) || 1 })}
-                  min={-1}
-                />
-                <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+            )}
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Custom Limits</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    const config = tierConfigs.find((c) => c.tier === editForm.tier);
+                    if (config) {
+                      setEditForm({
+                        ...editForm,
+                        downloads_limit: config.downloads_limit,
+                        events_limit: config.events_limit,
+                        templates_limit: config.templates_limit,
+                      });
+                    }
+                  }}
+                >
+                  Reset to tier defaults
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Downloads Used</Label>
+                  <Input
+                    type="number"
+                    value={editForm.downloads_used}
+                    onChange={(e) => setEditForm({ ...editForm, downloads_used: parseInt(e.target.value) || 0 })}
+                    min={0}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Downloads Limit</Label>
+                  <Input
+                    type="number"
+                    value={editForm.downloads_limit}
+                    onChange={(e) => setEditForm({ ...editForm, downloads_limit: parseInt(e.target.value) || 50 })}
+                    min={-1}
+                  />
+                  <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Events Limit</Label>
+                  <Input
+                    type="number"
+                    value={editForm.events_limit}
+                    onChange={(e) => setEditForm({ ...editForm, events_limit: parseInt(e.target.value) || 1 })}
+                    min={-1}
+                  />
+                  <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Templates Limit</Label>
+                  <Input
+                    type="number"
+                    value={editForm.templates_limit}
+                    onChange={(e) => setEditForm({ ...editForm, templates_limit: parseInt(e.target.value) || 1 })}
+                    min={-1}
+                  />
+                  <p className="text-xs text-muted-foreground">-1 = unlimited</p>
+                </div>
               </div>
             </div>
           </div>
