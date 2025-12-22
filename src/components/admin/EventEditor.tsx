@@ -56,7 +56,7 @@ export default function EventEditor({ userId }: { userId: string }) {
     favicon_url: "",
     hero_title: "",
     hero_subtitle: "",
-    helper_text: "Tip: A bright, close-up selfie makes visuals pop instantly.",
+    helper_text: "Tip: A bright, close-up picture makes visuals pop instantly.",
     layout_preset: "A",
     homepage_url: "",
     instagram_url: "",
@@ -457,7 +457,7 @@ export default function EventEditor({ userId }: { userId: string }) {
                   Add a button that links to an external photo folder (e.g., Google Drive, Dropbox, event gallery).
                   Leave empty to hide the button.
                 </p>
-                
+
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                   <div>
                     <Label htmlFor="photo_folder_button_text">Button Text</Label>
@@ -514,7 +514,9 @@ export default function EventEditor({ userId }: { userId: string }) {
                         className="flex-1"
                       />
                       <div className="flex items-center gap-2 ml-2">
-                        <Label htmlFor="photo_folder_button_opacity" className="text-xs whitespace-nowrap">Opacity</Label>
+                        <Label htmlFor="photo_folder_button_opacity" className="text-xs whitespace-nowrap">
+                          Opacity
+                        </Label>
                         <Input
                           id="photo_folder_button_opacity"
                           type="range"
@@ -530,7 +532,9 @@ export default function EventEditor({ userId }: { userId: string }) {
                           }
                           className="w-20 h-6"
                         />
-                        <span className="text-xs text-muted-foreground w-8">{Math.round(formData.photo_folder_button_opacity * 100)}%</span>
+                        <span className="text-xs text-muted-foreground w-8">
+                          {Math.round(formData.photo_folder_button_opacity * 100)}%
+                        </span>
                       </div>
                     </div>
                   </div>
