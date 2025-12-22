@@ -201,12 +201,12 @@ export default function SelectPlan() {
           {/* Free Plan */}
           <Card className="p-6 border-border/50 bg-card/50 relative">
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-muted-foreground mb-1">Free</h3>
+              <h3 className="text-lg font-semibold text-muted-foreground mb-1">Tryout</h3>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-bold text-foreground">
-                  {freeConfig ? formatPrice(freeConfig.price_yearly_cents) : "€0"}
+                  {freeConfig ? formatPrice(freeConfig.price_yearly_cents) : "Free"}
                 </span>
-                <span className="text-muted-foreground text-sm">/ one-time payment</span>
+                <span className="text-muted-foreground text-sm">/ no credit card required</span>
               </div>
             </div>
 
