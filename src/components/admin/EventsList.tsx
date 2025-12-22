@@ -43,17 +43,18 @@ export default function EventsList({ userId }: { userId: string }) {
 
         const { data: statsData } = await supabase
           .from("event_stats_daily")
-          .select("event_id, views_count, downloads_count")
-          .in("event_id", eventIds)
-          .is("template_id", null);
+          .select("event_id, template_id, views_count, downloads_count")
+          .in("event_id", eventIds);
 
         if (statsData) {
           const statsMap = new Map<string, EventStats>();
           statsData.forEach((stat) => {
             const existing = statsMap.get(stat.event_id) || { views: 0, downloads: 0 };
             statsMap.set(stat.event_id, {
-              views: existing.views + (stat.views_count || 0),
-              downloads: existing.downloads + (stat.downloads_count || 0),
+              // Views: only count page-level views (template_id is null)
+              views: existing.views + (stat.template_id === null ? (stat.views_count || 0) : 0),
+              // Downloads: only count template-level downloads (template_id is not null)
+              downloads: existing.downloads + (stat.template_id !== null ? (stat.downloads_count || 0) : 0),
             });
           });
           setEventStats(statsMap);
