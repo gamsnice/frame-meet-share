@@ -277,7 +277,7 @@ export default function PricingSection() {
 
             <div className="mb-4">
               <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">Custom</span>
-              <p className="text-xs text-muted-foreground mt-1">Tailored pricing • Annual invoicing</p>
+              <p className="text-xs text-muted-foreground mt-1">Tailored pricing • One-time payment 800 / year</p>
             </div>
 
             <ul className="mb-7 space-y-3">
