@@ -305,25 +305,34 @@ export type Database = {
       }
       subscription_tier_config: {
         Row: {
+          currency: string
           downloads_limit: number
           events_limit: number
           id: string
+          price_yearly_cents: number
+          stripe_price_id: string | null
           templates_limit: number
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string | null
         }
         Insert: {
+          currency?: string
           downloads_limit: number
           events_limit: number
           id?: string
+          price_yearly_cents?: number
+          stripe_price_id?: string | null
           templates_limit: number
           tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string | null
         }
         Update: {
+          currency?: string
           downloads_limit?: number
           events_limit?: number
           id?: string
+          price_yearly_cents?: number
+          stripe_price_id?: string | null
           templates_limit?: number
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string | null
