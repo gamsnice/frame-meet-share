@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { validatePassword, getPasswordStrength } from "@/lib/auth-config";
 
 export default function AdminRegister() {
   const navigate = useNavigate();
@@ -15,10 +16,31 @@ export default function AdminRegister() {
     email: "",
     password: "",
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const passwordStrength = getPasswordStrength(formData.password);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setErrors([]);
+
+    // Validate password
+    const validation = validatePassword(formData.password);
+    if (!validation.valid) {
+      setErrors(validation.errors);
+      return;
+    }
+
+    // Check passwords match
+    if (formData.password !== confirmPassword) {
+      setErrors(["Passwords do not match"]);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -122,15 +144,89 @@ export default function AdminRegister() {
             <label htmlFor="password" className="block text-sm font-medium mb-2">
               Password
             </label>
-            <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              required
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+                placeholder="••••••••"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Password must be at least 8 characters and include uppercase, lowercase, and a number.
+            </p>
+            
+            {formData.password && (
+              <div className="mt-2 space-y-1">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5, 6].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-1 flex-1 rounded-full transition-colors ${
+                        level <= passwordStrength.score
+                          ? passwordStrength.color
+                          : "bg-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className={`text-xs ${
+                  passwordStrength.label === 'Weak' ? 'text-destructive' :
+                  passwordStrength.label === 'Medium' ? 'text-yellow-600' :
+                  'text-green-600'
+                }`}>
+                  Password strength: {passwordStrength.label}
+                </p>
+              </div>
+            )}
           </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+              Confirm Password
+            </label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {confirmPassword && formData.password !== confirmPassword && (
+              <p className="text-xs text-destructive mt-1">Passwords do not match</p>
+            )}
+          </div>
+
+          {errors.length > 0 && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-md p-3">
+              <ul className="text-sm text-destructive space-y-1">
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Creating account..." : "Create account"}
