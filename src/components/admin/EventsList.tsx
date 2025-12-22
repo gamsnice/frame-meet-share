@@ -8,7 +8,7 @@ import { Plus, Calendar, Copy, ExternalLink, Pencil, BarChart3, Eye, Download } 
 import { toast } from "sonner";
 import { EventBase } from "@/types";
 import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
-import UpgradePromptDialog from "./UpgradePromptDialog";
+import { navigateToUpgrade } from "@/lib/navigation";
 
 interface EventStats {
   views: number;
@@ -19,9 +19,8 @@ export default function EventsList({ userId }: { userId: string }) {
   const [events, setEvents] = useState<EventBase[]>([]);
   const [eventStats, setEventStats] = useState<Map<string, EventStats>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const navigate = useNavigate();
-  const { subscription, canCreateEvent, eventsRemaining } = useSubscriptionLimits(userId);
+  const { canCreateEvent, eventsRemaining } = useSubscriptionLimits(userId);
 
   useEffect(() => {
     loadEvents();
@@ -76,7 +75,7 @@ export default function EventsList({ userId }: { userId: string }) {
 
   const handleCreateEvent = () => {
     if (!canCreateEvent) {
-      setShowUpgradeDialog(true);
+      navigateToUpgrade(navigate, 'events');
       return;
     }
     navigate("/admin/events/new");
@@ -177,14 +176,6 @@ export default function EventsList({ userId }: { userId: string }) {
         </div>
       )}
 
-      <UpgradePromptDialog
-        open={showUpgradeDialog}
-        onOpenChange={setShowUpgradeDialog}
-        limitType="events"
-        currentTier={subscription?.tier || 'free'}
-        currentUsage={events.length}
-        currentLimit={subscription?.events_limit || 1}
-      />
     </div>
   );
 }
