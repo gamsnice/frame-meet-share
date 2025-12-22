@@ -1,8 +1,8 @@
-import { Download, Calendar, Image, Crown, TrendingUp } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { Download, Calendar, Image, Crown, TrendingUp } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 interface UsageCardProps {
   tier: string;
@@ -12,15 +12,15 @@ interface UsageCardProps {
   eventsLimit: number;
   templatesCreated: number;
   templatesLimit: number;
-  onUpgrade?: () => void; // ✅ optional now
+  onUpgrade: () => void;
 }
 
 const TIER_COLORS: Record<string, string> = {
-  free: "bg-muted text-muted-foreground",
-  starter: "bg-blue-500/20 text-blue-400",
-  pro: "bg-primary/20 text-primary",
-  premium: "bg-secondary/20 text-secondary",
-  enterprise: "bg-amber-500/20 text-amber-400",
+  free: 'bg-muted text-muted-foreground',
+  starter: 'bg-blue-500/20 text-blue-400',
+  pro: 'bg-primary/20 text-primary',
+  premium: 'bg-secondary/20 text-secondary',
+  enterprise: 'bg-amber-500/20 text-amber-400',
 };
 
 export default function UsageCard({
@@ -33,8 +33,6 @@ export default function UsageCard({
   templatesLimit,
   onUpgrade,
 }: UsageCardProps) {
-  const navigate = useNavigate();
-
   const formatLimit = (used: number, limit: number) => {
     if (limit === -1) return `${used} / ∞`;
     return `${used} / ${limit}`;
@@ -46,11 +44,11 @@ export default function UsageCard({
   };
 
   const getProgressColor = (used: number, limit: number) => {
-    if (limit === -1) return "bg-green-500";
+    if (limit === -1) return 'bg-green-500';
     const percentage = (used / limit) * 100;
-    if (percentage >= 100) return "bg-destructive";
-    if (percentage >= 80) return "bg-yellow-500";
-    return "bg-primary";
+    if (percentage >= 100) return 'bg-destructive';
+    if (percentage >= 80) return 'bg-yellow-500';
+    return 'bg-primary';
   };
 
   const isAtLimit = (used: number, limit: number) => {
@@ -58,17 +56,7 @@ export default function UsageCard({
     return used >= limit;
   };
 
-  const showUpgrade = tier === "free" || tier === "starter" || tier === "pro";
-
-  const handleUpgradeClick = () => {
-    // If parent still provides a custom upgrade handler, run it.
-    if (onUpgrade) {
-      onUpgrade();
-      return;
-    }
-    // Otherwise, navigate to SelectPlan page.
-    navigate("/select-plan"); // 👈 change path if needed
-  };
+  const showUpgrade = tier === 'free' || tier === 'starter' || tier === 'pro';
 
   return (
     <Card>
@@ -84,7 +72,6 @@ export default function UsageCard({
         </div>
         <CardDescription>Track your subscription usage</CardDescription>
       </CardHeader>
-
       <CardContent className="space-y-4">
         {/* Downloads */}
         <div className="space-y-2">
@@ -93,12 +80,12 @@ export default function UsageCard({
               <Download className="h-4 w-4 text-muted-foreground" />
               <span>Downloads</span>
             </div>
-            <span className={`font-medium ${isAtLimit(downloadsUsed, downloadsLimit) ? "text-destructive" : ""}`}>
+            <span className={`font-medium ${isAtLimit(downloadsUsed, downloadsLimit) ? 'text-destructive' : ''}`}>
               {formatLimit(downloadsUsed, downloadsLimit)}
             </span>
           </div>
           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-            <div
+            <div 
               className={`h-full transition-all ${getProgressColor(downloadsUsed, downloadsLimit)}`}
               style={{ width: `${getProgress(downloadsUsed, downloadsLimit)}%` }}
             />
@@ -112,12 +99,12 @@ export default function UsageCard({
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span>Events</span>
             </div>
-            <span className={`font-medium ${isAtLimit(eventsCreated, eventsLimit) ? "text-destructive" : ""}`}>
+            <span className={`font-medium ${isAtLimit(eventsCreated, eventsLimit) ? 'text-destructive' : ''}`}>
               {formatLimit(eventsCreated, eventsLimit)}
             </span>
           </div>
           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-            <div
+            <div 
               className={`h-full transition-all ${getProgressColor(eventsCreated, eventsLimit)}`}
               style={{ width: `${getProgress(eventsCreated, eventsLimit)}%` }}
             />
@@ -131,12 +118,12 @@ export default function UsageCard({
               <Image className="h-4 w-4 text-muted-foreground" />
               <span>Templates</span>
             </div>
-            <span className={`font-medium ${isAtLimit(templatesCreated, templatesLimit) ? "text-destructive" : ""}`}>
+            <span className={`font-medium ${isAtLimit(templatesCreated, templatesLimit) ? 'text-destructive' : ''}`}>
               {formatLimit(templatesCreated, templatesLimit)}
             </span>
           </div>
           <div className="relative h-2 bg-muted rounded-full overflow-hidden">
-            <div
+            <div 
               className={`h-full transition-all ${getProgressColor(templatesCreated, templatesLimit)}`}
               style={{ width: `${getProgress(templatesCreated, templatesLimit)}%` }}
             />
@@ -144,7 +131,7 @@ export default function UsageCard({
         </div>
 
         {showUpgrade && (
-          <Button onClick={handleUpgradeClick} variant="outline" className="w-full mt-2">
+          <Button onClick={onUpgrade} variant="outline" className="w-full mt-2">
             <Crown className="mr-2 h-4 w-4" />
             Upgrade Plan
           </Button>
