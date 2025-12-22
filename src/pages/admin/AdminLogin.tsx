@@ -90,9 +90,7 @@ export default function AdminLogin() {
               placeholder="you@example.com"
               className={validationErrors.email ? "border-destructive" : ""}
             />
-            {validationErrors.email && (
-              <p className="mt-1 text-sm text-destructive">{validationErrors.email}</p>
-            )}
+            {validationErrors.email && <p className="mt-1 text-sm text-destructive">{validationErrors.email}</p>}
           </div>
 
           <div>
@@ -120,9 +118,7 @@ export default function AdminLogin() {
               placeholder="••••••••"
               className={validationErrors.password ? "border-destructive" : ""}
             />
-            {validationErrors.password && (
-              <p className="mt-1 text-sm text-destructive">{validationErrors.password}</p>
-            )}
+            {validationErrors.password && <p className="mt-1 text-sm text-destructive">{validationErrors.password}</p>}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
@@ -133,7 +129,7 @@ export default function AdminLogin() {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have an account?{" "}
           <button onClick={() => navigate("/admin/register")} className="text-primary font-medium hover:underline">
-            Create one
+            Create one now
           </button>
         </p>
       </Card>
