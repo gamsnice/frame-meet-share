@@ -23,7 +23,7 @@ interface TierConfig {
 const PRO_TIER_LABELS: Record<string, string> = {
   starter: "Classic",
   pro: "Premium",
-  premium: "Platin"
+  premium: "Platin",
 };
 
 const formatLimit = (limit: number): string => {
@@ -48,22 +48,18 @@ export default function SelectPlan() {
   useEffect(() => {
     const fetchData = async () => {
       // Get user info
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         setUserEmail(user.email || "");
-        const { data: userData } = await supabase
-          .from("users")
-          .select("name")
-          .eq("id", user.id)
-          .single();
+        const { data: userData } = await supabase.from("users").select("name").eq("id", user.id).single();
         if (userData) setUserName(userData.name);
       }
 
       // Get tier configs
-      const { data, error } = await supabase
-        .from("subscription_tier_config")
-        .select("*");
-      
+      const { data, error } = await supabase.from("subscription_tier_config").select("*");
+
       if (error) {
         console.error("Error fetching configs:", error);
       } else if (data) {
@@ -77,18 +73,18 @@ export default function SelectPlan() {
 
   const tierMap = useMemo(() => {
     const map = new Map<TierKey, TierConfig>();
-    configs.forEach(c => map.set(c.tier, c));
+    configs.forEach((c) => map.set(c.tier, c));
     return map;
   }, [configs]);
 
   const proTiers = useMemo(() => {
     return configs
-      .filter(c => ["starter", "pro", "premium"].includes(c.tier))
+      .filter((c) => ["starter", "pro", "premium"].includes(c.tier))
       .sort((a, b) => a.downloads_limit - b.downloads_limit);
   }, [configs]);
 
   useEffect(() => {
-    if (proTiers.length > 0 && !proTiers.find(t => t.tier === selectedProTier)) {
+    if (proTiers.length > 0 && !proTiers.find((t) => t.tier === selectedProTier)) {
       setSelectedProTier(proTiers[0].tier);
     }
   }, [proTiers, selectedProTier]);
@@ -99,34 +95,34 @@ export default function SelectPlan() {
   const handleFreePlan = () => {
     toast({
       title: "Welcome to meetme!",
-      description: "You're on the Free plan. You can upgrade anytime."
+      description: "You're on the Free plan. You can upgrade anytime.",
     });
     navigate("/admin");
   };
 
   const handleProPlan = async () => {
     if (!selectedProConfig) return;
-    
+
     setProcessingTier(selectedProTier);
-    
+
     if (selectedProConfig.stripe_price_id) {
       // Redirect to Stripe checkout (will be implemented with Stripe integration)
       toast({
         title: "Redirecting to checkout...",
-        description: "Please complete your payment to activate your plan."
+        description: "Please complete your payment to activate your plan.",
       });
       // For now, show coming soon until Stripe is fully integrated
       setTimeout(() => {
         toast({
           title: "Payment Integration Coming Soon",
-          description: "Contact us to get started with Pro today!"
+          description: "Contact us to get started with Pro today!",
         });
         setProcessingTier(null);
       }, 1000);
     } else {
       toast({
         title: "Coming Soon",
-        description: "Payment integration is being set up. Contact us to get started!"
+        description: "Payment integration is being set up. Contact us to get started!",
       });
       setProcessingTier(null);
     }
@@ -149,12 +145,9 @@ export default function SelectPlan() {
             <Sparkles className="h-4 w-4" />
             <span className="text-sm font-medium">Account Created Successfully!</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Choose Your Plan
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Choose Your Plan</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Start for free or unlock the full potential of meetme with a Pro plan. 
-            Upgrade anytime as your events grow.
+            Start for free or unlock the full potential of meetme with a Pro plan. Upgrade anytime as your events grow.
           </p>
         </div>
 
@@ -193,16 +186,10 @@ export default function SelectPlan() {
               </li>
             </ul>
 
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              onClick={handleFreePlan}
-            >
+            <Button variant="outline" className="w-full" onClick={handleFreePlan}>
               Continue with Free
             </Button>
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              You can upgrade anytime
-            </p>
+            <p className="text-xs text-muted-foreground text-center mt-3">You can upgrade anytime</p>
           </Card>
 
           {/* Pro Plan - Emphasized */}
@@ -226,13 +213,13 @@ export default function SelectPlan() {
 
               {/* Tier Selector */}
               <div className="flex gap-2 p-1 bg-muted/50 rounded-lg">
-                {proTiers.map(tier => (
+                {proTiers.map((tier) => (
                   <button
                     key={tier.tier}
                     onClick={() => setSelectedProTier(tier.tier)}
                     className={`flex-1 px-3 py-2 rounded-md text-xs font-medium transition-all ${
-                      selectedProTier === tier.tier 
-                        ? "bg-primary text-primary-foreground shadow-sm" 
+                      selectedProTier === tier.tier
+                        ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                   >
@@ -275,8 +262,8 @@ export default function SelectPlan() {
               </li>
             </ul>
 
-            <Button 
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg" 
+            <Button
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
               size="lg"
               onClick={handleProPlan}
               disabled={processingTier !== null}
@@ -293,9 +280,7 @@ export default function SelectPlan() {
                 </>
               )}
             </Button>
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              Trusted by 500+ event organizers
-            </p>
+            <p className="text-xs text-muted-foreground text-center mt-3">Trusted by event organizers of all sizes</p>
           </Card>
 
           {/* Enterprise Plan */}
@@ -341,31 +326,15 @@ export default function SelectPlan() {
               </li>
             </ul>
 
-            <Button 
-              variant="secondary" 
-              className="w-full" 
-              onClick={() => setEnterpriseDialogOpen(true)}
-            >
+            <Button variant="secondary" className="w-full" onClick={() => setEnterpriseDialogOpen(true)}>
               Contact Us
             </Button>
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              For large organizations & agencies
-            </p>
+            <p className="text-xs text-muted-foreground text-center mt-3">Tailored to your needs</p>
           </Card>
-        </div>
-
-        {/* Skip Link */}
-        <div className="text-center mt-8">
-          <button 
-            onClick={handleFreePlan}
-            className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline transition-colors"
-          >
-            Skip for now and explore the dashboard →
-          </button>
         </div>
       </div>
 
-      <EnterpriseContactDialog 
+      <EnterpriseContactDialog
         open={enterpriseDialogOpen}
         onOpenChange={setEnterpriseDialogOpen}
         userEmail={userEmail}
