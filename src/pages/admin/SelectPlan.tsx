@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Check, Sparkles, Crown, Building2, ArrowRight, Loader2 } from "lucide-react";
+import { Check, Sparkles, Crown, Building2, ArrowRight, Loader2, ArrowLeft } from "lucide-react";
 import { CustomPackageDialog } from "@/components/admin/CustomPackageDialog";
 
 type TierKey = "free" | "starter" | "pro" | "premium" | "enterprise";
@@ -37,6 +37,12 @@ const ONBOARDING_OPTIONAL = "Dedicated onboarding (optional)";
 const VISUAL_DOWNLOADS_FOOTNOTE =
   "Visual Downloads are the maximum number of downloads that can be done within 1 year.";
 
+const REASON_MESSAGES: Record<string, string> = {
+  events: "You've reached your event limit. Upgrade to create more events.",
+  templates: "You've reached your template limit. Upgrade to create more templates.",
+  downloads: "You've reached your download limit. Upgrade for more downloads.",
+};
+
 const isUnlimited = (n: number) => n === -1;
 
 const formatPrice = (cents: number): string => {
@@ -50,6 +56,10 @@ const formatLimit = (singular: string, plural: string, n: number) => {
 
 export default function SelectPlan() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isUpgradeMode = searchParams.get("mode") === "upgrade";
+  const upgradeReason = searchParams.get("reason") as string | null;
+  
   const [configs, setConfigs] = useState<TierConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProTier, setSelectedProTier] = useState<TierKey>("pro");
@@ -57,6 +67,7 @@ export default function SelectPlan() {
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [processingTier, setProcessingTier] = useState<string | null>(null);
+  const [currentUserTier, setCurrentUserTier] = useState<TierKey | null>(null);
 
   useEffect(() => {
     let channel: any;
@@ -81,6 +92,14 @@ export default function SelectPlan() {
       setUserEmail(user.email || "");
       const { data: userData } = await supabase.from("users").select("name").eq("id", user.id).single();
       if (userData?.name) setUserName(userData.name);
+      
+      // Fetch current subscription tier
+      const { data: subData } = await supabase
+        .from("subscriptions")
+        .select("tier")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (subData?.tier) setCurrentUserTier(subData.tier as TierKey);
     };
 
     const init = async () => {
@@ -186,54 +205,79 @@ export default function SelectPlan() {
       <div className="container mx-auto px-4 py-12 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary mb-6">
-            <Sparkles className="h-4 w-4" />
-            <span className="text-sm font-medium">Account Created Successfully!</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Choose Your Plan</h1>
+          {isUpgradeMode && (
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/admin")} 
+              className="mb-4"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Button>
+          )}
+          
+          {!isUpgradeMode && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary mb-6">
+              <Sparkles className="h-4 w-4" />
+              <span className="text-sm font-medium">Account Created Successfully!</span>
+            </div>
+          )}
+          
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+            {isUpgradeMode ? "Upgrade Your Plan" : "Choose Your Plan"}
+          </h1>
+          
+          {upgradeReason && REASON_MESSAGES[upgradeReason] && (
+            <p className="text-lg text-secondary font-medium mb-2">
+              {REASON_MESSAGES[upgradeReason]}
+            </p>
+          )}
+          
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             All plans are a one-time payment and limits apply per year.
           </p>
         </div>
 
         {/* Plans Grid */}
-        <div className="grid md:grid-cols-3 gap-6 items-start">
-          {/* Free Plan */}
-          <Card className="p-6 border-border/50 bg-card/50 relative">
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-muted-foreground mb-1">Free</h3>
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-foreground">
-                  {freeConfig ? formatPrice(freeConfig.price_yearly_cents) : "Free"}
-                </span>
-                <span className="text-muted-foreground text-sm">/ no credit card required</span>
+        <div className={`grid gap-6 items-start ${isUpgradeMode ? 'md:grid-cols-2 max-w-4xl mx-auto' : 'md:grid-cols-3'}`}>
+          {/* Free Plan - Only show if NOT in upgrade mode */}
+          {!isUpgradeMode && (
+            <Card className="p-6 border-border/50 bg-card/50 relative">
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-muted-foreground mb-1">Free</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-foreground">
+                    {freeConfig ? formatPrice(freeConfig.price_yearly_cents) : "Free"}
+                  </span>
+                  <span className="text-muted-foreground text-sm">/ no credit card required</span>
+                </div>
               </div>
-            </div>
 
-            <ul className="space-y-3 mb-8 text-sm">
-              {freeConfig ? (
-                [
-                  formatLimit("Visual Download", "Visual Downloads", freeConfig.downloads_limit),
-                  formatLimit("Event", "Events", freeConfig.events_limit),
-                  formatLimit("Template", "Templates", freeConfig.templates_limit),
-                  ...BASE_FEATURES_ALL_PLANS,
-                  SUPPORT_FREE,
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2 text-muted-foreground">
-                    <Check className="h-4 w-4 text-muted-foreground/60" />
-                    <span>{item}</span>
-                  </li>
-                ))
-              ) : (
-                <li className="text-muted-foreground">Missing backend config for Free tier.</li>
-              )}
-            </ul>
+              <ul className="space-y-3 mb-8 text-sm">
+                {freeConfig ? (
+                  [
+                    formatLimit("Visual Download", "Visual Downloads", freeConfig.downloads_limit),
+                    formatLimit("Event", "Events", freeConfig.events_limit),
+                    formatLimit("Template", "Templates", freeConfig.templates_limit),
+                    ...BASE_FEATURES_ALL_PLANS,
+                    SUPPORT_FREE,
+                  ].map((item) => (
+                    <li key={item} className="flex items-center gap-2 text-muted-foreground">
+                      <Check className="h-4 w-4 text-muted-foreground/60" />
+                      <span>{item}</span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-muted-foreground">Missing backend config for Free tier.</li>
+                )}
+              </ul>
 
-            <Button variant="outline" className="w-full" onClick={handleFreePlan}>
-              Continue with Free
-            </Button>
-            <p className="text-xs text-muted-foreground text-center mt-3">You can upgrade anytime</p>
-          </Card>
+              <Button variant="outline" className="w-full" onClick={handleFreePlan}>
+                Continue with Free
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-3">You can upgrade anytime</p>
+            </Card>
+          )}
 
           {/* Pro Plan */}
           <Card className="p-6 border-primary/50 bg-gradient-to-b from-primary/5 to-background relative scale-105 shadow-xl shadow-primary/10 z-10">

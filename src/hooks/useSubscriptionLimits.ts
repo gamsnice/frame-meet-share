@@ -82,6 +82,34 @@ export function useSubscriptionLimits(userId: string | null): SubscriptionLimits
     fetchData();
   }, [fetchData]);
 
+  // Real-time subscription updates
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`subscription_changes_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscriptions',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('Subscription changed:', payload);
+          if (payload.new) {
+            setSubscription(payload.new as Subscription);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId]);
+
   const canCreateEvent = (() => {
     if (!subscription) return false;
     if (subscription.events_limit === -1) return true;

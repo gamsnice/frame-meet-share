@@ -13,7 +13,7 @@ import PhotoFrameMapper from "./PhotoFrameMapper";
 import { FORMAT_DIMENSIONS_WITH_LABELS, type Template } from "@/types";
 import { TemplateCard, CaptionsDialog, PlaceholderDialog } from "./template-manager";
 import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
-import UpgradePromptDialog from "./UpgradePromptDialog";
+import { navigateToUpgrade } from "@/lib/navigation";
 
 export default function TemplateManager({ userId }: { userId?: string }) {
   const { eventId } = useParams();
@@ -25,7 +25,6 @@ export default function TemplateManager({ userId }: { userId?: string }) {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [showPlaceholderDialog, setShowPlaceholderDialog] = useState(false);
   const [placeholderTemplate, setPlaceholderTemplate] = useState<Template | null>(null);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   
   const { subscription, usage, canCreateTemplate, templatesRemaining, refresh: refreshLimits } = useSubscriptionLimits(userId || null);
 
@@ -73,7 +72,7 @@ export default function TemplateManager({ userId }: { userId?: string }) {
   const openCreateDialog = () => {
     // Check template limit before opening create dialog
     if (!canCreateTemplate) {
-      setShowUpgradeDialog(true);
+      navigateToUpgrade(navigate, 'templates');
       return;
     }
     
@@ -432,16 +431,6 @@ export default function TemplateManager({ userId }: { userId?: string }) {
         open={showPlaceholderDialog}
         onOpenChange={setShowPlaceholderDialog}
         onSaved={loadTemplates}
-      />
-
-      {/* Upgrade Dialog */}
-      <UpgradePromptDialog
-        open={showUpgradeDialog}
-        onOpenChange={setShowUpgradeDialog}
-        limitType="templates"
-        currentTier={subscription?.tier || 'free'}
-        currentUsage={usage?.total_templates_created || 0}
-        currentLimit={subscription?.templates_limit || 1}
       />
     </div>
   );

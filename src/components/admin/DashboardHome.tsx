@@ -14,9 +14,9 @@ import HourlyHeatmap from "./analytics/HourlyHeatmap";
 import WeekdayChart from "./analytics/WeekdayChart";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
 import UsageCard from "./UsageCard";
-import UpgradePromptDialog from "./UpgradePromptDialog";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import { useSubscriptionLimits } from "@/hooks/useSubscriptionLimits";
+import { navigateToUpgrade } from "@/lib/navigation";
 import type { EventBase } from "@/types";
 
 export default function DashboardHome({ userId }: { userId: string }) {
@@ -25,8 +25,6 @@ export default function DashboardHome({ userId }: { userId: string }) {
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-  const [upgradeLimitType, setUpgradeLimitType] = useState<'events' | 'templates' | 'downloads'>('events');
   const navigate = useNavigate();
   
   const { dailyData, hourlyData, weekdayData, stats, loadAnalytics } = useAnalyticsData();
@@ -74,16 +72,10 @@ export default function DashboardHome({ userId }: { userId: string }) {
 
   const handleCreateEvent = () => {
     if (!canCreateEvent) {
-      setUpgradeLimitType('events');
-      setShowUpgradeDialog(true);
+      navigateToUpgrade(navigate, 'events');
       return;
     }
     navigate("/admin/events/new");
-  };
-
-  const handleUpgrade = () => {
-    setUpgradeLimitType('downloads');
-    setShowUpgradeDialog(true);
   };
 
   if (eventsLoading) {
@@ -117,7 +109,6 @@ export default function DashboardHome({ userId }: { userId: string }) {
           eventsLimit={subscription.events_limit}
           templatesCreated={usage?.total_templates_created || 0}
           templatesLimit={subscription.templates_limit}
-          onUpgrade={handleUpgrade}
         />
       )}
 
@@ -219,28 +210,6 @@ export default function DashboardHome({ userId }: { userId: string }) {
           </div>
         )}
       </Card>
-
-      {/* Upgrade Dialog */}
-      <UpgradePromptDialog
-        open={showUpgradeDialog}
-        onOpenChange={setShowUpgradeDialog}
-        limitType={upgradeLimitType}
-        currentTier={subscription?.tier || 'free'}
-        currentUsage={
-          upgradeLimitType === 'events' 
-            ? events.length 
-            : upgradeLimitType === 'downloads'
-              ? subscription?.downloads_used || 0
-              : 0
-        }
-        currentLimit={
-          upgradeLimitType === 'events' 
-            ? subscription?.events_limit || 1 
-            : upgradeLimitType === 'downloads'
-              ? subscription?.downloads_limit || 50
-              : 1
-        }
-      />
     </div>
   );
 }
