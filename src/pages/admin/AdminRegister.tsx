@@ -72,7 +72,7 @@ export default function AdminRegister() {
         </Button>
 
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2">Create your account</h1>
+          <h1 className="text-3xl font-bold mb-2">Let’s get you set up</h1>
           <p className="text-muted-foreground">Turn your templates into share-ready event visuals - in minutes.</p>
         </div>
 
