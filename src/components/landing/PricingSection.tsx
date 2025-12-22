@@ -182,7 +182,7 @@ export default function PricingSection() {
                   <div className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">
                     {selectedPro ? formatPriceEUR(selectedPro.price_yearly_cents) : "€—"}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Billed yearly • One-time payment</p>
+                  <p className="text-xs text-muted-foreground mt-1">One-time payment • No monthly fees</p>
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-semibold">
