@@ -192,8 +192,7 @@ export default function SelectPlan() {
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Choose Your Plan</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Start for free or unlock more capacity with a Pro plan. Plans are a one-time payment and limits apply per
-            year.
+            All plans are a one-time payment and limits apply per year.
           </p>
         </div>
 
@@ -207,7 +206,7 @@ export default function SelectPlan() {
                 <span className="text-3xl font-bold text-foreground">
                   {freeConfig ? formatPrice(freeConfig.price_yearly_cents) : "€0"}
                 </span>
-                <span className="text-muted-foreground text-sm">/year</span>
+                <span className="text-muted-foreground text-sm">/ one-time payment</span>
               </div>
             </div>
 
@@ -252,7 +251,7 @@ export default function SelectPlan() {
                 <span className="text-4xl font-bold text-foreground">
                   {selectedProConfig ? formatPrice(selectedProConfig.price_yearly_cents) : "€—"}
                 </span>
-                <span className="text-muted-foreground text-sm">/year</span>
+                <span className="text-muted-foreground text-sm">/ one-time payment</span>
               </div>
 
               {/* Tier Selector */}
