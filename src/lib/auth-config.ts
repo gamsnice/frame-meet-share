@@ -3,7 +3,7 @@
 
 export const AUTH_CONFIG = {
   // Custom domain - CHANGE THIS to your actual custom domain
-  siteUrl: 'https://meetme.events',
+  siteUrl: 'https://meetme.gamsnice.com',
   
   // Redirect paths after auth actions
   redirects: {
