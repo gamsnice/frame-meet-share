@@ -61,7 +61,7 @@ export default function AdminRegister() {
 
       if (authData.user) {
         toast.success("Account created successfully!");
-        navigate("/admin");
+        navigate("/admin/select-plan");
       }
     } catch (error: any) {
       console.error("Registration error:", error);
