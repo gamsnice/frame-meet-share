@@ -66,6 +66,19 @@ interface TierConfig {
 type SubscriptionTier = 'free' | 'starter' | 'pro' | 'premium' | 'enterprise';
 type SubscriptionStatus = 'active' | 'cancelled' | 'expired' | 'pending';
 
+// UI labels for tiers (matching TierConfigManager)
+const TIER_LABELS: Record<string, string> = {
+  free: "Free",
+  starter: "Classic",
+  pro: "Premium",
+  premium: "Platin",
+  enterprise: "Enterprise",
+};
+
+const TIER_ORDER: SubscriptionTier[] = ['free', 'starter', 'pro', 'premium', 'enterprise'];
+
+const tierLabel = (tier: string) => TIER_LABELS[tier] ?? tier;
+
 export default function SubscriptionsManager() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionWithUser[]>([]);
   const [tierConfigs, setTierConfigs] = useState<TierConfig[]>([]);
@@ -217,7 +230,7 @@ export default function SubscriptionsManager() {
       premium: 'bg-secondary/20 text-secondary',
       enterprise: 'bg-amber-500/20 text-amber-400',
     };
-    return <Badge className={colors[tier] || colors.free}>{tier}</Badge>;
+    return <Badge className={colors[tier] || colors.free}>{tierLabel(tier)}</Badge>;
   };
 
   const getStatusBadge = (status: string) => {
@@ -263,8 +276,8 @@ export default function SubscriptionsManager() {
         {(['free', 'starter', 'pro', 'enterprise'] as const).map((tier) => (
           <Card key={tier}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground capitalize">
-                {tier}
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {tierLabel(tier)}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -440,13 +453,10 @@ export default function SubscriptionsManager() {
                   </SelectTrigger>
                   <SelectContent>
                     {tierConfigs
-                      .sort((a, b) => {
-                        const order = ['free', 'starter', 'pro', 'premium', 'enterprise'];
-                        return order.indexOf(a.tier) - order.indexOf(b.tier);
-                      })
+                      .sort((a, b) => TIER_ORDER.indexOf(a.tier as SubscriptionTier) - TIER_ORDER.indexOf(b.tier as SubscriptionTier))
                       .map((config) => (
                         <SelectItem key={config.tier} value={config.tier}>
-                          <span className="capitalize">{config.tier}</span>
+                          {tierLabel(config.tier)}
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -473,7 +483,7 @@ export default function SubscriptionsManager() {
             {tierConfigs.find((c) => c.tier === editForm.tier) && (
               <div className="p-3 rounded-lg bg-muted/50 border border-border">
                 <p className="text-xs text-muted-foreground mb-2">
-                  <span className="capitalize font-medium text-foreground">{editForm.tier}</span> tier defaults:
+                  <span className="font-medium text-foreground">{tierLabel(editForm.tier)}</span> tier defaults:
                 </p>
                 <div className="flex gap-4 text-xs">
                   <span>
