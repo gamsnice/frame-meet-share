@@ -18,22 +18,18 @@ interface CustomPackageDialogProps {
 
 const EVENT_TYPES = [
   "Conference",
-  "Exhibition",
   "Corporate Event",
-  "Wedding",
-  "Festival",
   "Trade Show",
   "Product Launch",
+  "Networking Event",
+  "Summit",
+  "Workshop / Seminar",
   "Other",
 ];
-
-const ATTENDEE_RANGES = ["< 100", "100 - 500", "500 - 1,000", "1,000 - 5,000", "5,000+"];
 
 const DOWNLOAD_RANGES = ["< 500", "500 - 1,000", "1,000 - 5,000", "5,000 - 10,000", "10,000+", "Unlimited"];
 
 const EVENTS_PER_YEAR = ["1 - 2", "3 - 5", "5 - 10", "10+"];
-
-const TIMELINE_OPTIONS = ["Within 1 month", "1 - 3 months", "3 - 6 months", "Just exploring"];
 
 export function CustomPackageDialog({ open, onOpenChange, userEmail = "", userName = "" }: CustomPackageDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,10 +39,8 @@ export function CustomPackageDialog({ open, onOpenChange, userEmail = "", userNa
     company: "",
     phone: "",
     eventType: "",
-    attendees: "",
     downloads: "",
     eventsPerYear: "",
-    timeline: "",
     message: "",
   });
 
@@ -71,10 +65,10 @@ export function CustomPackageDialog({ open, onOpenChange, userEmail = "", userNa
       return;
     }
 
-    if (!formData.eventType || !formData.attendees || !formData.downloads) {
+    if (!formData.eventType || !formData.downloads) {
       toast({
         title: "Required fields missing",
-        description: "Please fill in event type, attendees, and expected downloads.",
+        description: "Please fill in event type and expected downloads.",
         variant: "destructive",
       });
       return;
@@ -88,10 +82,8 @@ Company: ${formData.company || "Not provided"}
 Phone: ${formData.phone || "Not provided"}
 
 Event Type: ${formData.eventType}
-Expected Attendees: ${formData.attendees}
 Expected Downloads/Year: ${formData.downloads}
 Events per Year: ${formData.eventsPerYear || "Not specified"}
-Timeline: ${formData.timeline || "Not specified"}
 
 Additional Message:
 ${formData.message || "No additional message provided."}`;
@@ -125,10 +117,8 @@ ${formData.message || "No additional message provided."}`;
       company: "",
       phone: "",
       eventType: "",
-      attendees: "",
       downloads: "",
       eventsPerYear: "",
-      timeline: "",
       message: "",
     });
     onOpenChange(false);
@@ -227,23 +217,6 @@ ${formData.message || "No additional message provided."}`;
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="attendees">
-                  Expected Attendees <span className="text-destructive">*</span>
-                </Label>
-                <Select value={formData.attendees} onValueChange={(v) => setFormData((prev) => ({ ...prev, attendees: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ATTENDEE_RANGES.map((range) => (
-                      <SelectItem key={range} value={range}>
-                        {range}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
                 <Label htmlFor="downloads">
                   Downloads/Year <span className="text-destructive">*</span>
                 </Label>
@@ -260,9 +233,6 @@ ${formData.message || "No additional message provided."}`;
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="eventsPerYear">Events per Year</Label>
                 <Select
@@ -276,21 +246,6 @@ ${formData.message || "No additional message provided."}`;
                     {EVENTS_PER_YEAR.map((range) => (
                       <SelectItem key={range} value={range}>
                         {range}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="timeline">Timeline</Label>
-                <Select value={formData.timeline} onValueChange={(v) => setFormData((prev) => ({ ...prev, timeline: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TIMELINE_OPTIONS.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
                       </SelectItem>
                     ))}
                   </SelectContent>
