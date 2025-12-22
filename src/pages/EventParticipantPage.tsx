@@ -11,11 +11,11 @@ import ImageEditor from "@/components/participant/ImageEditor";
 import FeedbackButton from "@/components/participant/FeedbackButton";
 import { trackEvent } from "@/lib/analytics";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { EventBase, Template } from "@/types";
+import { EventPublic, Template } from "@/types";
 
 export default function EventParticipantPage() {
   const { slug } = useParams();
-  const [event, setEvent] = useState<EventBase | null>(null);
+  const [event, setEvent] = useState<EventPublic | null>(null);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [userImage, setUserImage] = useState<string | null>(null);
@@ -43,9 +43,9 @@ export default function EventParticipantPage() {
 
   const loadEventData = async () => {
     try {
-      // Load event
+      // Load event from public view (excludes owner_user_id for security)
       const { data: eventData, error: eventError } = await supabase
-        .from("events")
+        .from("events_public")
         .select("*")
         .eq("slug", slug)
         .single();
