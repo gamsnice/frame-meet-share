@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CustomPackageDialog } from "@/components/admin/CustomPackageDialog";
 
 type TierKey = "free" | "starter" | "pro" | "premium" | "enterprise";
 
@@ -53,10 +54,7 @@ export default function PricingSection() {
   const navigate = useNavigate();
   const [configs, setConfigs] = useState<TierConfig[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const [customPackageDialogOpen, setCustomPackageDialogOpen] = useState(false);
 
   useEffect(() => {
     let channel: any;
@@ -313,7 +311,7 @@ export default function PricingSection() {
               )}
             </ul>
 
-            <Button className="w-full" variant="outline" onClick={scrollToContact}>
+            <Button className="w-full" variant="outline" onClick={() => setCustomPackageDialogOpen(true)}>
               Contact Us
             </Button>
           </Card>
@@ -324,6 +322,8 @@ export default function PricingSection() {
           {VISUAL_DOWNLOADS_FOOTNOTE}
         </p>
       </div>
+
+      <CustomPackageDialog open={customPackageDialogOpen} onOpenChange={setCustomPackageDialogOpen} />
     </section>
   );
 }
