@@ -37,8 +37,9 @@ const formatLimit = (label: string, n: number) => {
 };
 
 const BASE_FEATURES_ALL_PLANS = ["Analytics dashboard", "Custom branding"];
-const SUPPORT_FREE = "Community support";
+const SUPPORT_FREE = "Basic support";
 const SUPPORT_PRO = "Priority support";
+const ONBOARDING_OPTIONAL = "Dedicated onboarding (optional)";
 
 export default function PricingSection() {
   const navigate = useNavigate();
@@ -247,6 +248,7 @@ export default function PricingSection() {
                   formatLimit("template", selectedPro.templates_limit),
                   ...BASE_FEATURES_ALL_PLANS,
                   SUPPORT_PRO,
+                  ONBOARDING_OPTIONAL,
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
@@ -281,7 +283,7 @@ export default function PricingSection() {
             <ul className="mb-7 space-y-3">
               {enterprise ? (
                 [
-                  "Custom downloads (1000+ / unlimited)",
+                  "Custom downloads (> 1000 or unlimited)",
                   isUnlimited(enterprise.events_limit)
                     ? "Unlimited events"
                     : `Custom events (from ${enterprise.events_limit}+)`,
@@ -290,7 +292,7 @@ export default function PricingSection() {
                     : `Custom templates (from ${enterprise.templates_limit}+)`,
                   ...BASE_FEATURES_ALL_PLANS,
                   SUPPORT_PRO,
-                  "Dedicated onboarding (optional)",
+                  ONBOARDING_OPTIONAL,
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2">
                     <Check className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
@@ -306,10 +308,6 @@ export default function PricingSection() {
               Contact Us
             </Button>
           </Card>
-        </div>
-
-        <div className="mt-6 text-center text-xs md:text-sm text-muted-foreground">
-          Need more than 1000 downloads/year or want unlimited? Enterprise can be tailored to your event volume.
         </div>
       </div>
     </section>
