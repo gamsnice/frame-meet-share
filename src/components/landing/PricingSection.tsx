@@ -261,8 +261,6 @@ export default function PricingSection() {
                   .
                 </div>
               )}
-
-              {/* ✅ Removed the extra explanation line here (your 2nd screenshot) */}
             </div>
 
             <ul className="mb-7 space-y-3">
