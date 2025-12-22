@@ -248,18 +248,6 @@ export default function PricingSection() {
                 })}
               </div>
 
-              {selectedPro && (
-                <div className="mt-3 text-xs md:text-sm text-muted-foreground">
-                  Includes{" "}
-                  {isUnlimited(selectedPro.events_limit)
-                    ? "unlimited events"
-                    : `up to ${selectedPro.events_limit} events`}{" "}
-                  and{" "}
-                  {isUnlimited(selectedPro.templates_limit)
-                    ? "unlimited templates"
-                    : `up to ${selectedPro.templates_limit} templates`}
-                  .
-                </div>
               )}
             </div>
 
