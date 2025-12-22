@@ -10,7 +10,7 @@ import { toast } from "sonner";
 
 interface TierConfig {
   id: string;
-  tier: string;
+  tier: string; // keep DB keys: free, starter, pro, premium, enterprise
   downloads_limit: number; // -1 = unlimited
   events_limit: number; // -1 = unlimited
   templates_limit: number; // -1 = unlimited
@@ -28,6 +28,20 @@ const TIER_COLORS: Record<string, string> = {
   premium: "border-secondary/50",
   enterprise: "border-amber-500/50",
 };
+
+// UI labels (what you show to users/admin)
+// DB keys stay unchanged.
+const TIER_LABELS: Record<string, string> = {
+  free: "Free",
+  starter: "Classic",
+  pro: "Premium",
+  premium: "Platin",
+  enterprise: "Enterprise",
+};
+
+function tierLabel(tier: string) {
+  return TIER_LABELS[tier] ?? tier;
+}
 
 export default function TierConfigManager() {
   const [configs, setConfigs] = useState<TierConfig[]>([]);
@@ -54,9 +68,7 @@ export default function TierConfigManager() {
     }
   };
 
-  const getDisplayConfig = (config: TierConfig): TierConfig => {
-    return editedConfigs.get(config.id) || config;
-  };
+  const getDisplayConfig = (config: TierConfig): TierConfig => editedConfigs.get(config.id) || config;
 
   const setEdited = (configId: string, updated: TierConfig) => {
     setEditedConfigs((prev) => {
@@ -71,8 +83,6 @@ export default function TierConfigManager() {
     field: "downloads_limit" | "events_limit" | "templates_limit",
     checked: boolean,
   ) => {
-    // When turning ON unlimited -> -1
-    // When turning OFF unlimited -> fallback to 1
     const updated = { ...getDisplayConfig(config), [field]: checked ? -1 : 1 };
     setEdited(config.id, updated);
   };
@@ -132,7 +142,7 @@ export default function TierConfigManager() {
 
       if (error) throw error;
 
-      toast.success(`${config.tier} tier updated`);
+      toast.success(`${tierLabel(config.tier)} tier updated`);
       setEditedConfigs((prev) => {
         const next = new Map(prev);
         next.delete(config.id);
@@ -180,13 +190,15 @@ export default function TierConfigManager() {
           return (
             <Card key={config.id} className={`${TIER_COLORS[config.tier] || "border-muted"} border-2`}>
               <CardHeader className="pb-3">
-                <CardTitle className="capitalize flex items-center justify-between">
-                  {config.tier}
+                <CardTitle className="flex items-center justify-between">
+                  {tierLabel(config.tier)}
                   {hasChanges(config) && (
                     <span className="text-xs font-normal text-muted-foreground">Unsaved changes</span>
                   )}
                 </CardTitle>
-                <CardDescription>Configure limits and pricing for {config.tier} tier</CardDescription>
+                <CardDescription>
+                  Configure limits and pricing for <span className="font-medium">{tierLabel(config.tier)}</span>
+                </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-4">
