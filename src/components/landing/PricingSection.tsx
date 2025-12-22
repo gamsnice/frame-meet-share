@@ -146,7 +146,7 @@ export default function PricingSection() {
 
           {/* ✅ Sentence Case Like Before */}
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-            All plans are billed annually (one-time payment). Limits apply per year.
+            All plans are a one-time payment and limits apply per year.
           </p>
         </div>
 
