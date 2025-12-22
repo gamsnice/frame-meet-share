@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminRegister from "./pages/admin/AdminRegister";
+import ForgotPassword from "./pages/admin/ForgotPassword";
+import ResetPassword from "./pages/admin/ResetPassword";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import SuperAdminDashboard from "./pages/super-admin/SuperAdminDashboard";
 import SuperAdminSetup from "./pages/super-admin/SuperAdminSetup";
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/register" element={<AdminRegister />} />
+          <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+          <Route path="/admin/reset-password" element={<ResetPassword />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/super-admin/setup" element={<SuperAdminSetup />} />
           <Route path="/super-admin/*" element={<SuperAdminDashboard />} />

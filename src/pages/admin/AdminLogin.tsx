@@ -6,6 +6,13 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
+import { z } from "zod";
+import { AUTH_CONFIG } from "@/lib/auth-config";
+
+const loginSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -14,23 +21,40 @@ export default function AdminLogin() {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setValidationErrors({});
+
+    // Validate inputs
+    const result = loginSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0] as string] = err.message;
+        }
+      });
+      setValidationErrors(errors);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password,
       });
 
       if (error) throw error;
 
       toast.success("Welcome back!");
-      navigate("/admin");
+      navigate(AUTH_CONFIG.redirects.afterLogin);
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      // Generic error message to prevent user enumeration
+      toast.error("Invalid email or password. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -58,24 +82,47 @@ export default function AdminLogin() {
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                setValidationErrors((prev) => ({ ...prev, email: "" }));
+              }}
               required
               placeholder="you@example.com"
+              className={validationErrors.email ? "border-destructive" : ""}
             />
+            {validationErrors.email && (
+              <p className="mt-1 text-sm text-destructive">{validationErrors.email}</p>
+            )}
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-2">
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="password" className="block text-sm font-medium">
+                Password
+              </label>
+              <button
+                type="button"
+                onClick={() => navigate("/admin/forgot-password")}
+                className="text-sm text-primary hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
             <Input
               id="password"
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, password: e.target.value });
+                setValidationErrors((prev) => ({ ...prev, password: "" }));
+              }}
               required
               placeholder="••••••••"
+              className={validationErrors.password ? "border-destructive" : ""}
             />
+            {validationErrors.password && (
+              <p className="mt-1 text-sm text-destructive">{validationErrors.password}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
