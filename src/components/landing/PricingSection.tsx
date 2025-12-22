@@ -30,7 +30,6 @@ const TIER_LABELS: Record<TierKey, string> = {
 };
 
 const isUnlimited = (n: number) => n === -1;
-
 const formatPriceEUR = (cents: number) => `€${Math.round((cents || 0) / 100)}`;
 
 const formatLimit = (singular: string, plural: string, n: number) => {
@@ -40,13 +39,15 @@ const formatLimit = (singular: string, plural: string, n: number) => {
 
 const formatChipNumber = (n: number) => (isUnlimited(n) ? "∞" : String(n));
 
-const BASE_FEATURES_ALL_PLANS = ["Analytics Dashboard", "Custom Branding"];
-const SUPPORT_FREE = "Basic Support";
-const SUPPORT_PRO = "Priority Support";
-const ONBOARDING_OPTIONAL = "Dedicated Onboarding (Optional)";
+// ✅ Sentence Case Like Screenshot
+const BASE_FEATURES_ALL_PLANS = ["Analytics dashboard", "Custom branding"];
+const SUPPORT_FREE = "Basic support";
+const SUPPORT_PRO = "Priority support";
+const ONBOARDING_OPTIONAL = "Dedicated onboarding (optional)";
 
-const VISUAL_DOWNLOADS_EXPLANATION =
-  "Visual Downloads Are Exports Of Your Event Visuals (e.g. Social Posts, Stories, Posters).";
+// ✅ Final Explanation (moved below all packages)
+const VISUAL_DOWNLOADS_FOOTNOTE =
+  "Visual Downloads are the maximum number of downloads that can be done within 1 year.";
 
 export default function PricingSection() {
   const navigate = useNavigate();
@@ -94,8 +95,8 @@ export default function PricingSection() {
   const enterprise = tierMap.get("enterprise");
 
   /**
-   * ✅ REVERTED: Pro Options Order = Sorted By downloads_limit (like before)
-   * This means the selector order will always follow your backend numbers.
+   * Keep Pro Package Order "as it was before":
+   * ✅ Sorted By downloads_limit (so backend values decide order)
    */
   const proOptions = useMemo(() => {
     const arr = (["starter", "pro", "premium"] as TierKey[]).map((t) => tierMap.get(t)).filter(Boolean) as TierConfig[];
@@ -143,12 +144,9 @@ export default function PricingSection() {
             <span className="bg-gradient-accent bg-clip-text text-transparent"> Invest in Results</span> not Agencies
           </h2>
 
+          {/* ✅ Sentence Case Like Before */}
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-            All Plans Are Billed Yearly (One-time Payment). Limits Apply Per Year.
-          </p>
-
-          <p className="mt-2 text-xs md:text-sm text-muted-foreground max-w-2xl mx-auto">
-            {VISUAL_DOWNLOADS_EXPLANATION}
+            All plans are billed annually (one-time payment). Limits apply per year.
           </p>
         </div>
 
@@ -157,14 +155,14 @@ export default function PricingSection() {
           <Card className="p-7 md:p-8 bg-gradient-card border-border/50 hover:border-primary/30 transition-all duration-300 h-full">
             <div className="mb-2">
               <h3 className="text-2xl font-bold">Free</h3>
-              <p className="text-sm text-muted-foreground">For Trying Out meetme</p>
+              <p className="text-sm text-muted-foreground">For trying out meetme</p>
             </div>
 
             <div className="mb-4">
               <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">
                 {free ? formatPriceEUR(free.price_yearly_cents) : "€0"}
               </span>
-              <p className="text-xs text-muted-foreground mt-1">Forever • No Credit Card Required</p>
+              <p className="text-xs text-muted-foreground mt-1">Forever • No credit card required</p>
             </div>
 
             <ul className="mb-7 space-y-3">
@@ -182,7 +180,7 @@ export default function PricingSection() {
                   </li>
                 ))
               ) : (
-                <li className="text-sm text-muted-foreground">Missing Backend Config For Free Tier.</li>
+                <li className="text-sm text-muted-foreground">Missing backend config for free tier.</li>
               )}
             </ul>
 
@@ -199,7 +197,7 @@ export default function PricingSection() {
 
             <div className="mb-2 mt-2">
               <h3 className="text-2xl font-bold">Pro</h3>
-              <p className="text-sm text-muted-foreground">Choose Your Yearly Visual Download Package</p>
+              <p className="text-sm text-muted-foreground">Choose your yearly visual download package</p>
             </div>
 
             <div className="mb-5">
@@ -208,12 +206,12 @@ export default function PricingSection() {
                   <div className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">
                     {selectedPro ? formatPriceEUR(selectedPro.price_yearly_cents) : "€—"}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">One-time Payment • No Monthly Fees</p>
+                  <p className="text-xs text-muted-foreground mt-1">One-time payment • No monthly fees</p>
                 </div>
 
                 <div className="text-right">
                   <div className="text-sm font-semibold">
-                    {selectedPro ? `${formatChipNumber(selectedPro.downloads_limit)} / Year` : ""}
+                    {selectedPro ? `${formatChipNumber(selectedPro.downloads_limit)} / year` : ""}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {selectedPro ? TIER_LABELS[selectedPro.tier] : ""}
@@ -224,7 +222,7 @@ export default function PricingSection() {
 
             {/* Selector */}
             <div className="mb-6">
-              <div className="text-xs text-muted-foreground mb-2">Visual Downloads Per Year</div>
+              <div className="text-xs text-muted-foreground mb-2">Visual Downloads per year</div>
 
               <div className="grid grid-cols-3 gap-2">
                 {proOptions.map((opt) => {
@@ -254,17 +252,17 @@ export default function PricingSection() {
                 <div className="mt-3 text-xs md:text-sm text-muted-foreground">
                   Includes{" "}
                   {isUnlimited(selectedPro.events_limit)
-                    ? "Unlimited Events"
-                    : `Up To ${selectedPro.events_limit} Events`}{" "}
-                  And{" "}
+                    ? "unlimited events"
+                    : `up to ${selectedPro.events_limit} events`}{" "}
+                  and{" "}
                   {isUnlimited(selectedPro.templates_limit)
-                    ? "Unlimited Templates"
-                    : `Up To ${selectedPro.templates_limit} Templates`}
+                    ? "unlimited templates"
+                    : `up to ${selectedPro.templates_limit} templates`}
                   .
                 </div>
               )}
 
-              <div className="mt-2 text-[11px] md:text-xs text-muted-foreground">{VISUAL_DOWNLOADS_EXPLANATION}</div>
+              {/* ✅ Removed the extra explanation line here (your 2nd screenshot) */}
             </div>
 
             <ul className="mb-7 space-y-3">
@@ -283,7 +281,7 @@ export default function PricingSection() {
                   </li>
                 ))
               ) : (
-                <li className="text-sm text-muted-foreground">Missing Backend Config For Classic/Premium/Platin.</li>
+                <li className="text-sm text-muted-foreground">Missing backend config for Classic/Premium/Platin.</li>
               )}
             </ul>
 
@@ -299,24 +297,24 @@ export default function PricingSection() {
           <Card className="p-7 md:p-8 bg-gradient-card border-border/50 hover:border-secondary/30 transition-all duration-300 h-full">
             <div className="mb-2">
               <h3 className="text-2xl font-bold">Enterprise</h3>
-              <p className="text-sm text-muted-foreground">Custom, On Request</p>
+              <p className="text-sm text-muted-foreground">Custom, on request</p>
             </div>
 
             <div className="mb-4">
               <span className="text-4xl font-bold bg-gradient-accent bg-clip-text text-transparent">Custom</span>
-              <p className="text-xs text-muted-foreground mt-1">Tailored Pricing • One-time Payment</p>
+              <p className="text-xs text-muted-foreground mt-1">Tailored pricing • One-time payment</p>
             </div>
 
             <ul className="mb-7 space-y-3">
               {enterprise ? (
                 [
-                  `Custom Visual Downloads (> ${maxProDownloads} Or Unlimited)`,
+                  `Custom Visual Downloads (> ${maxProDownloads} or unlimited)`,
                   isUnlimited(enterprise.events_limit)
-                    ? "Unlimited Events"
-                    : `Custom Events (From ${enterprise.events_limit}+)`,
+                    ? "Unlimited events"
+                    : `Custom events (from ${enterprise.events_limit}+)`,
                   isUnlimited(enterprise.templates_limit)
-                    ? "Unlimited Templates"
-                    : `Custom Templates (From ${enterprise.templates_limit}+)`,
+                    ? "Unlimited templates"
+                    : `Custom templates (from ${enterprise.templates_limit}+)`,
                   ...BASE_FEATURES_ALL_PLANS,
                   SUPPORT_PRO,
                   ONBOARDING_OPTIONAL,
@@ -327,7 +325,7 @@ export default function PricingSection() {
                   </li>
                 ))
               ) : (
-                <li className="text-sm text-muted-foreground">Missing Backend Config For Enterprise Tier.</li>
+                <li className="text-sm text-muted-foreground">Missing backend config for enterprise tier.</li>
               )}
             </ul>
 
@@ -336,6 +334,11 @@ export default function PricingSection() {
             </Button>
           </Card>
         </div>
+
+        {/* ✅ Moved Explanation Below All Packages */}
+        <p className="mt-6 text-center text-xs md:text-sm text-muted-foreground max-w-3xl mx-auto">
+          {VISUAL_DOWNLOADS_FOOTNOTE}
+        </p>
       </div>
     </section>
   );
