@@ -38,17 +38,14 @@ export default function EventsList({ userId }: { userId: string }) {
       if (error) throw error;
       setEvents(data || []);
 
-      // Load quick stats for each event (last 7 days)
+      // Load all-time stats for each event
       if (data && data.length > 0) {
         const eventIds = data.map((e) => e.id);
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
         const { data: statsData } = await supabase
           .from("event_stats_daily")
           .select("event_id, views_count, downloads_count")
-          .in("event_id", eventIds)
-          .gte("date", sevenDaysAgo.toISOString().split("T")[0]);
+          .in("event_id", eventIds);
 
         if (statsData) {
           const statsMap = new Map<string, EventStats>();
