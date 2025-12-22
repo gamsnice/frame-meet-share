@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
-import { Search, CreditCard, MoreVertical } from 'lucide-react';
+import { Search, MoreVertical, ChevronDown, ChevronRight, Download, Calendar, Image } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,8 @@ interface SubscriptionWithUser {
   stripe_customer_id: string | null;
   user_email: string;
   user_name: string;
+  events_created: number;
+  templates_created: number;
 }
 
 interface TierConfig {
@@ -71,6 +73,7 @@ export default function SubscriptionsManager() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSub, setSelectedSub] = useState<SubscriptionWithUser | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [expandedSubId, setExpandedSubId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     tier: 'free' as SubscriptionTier,
     status: 'active' as SubscriptionStatus,
@@ -80,25 +83,59 @@ export default function SubscriptionsManager() {
     downloads_used: 0,
   });
 
+  const toggleExpanded = (id: string) => {
+    setExpandedSubId(expandedSubId === id ? null : id);
+  };
+
+  const formatLimit = (used: number, limit: number) => {
+    if (limit === -1) return `${used} / ∞`;
+    return `${used} / ${limit}`;
+  };
+
+  const getProgress = (used: number, limit: number) => {
+    if (limit === -1) return 10;
+    return Math.min((used / limit) * 100, 100);
+  };
+
+  const getProgressColor = (used: number, limit: number) => {
+    if (limit === -1) return 'bg-green-500';
+    const percentage = (used / limit) * 100;
+    if (percentage >= 100) return 'bg-destructive';
+    if (percentage >= 80) return 'bg-yellow-500';
+    return 'bg-primary';
+  };
+
+  const getRemainingText = (used: number, limit: number) => {
+    if (limit === -1) return 'unlimited';
+    const remaining = Math.max(0, limit - used);
+    if (remaining === 0) return 'at limit!';
+    return `${remaining} left`;
+  };
+
   const fetchSubscriptions = async () => {
     try {
-      // Fetch subscriptions and tier configs in parallel
-      const [subsResult, usersResult, tierResult] = await Promise.all([
+      // Fetch subscriptions, users, tier configs, and usage stats in parallel
+      const [subsResult, usersResult, tierResult, usageResult] = await Promise.all([
         supabase.from('subscriptions').select('*').order('created_at', { ascending: false }),
         supabase.from('users').select('id, email, name'),
         supabase.from('subscription_tier_config').select('*'),
+        supabase.from('user_usage_stats').select('*'),
       ]);
 
       if (subsResult.error) throw subsResult.error;
 
       const usersMap = new Map(usersResult.data?.map((u) => [u.id, u]) || []);
+      const usageMap = new Map(usageResult.data?.map((u) => [u.user_id, u]) || []);
 
       const subscriptionsWithUsers: SubscriptionWithUser[] = (subsResult.data || []).map((sub) => {
         const user = usersMap.get(sub.user_id);
+        const usage = usageMap.get(sub.user_id);
         return {
           ...sub,
           user_email: user?.email || 'Unknown',
           user_name: user?.name || 'Unknown',
+          events_created: usage?.total_events_created || 0,
+          templates_created: usage?.total_templates_created || 0,
         };
       });
 
@@ -270,39 +307,114 @@ export default function SubscriptionsManager() {
               </TableHeader>
               <TableBody>
                 {filteredSubscriptions.map((sub) => (
-                  <TableRow key={sub.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{sub.user_name || 'No name'}</div>
-                        <div className="text-sm text-muted-foreground">{sub.user_email}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getTierBadge(sub.tier)}</TableCell>
-                    <TableCell>{getStatusBadge(sub.status)}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <div>{sub.downloads_used || 0} / {sub.downloads_limit === -1 ? '∞' : sub.downloads_limit} downloads</div>
-                        <div className="text-muted-foreground">{sub.events_limit === -1 ? '∞' : sub.events_limit} events, {sub.templates_limit === -1 ? '∞' : sub.templates_limit} templates</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {format(new Date(sub.created_at), 'MMM d, yyyy')}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditDialog(sub)}>
-                            Edit Subscription
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
+                  <>
+                    <TableRow 
+                      key={sub.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => toggleExpanded(sub.id)}
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {expandedSubId === sub.id ? (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                          )}
+                          <div>
+                            <div className="font-medium">{sub.user_name || 'No name'}</div>
+                            <div className="text-sm text-muted-foreground">{sub.user_email}</div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{getTierBadge(sub.tier)}</TableCell>
+                      <TableCell>{getStatusBadge(sub.status)}</TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div>{sub.downloads_used || 0} / {sub.downloads_limit === -1 ? '∞' : sub.downloads_limit} downloads</div>
+                          <div className="text-muted-foreground">{sub.events_limit === -1 ? '∞' : sub.events_limit} events, {sub.templates_limit === -1 ? '∞' : sub.templates_limit} templates</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {format(new Date(sub.created_at), 'MMM d, yyyy')}
+                      </TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditDialog(sub)}>
+                              Edit Subscription
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                    {expandedSubId === sub.id && (
+                      <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableCell colSpan={6} className="py-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-6">
+                            {/* Downloads */}
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Download className="h-3 w-3" /> Downloads
+                                </span>
+                                <span className="font-medium">{formatLimit(sub.downloads_used || 0, sub.downloads_limit)}</span>
+                              </div>
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full transition-all ${getProgressColor(sub.downloads_used || 0, sub.downloads_limit)}`} 
+                                  style={{ width: `${getProgress(sub.downloads_used || 0, sub.downloads_limit)}%` }} 
+                                />
+                              </div>
+                              <div className="text-xs text-muted-foreground text-right">
+                                {getRemainingText(sub.downloads_used || 0, sub.downloads_limit)}
+                              </div>
+                            </div>
+                            {/* Events */}
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Calendar className="h-3 w-3" /> Events
+                                </span>
+                                <span className="font-medium">{formatLimit(sub.events_created, sub.events_limit)}</span>
+                              </div>
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full transition-all ${getProgressColor(sub.events_created, sub.events_limit)}`} 
+                                  style={{ width: `${getProgress(sub.events_created, sub.events_limit)}%` }} 
+                                />
+                              </div>
+                              <div className="text-xs text-muted-foreground text-right">
+                                {getRemainingText(sub.events_created, sub.events_limit)}
+                              </div>
+                            </div>
+                            {/* Templates */}
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Image className="h-3 w-3" /> Templates
+                                </span>
+                                <span className="font-medium">{formatLimit(sub.templates_created, sub.templates_limit)}</span>
+                              </div>
+                              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full transition-all ${getProgressColor(sub.templates_created, sub.templates_limit)}`} 
+                                  style={{ width: `${getProgress(sub.templates_created, sub.templates_limit)}%` }} 
+                                />
+                              </div>
+                              <div className="text-xs text-muted-foreground text-right">
+                                {getRemainingText(sub.templates_created, sub.templates_limit)}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))}
               </TableBody>
             </Table>
