@@ -109,6 +109,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
           eventsLimit={subscription.events_limit}
           templatesCreated={usage?.total_templates_created || 0}
           templatesLimit={subscription.templates_limit}
+          periodEnd={subscription.current_period_end}
         />
       )}
 

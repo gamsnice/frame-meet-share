@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { format } from 'date-fns';
-import { Search, MoreVertical, ChevronDown, ChevronRight, Download, Calendar, Image } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
+import { Search, MoreVertical, ChevronDown, ChevronRight, Download, Calendar, Image, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -314,6 +314,7 @@ export default function SubscriptionsManager() {
                   <TableHead>Tier</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Limits</TableHead>
+                  <TableHead>Expires</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
@@ -347,6 +348,29 @@ export default function SubscriptionsManager() {
                           <div className="text-muted-foreground">{sub.events_limit === -1 ? '∞' : sub.events_limit} events, {sub.templates_limit === -1 ? '∞' : sub.templates_limit} templates</div>
                         </div>
                       </TableCell>
+                      <TableCell>
+                        {sub.current_period_end ? (
+                          (() => {
+                            const periodEnd = new Date(sub.current_period_end);
+                            const daysLeft = differenceInDays(periodEnd, new Date());
+                            const isExpired = daysLeft <= 0;
+                            const isExpiringSoon = daysLeft > 0 && daysLeft <= 30;
+                            return (
+                              <div className="text-sm">
+                                <div className={`flex items-center gap-1 ${isExpired ? 'text-destructive' : isExpiringSoon ? 'text-yellow-500' : ''}`}>
+                                  {(isExpired || isExpiringSoon) && <AlertTriangle className="h-3 w-3" />}
+                                  {format(periodEnd, 'MMM d, yyyy')}
+                                </div>
+                                <div className={`text-xs ${isExpired ? 'text-destructive' : isExpiringSoon ? 'text-yellow-500' : 'text-muted-foreground'}`}>
+                                  {isExpired ? 'Expired' : `${daysLeft} days left`}
+                                </div>
+                              </div>
+                            );
+                          })()
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-muted-foreground">
                         {format(new Date(sub.created_at), 'MMM d, yyyy')}
                       </TableCell>
@@ -367,8 +391,27 @@ export default function SubscriptionsManager() {
                     </TableRow>
                     {expandedSubId === sub.id && (
                       <TableRow className="bg-muted/30 hover:bg-muted/30">
-                        <TableCell colSpan={6} className="py-3">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 px-6">
+                        <TableCell colSpan={7} className="py-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 px-6">
+                            {/* Subscription Period */}
+                            {sub.current_period_end && (
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                                    <Clock className="h-3 w-3" /> Period End
+                                  </span>
+                                  <span className="font-medium">{format(new Date(sub.current_period_end), 'MMM d, yyyy')}</span>
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {(() => {
+                                    const daysLeft = differenceInDays(new Date(sub.current_period_end), new Date());
+                                    if (daysLeft <= 0) return <span className="text-destructive">Expired</span>;
+                                    if (daysLeft <= 30) return <span className="text-yellow-500">{daysLeft} days remaining</span>;
+                                    return `${daysLeft} days remaining`;
+                                  })()}
+                                </div>
+                              </div>
+                            )}
                             {/* Downloads */}
                             <div className="space-y-1.5">
                               <div className="flex items-center justify-between text-xs">

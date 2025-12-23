@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { Download, Calendar, Image, Crown, TrendingUp } from 'lucide-react';
+import { Download, Calendar, Image, Crown, TrendingUp, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { navigateToUpgrade } from '@/lib/navigation';
+import { differenceInDays, format } from 'date-fns';
 
 interface UsageCardProps {
   tier: string;
@@ -13,6 +14,7 @@ interface UsageCardProps {
   eventsLimit: number;
   templatesCreated: number;
   templatesLimit: number;
+  periodEnd?: string | null;
 }
 
 const TIER_COLORS: Record<string, string> = {
@@ -31,8 +33,10 @@ export default function UsageCard({
   eventsLimit,
   templatesCreated,
   templatesLimit,
+  periodEnd,
 }: UsageCardProps) {
   const navigate = useNavigate();
+  
   const formatLimit = (used: number, limit: number) => {
     if (limit === -1) return `${used} / ∞`;
     return `${used} / ${limit}`;
@@ -57,6 +61,20 @@ export default function UsageCard({
   };
 
   const showUpgrade = tier === 'free' || tier === 'starter' || tier === 'pro';
+  
+  // Period expiration logic
+  const periodEndDate = periodEnd ? new Date(periodEnd) : null;
+  const daysRemaining = periodEndDate ? differenceInDays(periodEndDate, new Date()) : null;
+  const isExpiringSoon = daysRemaining !== null && daysRemaining <= 30 && daysRemaining > 0;
+  const isExpired = daysRemaining !== null && daysRemaining <= 0;
+  const isPaidTier = tier !== 'free';
+
+  const getExpirationLabel = () => {
+    if (isPaidTier) {
+      return isExpired ? 'Expired' : 'Expires';
+    }
+    return isExpired ? 'Period ended' : 'Period resets';
+  };
 
   return (
     <Card>
@@ -73,6 +91,38 @@ export default function UsageCard({
         <CardDescription>Track your subscription usage</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Subscription Period */}
+        {periodEndDate && (
+          <div className={`flex items-center justify-between p-3 rounded-lg border ${
+            isExpired 
+              ? 'bg-destructive/10 border-destructive/30' 
+              : isExpiringSoon 
+                ? 'bg-yellow-500/10 border-yellow-500/30' 
+                : 'bg-muted/50 border-border'
+          }`}>
+            <div className="flex items-center gap-2">
+              {isExpired || isExpiringSoon ? (
+                <AlertTriangle className={`h-4 w-4 ${isExpired ? 'text-destructive' : 'text-yellow-500'}`} />
+              ) : (
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              )}
+              <span className="text-sm font-medium">
+                {getExpirationLabel()}: {format(periodEndDate, 'MMM d, yyyy')}
+              </span>
+            </div>
+            {daysRemaining !== null && daysRemaining > 0 && (
+              <span className={`text-sm ${isExpiringSoon ? 'text-yellow-500 font-medium' : 'text-muted-foreground'}`}>
+                {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} left
+              </span>
+            )}
+            {isExpired && isPaidTier && (
+              <Button size="sm" variant="destructive" onClick={() => navigateToUpgrade(navigate)}>
+                Renew
+              </Button>
+            )}
+          </div>
+        )}
+
         {/* Downloads */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
