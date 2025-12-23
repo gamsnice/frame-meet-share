@@ -10,6 +10,8 @@ interface Subscription {
   downloads_used: number;
   events_limit: number;
   templates_limit: number;
+  current_period_start: string | null;
+  current_period_end: string | null;
 }
 
 interface UsageStats {
