@@ -14,6 +14,8 @@ import SuperAdminDashboard from "./pages/super-admin/SuperAdminDashboard";
 import SuperAdminSetup from "./pages/super-admin/SuperAdminSetup";
 import EventParticipantPage from "./pages/EventParticipantPage";
 import NotFound from "./pages/NotFound";
+import CheckoutSuccess from "./pages/checkout/CheckoutSuccess";
+import CheckoutCancel from "./pages/checkout/CheckoutCancel";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/super-admin/setup" element={<SuperAdminSetup />} />
           <Route path="/super-admin/*" element={<SuperAdminDashboard />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout/cancel" element={<CheckoutCancel />} />
           <Route path="/:slug" element={<EventParticipantPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

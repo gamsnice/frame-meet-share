@@ -169,24 +169,56 @@ export default function SelectPlan() {
 
     setProcessingTier(selectedProTier);
 
-    if (selectedProConfig.stripe_price_id) {
+    if (!selectedProConfig.stripe_price_id) {
+      toast({
+        title: "Configuration Required",
+        description: "This plan doesn't have a payment method configured yet. Please contact support.",
+        variant: "destructive",
+      });
+      setProcessingTier(null);
+      return;
+    }
+
+    try {
       toast({
         title: "Redirecting to checkout...",
         description: "Please complete your payment to activate your plan.",
       });
 
-      // Placeholder until Stripe is integrated
-      setTimeout(() => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
         toast({
-          title: "Payment Integration Coming Soon",
-          description: "Contact us to get started with Pro today!",
+          title: "Authentication Required",
+          description: "Please log in to continue.",
+          variant: "destructive",
         });
-        setProcessingTier(null);
-      }, 1000);
-    } else {
+        navigate("/admin/login");
+        return;
+      }
+
+      const response = await supabase.functions.invoke("create-checkout-session", {
+        body: { tier: selectedProTier },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message || "Failed to create checkout session");
+      }
+
+      const { url } = response.data;
+      
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      console.error("Checkout error:", errorMessage);
       toast({
-        title: "Coming Soon",
-        description: "Payment integration is being set up. Contact us to get started!",
+        title: "Checkout Failed",
+        description: errorMessage,
+        variant: "destructive",
       });
       setProcessingTier(null);
     }
