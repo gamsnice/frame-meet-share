@@ -133,7 +133,7 @@ export default function EventAnalytics() {
         }
       }
 
-      // Process quarter-hourly data (15-minute intervals) with fallback to hourly
+      // Process quarter-hourly data (15-minute intervals) - combine both sources
       const quarterHourlyMap = new Map<string, QuarterHourlyData>();
       // Initialize all 96 time slots (24 hours * 4 quarters)
       for (let h = 0; h < 24; h++) {
@@ -145,23 +145,8 @@ export default function EventAnalytics() {
         }
       }
 
-      // Check if we have quarter-hourly data
-      const hasQuarterHourlyData = quarterHourlyStats && quarterHourlyStats.length > 0;
-
-      if (hasQuarterHourlyData) {
-        // Use quarter-hourly data directly
-        quarterHourlyStats.forEach((stat) => {
-          const key = `${stat.hour}-${stat.quarter}`;
-          const existing = quarterHourlyMap.get(key)!;
-          quarterHourlyMap.set(key, {
-            ...existing,
-            views: existing.views + (stat.views_count || 0),
-            uploads: existing.uploads + (stat.uploads_count || 0),
-            downloads: existing.downloads + (stat.downloads_count || 0),
-          });
-        });
-      } else if (hourlyStats && hourlyStats.length > 0) {
-        // Fallback: distribute hourly data evenly across 4 quarters
+      // First, add legacy hourly data (distributed across quarters)
+      if (hourlyStats && hourlyStats.length > 0) {
         hourlyStats.forEach((stat) => {
           const viewsPerQuarter = Math.floor((stat.views_count || 0) / 4);
           const uploadsPerQuarter = Math.floor((stat.uploads_count || 0) / 4);
@@ -177,6 +162,20 @@ export default function EventAnalytics() {
               downloads: existing.downloads + downloadsPerQuarter,
             });
           }
+        });
+      }
+
+      // Then, add quarter-hourly data on top
+      if (quarterHourlyStats && quarterHourlyStats.length > 0) {
+        quarterHourlyStats.forEach((stat) => {
+          const key = `${stat.hour}-${stat.quarter}`;
+          const existing = quarterHourlyMap.get(key)!;
+          quarterHourlyMap.set(key, {
+            ...existing,
+            views: existing.views + (stat.views_count || 0),
+            uploads: existing.uploads + (stat.uploads_count || 0),
+            downloads: existing.downloads + (stat.downloads_count || 0),
+          });
         });
       }
 
