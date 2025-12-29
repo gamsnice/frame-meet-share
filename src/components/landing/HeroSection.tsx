@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import exampleSkinnovation from "@/assets/example-skinnovation.webp";
-import exampleBitsAndPretzels from "@/assets/example-bitsandpretzels.webp";
-import exampleStartupNights from "@/assets/example-startupnights.webp";
+import exampleNextConnect from "@/assets/example-nextconnect.png";
+import exampleInnovateSummit from "@/assets/example-innovatesummit.png";
 import TrustSignals from "./TrustSignals";
 
 const examples = [
   { image: exampleSkinnovation },
-  { image: exampleBitsAndPretzels },
-  { image: exampleStartupNights },
+  { image: exampleNextConnect },
+  { image: exampleInnovateSummit },
 ];
 
 export default function HeroSection() {
