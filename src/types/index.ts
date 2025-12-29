@@ -110,6 +110,15 @@ export interface HourlyData {
   downloads: number;
 }
 
+export interface QuarterHourlyData {
+  timeLabel: string;
+  hour: number;
+  quarter: number;
+  views: number;
+  uploads: number;
+  downloads: number;
+}
+
 export interface WeekdayData {
   day: string;
   views: number;

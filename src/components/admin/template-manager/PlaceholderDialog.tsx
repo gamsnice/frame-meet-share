@@ -18,13 +18,7 @@ interface PlaceholderDialogProps {
   onSaved: () => void;
 }
 
-export function PlaceholderDialog({
-  template,
-  eventId,
-  open,
-  onOpenChange,
-  onSaved,
-}: PlaceholderDialogProps) {
+export function PlaceholderDialog({ template, eventId, open, onOpenChange, onSaved }: PlaceholderDialogProps) {
   const [libraryImages, setLibraryImages] = useState<PlaceholderImage[]>([]);
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
@@ -48,8 +42,10 @@ export function PlaceholderDialog({
       if (template.placeholder_image_id) {
         setSelectedImageId(template.placeholder_image_id);
         // Find the image URL from library or use the URL directly
-        const libraryImg = libraryImages.find(img => img.id === template.placeholder_image_id);
-        setSelectedImageUrl(libraryImg?.image_url || template.placeholder_image?.image_url || template.placeholder_image_url || "");
+        const libraryImg = libraryImages.find((img) => img.id === template.placeholder_image_id);
+        setSelectedImageUrl(
+          libraryImg?.image_url || template.placeholder_image?.image_url || template.placeholder_image_url || "",
+        );
       } else {
         setSelectedImageId(null);
         setSelectedImageUrl("");
@@ -62,7 +58,9 @@ export function PlaceholderDialog({
   const loadLibraryImages = async () => {
     setLoadingLibrary(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) return;
 
       const { data, error } = await supabase
@@ -96,25 +94,29 @@ export function PlaceholderDialog({
 
     setUploading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       // Upload to storage with unique filename
       const fileExt = file.name.split(".").pop();
       const fileName = `placeholders/${user.id}/${Date.now()}_${file.name}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("event-assets")
-        .upload(fileName, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+      if (fileName.includes("..")) {
+        throw new Error("Invalid file name");
+      }
+
+      const { error: uploadError } = await supabase.storage.from("event-assets").upload(fileName, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("event-assets")
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("event-assets").getPublicUrl(fileName);
 
       // Insert into placeholder_images table
       const { data: newImage, error: insertError } = await supabase
@@ -130,13 +132,13 @@ export function PlaceholderDialog({
       if (insertError) throw insertError;
 
       // Add to library and select it
-      setLibraryImages(prev => [newImage, ...prev]);
+      setLibraryImages((prev) => [newImage, ...prev]);
       setSelectedImageId(newImage.id);
       setSelectedImageUrl(newImage.image_url);
       setPlaceholderScale(1);
       setPlaceholderPosition({ x: 0, y: 0 });
       setActiveTab("library");
-      
+
       toast.success("Image uploaded to library!");
     } catch (error: any) {
       console.error("Upload error:", error);
@@ -200,13 +202,13 @@ export function PlaceholderDialog({
         .eq("id", template.id);
 
       if (error) throw error;
-      
+
       // Reset local state so dialog shows empty state
       setSelectedImageId(null);
       setSelectedImageUrl("");
       setPlaceholderScale(1);
       setPlaceholderPosition({ x: 0, y: 0 });
-      
+
       toast.success("Placeholder removed from template");
       onOpenChange(false);
       onSaved();
@@ -221,7 +223,7 @@ export function PlaceholderDialog({
         <DialogHeader>
           <DialogTitle>Manage Placeholder - {template?.name}</DialogTitle>
         </DialogHeader>
-        
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="library" className="gap-2">
@@ -245,11 +247,7 @@ export function PlaceholderDialog({
               <div className="text-center py-8 text-muted-foreground">
                 <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No images in library yet.</p>
-                <Button
-                  variant="outline"
-                  className="mt-3"
-                  onClick={() => setActiveTab("upload")}
-                >
+                <Button variant="outline" className="mt-3" onClick={() => setActiveTab("upload")}>
                   Upload your first image
                 </Button>
               </div>
@@ -265,11 +263,7 @@ export function PlaceholderDialog({
                         : "border-transparent hover:border-muted-foreground/20"
                     }`}
                   >
-                    <img
-                      src={img.image_url}
-                      alt={img.original_filename}
-                      className="w-full h-full object-contain p-1"
-                    />
+                    <img src={img.image_url} alt={img.original_filename} className="w-full h-full object-contain p-1" />
                     {selectedImageId === img.id && (
                       <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                         <div className="bg-primary rounded-full p-1">
@@ -327,11 +321,7 @@ export function PlaceholderDialog({
         )}
 
         <div className="flex justify-between gap-2 pt-4 border-t mt-4">
-          <Button
-            variant="outline"
-            onClick={removePlaceholderFromTemplate}
-            disabled={!template?.placeholder_image_id}
-          >
+          <Button variant="outline" onClick={removePlaceholderFromTemplate} disabled={!template?.placeholder_image_id}>
             Remove from Template
           </Button>
           <div className="flex gap-2">
