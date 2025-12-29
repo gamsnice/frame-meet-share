@@ -154,6 +154,67 @@ export type Database = {
           },
         ]
       }
+      event_stats_quarter_hourly: {
+        Row: {
+          caption_copies_count: number | null
+          date: string
+          downloads_count: number | null
+          event_id: string
+          hour: number
+          id: string
+          quarter: number
+          template_id: string | null
+          uploads_count: number | null
+          views_count: number | null
+        }
+        Insert: {
+          caption_copies_count?: number | null
+          date: string
+          downloads_count?: number | null
+          event_id: string
+          hour: number
+          id?: string
+          quarter: number
+          template_id?: string | null
+          uploads_count?: number | null
+          views_count?: number | null
+        }
+        Update: {
+          caption_copies_count?: number | null
+          date?: string
+          downloads_count?: number | null
+          event_id?: string
+          hour?: number
+          id?: string
+          quarter?: number
+          template_id?: string | null
+          uploads_count?: number | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_stats_quarter_hourly_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_stats_quarter_hourly_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_stats_quarter_hourly_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           brand_primary_color: string | null
@@ -749,6 +810,16 @@ export type Database = {
         Args: {
           p_event_id: string
           p_hour: number
+          p_stat_type: string
+          p_template_id: string
+        }
+        Returns: undefined
+      }
+      increment_event_stat_quarter_hourly: {
+        Args: {
+          p_event_id: string
+          p_hour: number
+          p_quarter: number
           p_stat_type: string
           p_template_id: string
         }

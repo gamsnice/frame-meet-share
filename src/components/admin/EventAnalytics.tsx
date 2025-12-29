@@ -7,11 +7,11 @@ import { subDays, format, getDay, parseISO } from "date-fns";
 import DateRangePicker from "./analytics/DateRangePicker";
 import StatsCards from "./analytics/StatsCards";
 import DailyTrendChart from "./analytics/DailyTrendChart";
-import HourlyHeatmap from "./analytics/HourlyHeatmap";
+import QuarterHourlyChart from "./analytics/QuarterHourlyChart";
 import WeekdayChart from "./analytics/WeekdayChart";
 import TemplatePerformanceTable from "./analytics/TemplatePerformanceTable";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
-import type { TemplateStats, DailyData, HourlyData, WeekdayData, AnalyticsStats } from "@/types";
+import type { TemplateStats, DailyData, QuarterHourlyData, WeekdayData, AnalyticsStats } from "@/types";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -22,7 +22,7 @@ export default function EventAnalytics() {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [dailyData, setDailyData] = useState<DailyData[]>([]);
-  const [hourlyData, setHourlyData] = useState<HourlyData[]>([]);
+  const [quarterHourlyData, setQuarterHourlyData] = useState<QuarterHourlyData[]>([]);
   const [weekdayData, setWeekdayData] = useState<WeekdayData[]>([]);
   const [templateStats, setTemplateStats] = useState<TemplateStats[]>([]);
   const [stats, setStats] = useState<AnalyticsStats>({ pageVisits: 0, totalViews: 0, totalUploads: 0, totalDownloads: 0, conversionRate: 0 });
@@ -39,12 +39,12 @@ export default function EventAnalytics() {
 
       const { data: dailyStats } = await dailyQuery;
 
-      // Build date filter for hourly stats
-      let hourlyQuery = supabase.from("event_stats_hourly").select("*").eq("event_id", eventId);
-      if (startDate) hourlyQuery = hourlyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
-      if (endDate) hourlyQuery = hourlyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
+      // Build date filter for quarter-hourly stats (15-min intervals)
+      let quarterHourlyQuery = supabase.from("event_stats_quarter_hourly").select("*").eq("event_id", eventId);
+      if (startDate) quarterHourlyQuery = quarterHourlyQuery.gte("date", format(startDate, "yyyy-MM-dd"));
+      if (endDate) quarterHourlyQuery = quarterHourlyQuery.lte("date", format(endDate, "yyyy-MM-dd"));
 
-      const { data: hourlyStats } = await hourlyQuery;
+      const { data: quarterHourlyStats } = await quarterHourlyQuery;
 
       // Process daily stats
       if (dailyStats) {
@@ -126,22 +126,34 @@ export default function EventAnalytics() {
         }
       }
 
-      // Process hourly data
-      if (hourlyStats) {
-        const hourlyMap = new Map<number, HourlyData>();
-        for (let i = 0; i < 24; i++) {
-          hourlyMap.set(i, { hour: i, views: 0, uploads: 0, downloads: 0 });
+      // Process quarter-hourly data (15-minute intervals)
+      if (quarterHourlyStats) {
+        const quarterHourlyMap = new Map<string, QuarterHourlyData>();
+        // Initialize all 96 time slots (24 hours * 4 quarters)
+        for (let h = 0; h < 24; h++) {
+          for (let q = 0; q < 4; q++) {
+            const key = `${h}-${q}`;
+            const minutes = q * 15;
+            const timeLabel = `${h.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+            quarterHourlyMap.set(key, { timeLabel, hour: h, quarter: q, views: 0, uploads: 0, downloads: 0 });
+          }
         }
-        hourlyStats.forEach((stat) => {
-          const existing = hourlyMap.get(stat.hour)!;
-          hourlyMap.set(stat.hour, {
-            hour: stat.hour,
+        quarterHourlyStats.forEach((stat) => {
+          const key = `${stat.hour}-${stat.quarter}`;
+          const existing = quarterHourlyMap.get(key)!;
+          quarterHourlyMap.set(key, {
+            ...existing,
             views: existing.views + (stat.views_count || 0),
             uploads: existing.uploads + (stat.uploads_count || 0),
             downloads: existing.downloads + (stat.downloads_count || 0),
           });
         });
-        setHourlyData(Array.from(hourlyMap.values()));
+        // Sort by hour then quarter
+        const sorted = Array.from(quarterHourlyMap.values()).sort((a, b) => {
+          if (a.hour !== b.hour) return a.hour - b.hour;
+          return a.quarter - b.quarter;
+        });
+        setQuarterHourlyData(sorted);
       }
     } catch (error: any) {
       console.error("Failed to load analytics:", error);
@@ -196,7 +208,7 @@ export default function EventAnalytics() {
           <DailyTrendChart data={dailyData} />
           <div className="grid gap-6 md:grid-cols-2">
             <WeekdayChart data={weekdayData} />
-            <HourlyHeatmap data={hourlyData} />
+            <QuarterHourlyChart data={quarterHourlyData} />
           </div>
         </>
       )}
