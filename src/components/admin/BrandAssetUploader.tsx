@@ -62,20 +62,19 @@ export default function BrandAssetUploader({
       const fileName = `${assetType}.${fileExt}`;
       const filePath = `${eventId}/${fileName}`;
 
+      if (filePath.includes("..")) {
+        throw new Error("Invalid file path");
+      }
       // Upload to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from("event-assets")
-        .upload(filePath, file, {
-          upsert: true,
-          contentType: file.type,
-        });
+      const { error: uploadError } = await supabase.storage.from("event-assets").upload(filePath, file, {
+        upsert: true,
+        contentType: file.type,
+      });
 
       if (uploadError) throw uploadError;
 
       // Get public URL
-      const { data } = supabase.storage
-        .from("event-assets")
-        .getPublicUrl(filePath);
+      const { data } = supabase.storage.from("event-assets").getPublicUrl(filePath);
 
       onUploadComplete(data.publicUrl);
       toast.success(`${getLabel()} uploaded successfully!`);
@@ -133,11 +132,7 @@ export default function BrandAssetUploader({
         <div className="relative group rounded-xl border-2 border-border bg-card p-4 transition-all hover:border-primary/50">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
-              <img
-                src={currentUrl}
-                alt={getLabel()}
-                className="h-full w-full object-contain"
-              />
+              <img src={currentUrl} alt={getLabel()} className="h-full w-full object-contain" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">Current {getLabel()}</p>
@@ -145,13 +140,7 @@ export default function BrandAssetUploader({
             </div>
           </div>
           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="destructive"
-              onClick={handleRemove}
-              className="h-8 w-8 p-0"
-            >
+            <Button type="button" size="sm" variant="destructive" onClick={handleRemove} className="h-8 w-8 p-0">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -208,9 +197,7 @@ export default function BrandAssetUploader({
               <p className="text-sm font-medium">
                 {uploading ? "Uploading..." : dragActive ? "Drop file here" : "Click or drag to upload"}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                PNG, JPG, SVG up to 2MB
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">PNG, JPG, SVG up to 2MB</p>
             </div>
           </div>
         </div>
