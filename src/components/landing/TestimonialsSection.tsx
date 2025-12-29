@@ -25,6 +25,23 @@ export default function TestimonialsSection() {
       avatar: "ER",
     },
   ];
+  const successMetrics = [
+    {
+      icon: "📈",
+      stat: "300%",
+      label: "Average engagement increase",
+    },
+    {
+      icon: "🔄",
+      stat: "500+",
+      label: "Shares in first week",
+    },
+    {
+      icon: "⏱️",
+      stat: "10 min",
+      label: "Average setup time",
+    },
+  ];
   const [active, setActive] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);

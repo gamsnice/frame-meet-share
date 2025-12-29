@@ -10,7 +10,7 @@ import DateRangePicker from "./analytics/DateRangePicker";
 import EventFilter from "./analytics/EventFilter";
 import StatsCards from "./analytics/StatsCards";
 import DailyTrendChart from "./analytics/DailyTrendChart";
-import QuarterHourlyChart from "./analytics/QuarterHourlyChart";
+import HourlyHeatmap from "./analytics/HourlyHeatmap";
 import WeekdayChart from "./analytics/WeekdayChart";
 import ResetStatsDialog from "./analytics/ResetStatsDialog";
 import UsageCard from "./UsageCard";
@@ -27,7 +27,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  const { dailyData, quarterHourlyData, weekdayData, stats, loadAnalytics } = useAnalyticsData();
+  const { dailyData, hourlyData, weekdayData, stats, loadAnalytics } = useAnalyticsData();
   const { subscription, usage, canCreateEvent, eventsRemaining, templatesRemaining } = useSubscriptionLimits(userId);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function DashboardHome({ userId }: { userId: string }) {
           <DailyTrendChart data={dailyData} />
           <div className="grid gap-6 md:grid-cols-2 overflow-hidden">
             <WeekdayChart data={weekdayData} />
-            <QuarterHourlyChart data={quarterHourlyData} />
+            <HourlyHeatmap data={hourlyData} />
           </div>
         </>
       )}

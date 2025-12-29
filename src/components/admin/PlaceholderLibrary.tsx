@@ -54,12 +54,14 @@ export default function PlaceholderLibrary({ userId }: PlaceholderLibraryProps) 
       // 1. Delete from storage
       const path = image.image_url.split("/event-assets/")[1];
       if (path) {
-        if (path.includes("..")) throw new Error("Invalid path");
         await supabase.storage.from("event-assets").remove([path]);
       }
 
       // 2. Delete from database (ON DELETE SET NULL will handle templates)
-      const { error } = await supabase.from("placeholder_images").delete().eq("id", image.id);
+      const { error } = await supabase
+        .from("placeholder_images")
+        .delete()
+        .eq("id", image.id);
 
       if (error) throw error;
 
@@ -111,12 +113,20 @@ export default function PlaceholderLibrary({ userId }: PlaceholderLibraryProps) 
           {images.map((img) => (
             <div key={img.id} className="relative group">
               <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                <img src={img.image_url} alt={img.original_filename} className="w-full h-full object-cover" />
+                <img
+                  src={img.image_url}
+                  alt={img.original_filename}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" disabled={deleting === img.id}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={deleting === img.id}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
@@ -124,8 +134,7 @@ export default function PlaceholderLibrary({ userId }: PlaceholderLibraryProps) 
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete permanently?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will permanently delete this image and remove it from all templates using it. This action
-                        cannot be undone.
+                        This will permanently delete this image and remove it from all templates using it. This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -140,7 +149,9 @@ export default function PlaceholderLibrary({ userId }: PlaceholderLibraryProps) 
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-              <p className="text-xs truncate mt-1.5 text-muted-foreground">{img.original_filename}</p>
+              <p className="text-xs truncate mt-1.5 text-muted-foreground">
+                {img.original_filename}
+              </p>
             </div>
           ))}
         </div>

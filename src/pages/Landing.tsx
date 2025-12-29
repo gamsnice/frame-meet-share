@@ -1,6 +1,7 @@
 import Navigation from "@/components/landing/Navigation";
 import HeroSection from "@/components/landing/HeroSection";
 import ProcessFlow from "@/components/landing/ProcessFlow";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import AnalyticsPreview from "@/components/landing/AnalyticsPreview";
 import PricingSection from "@/components/landing/PricingSection";
