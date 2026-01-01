@@ -1,8 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, createElement } from "react";
 import { toast } from "sonner";
 import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
 import { trackDownloadWithLimit } from "@/lib/analytics";
 import { isMobileDevice } from "@/lib/utils";
+import { CaptionCopyToast } from "@/components/participant/image-editor/CaptionCopyToast";
 
 interface Position {
   x: number;
@@ -249,32 +250,65 @@ export function useImageExport({
       }
     }
 
-    // Desktop fallback: download image, copy caption, open LinkedIn
-    try {
-      // Download the image
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      // Copy caption if available
-      if (captionText) {
-        await navigator.clipboard.writeText(captionText);
-        toast.success("Image downloaded & caption copied! Paste it in your LinkedIn post.", {
-          duration: 5000,
-        });
-      } else {
-        toast.success("Image downloaded! Attach it to your LinkedIn post.", {
-          duration: 4000,
-        });
+    // Desktop: Try to copy image to clipboard first (modern browsers)
+    const copyImageToClipboard = async (): Promise<boolean> => {
+      try {
+        if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
+          return false;
+        }
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        return true;
+      } catch (err) {
+        console.warn("Clipboard image copy not supported:", err);
+        return false;
       }
+    };
+
+    try {
+      const imageCopied = await copyImageToClipboard();
 
       // Open LinkedIn post composer
       window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
+
+      if (imageCopied) {
+        // Image in clipboard - show interactive toast with caption copy button
+        if (captionText) {
+          toast.success(
+            createElement(CaptionCopyToast, {
+              caption: captionText,
+              onCopy: () => toast.success("Caption copied!", { duration: 2000 })
+            }),
+            { duration: 15000 }
+          );
+        } else {
+          toast.success("Image copied! Press ⌘V (Ctrl+V) to paste in LinkedIn", {
+            duration: 6000,
+          });
+        }
+      } else {
+        // Fallback: download image and copy caption
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        if (captionText) {
+          await navigator.clipboard.writeText(captionText);
+          toast.success("Image downloaded & caption copied! Attach it to your LinkedIn post.", {
+            duration: 5000,
+          });
+        } else {
+          toast.success("Image downloaded! Attach it to your LinkedIn post.", {
+            duration: 4000,
+          });
+        }
+      }
       
       onDownload();
       setIsDownloadDrawerOpen(false);
