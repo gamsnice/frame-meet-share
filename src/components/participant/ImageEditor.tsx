@@ -14,8 +14,8 @@ import {
   ActionButtons,
   CaptionsSection,
   DownloadDrawer,
-  SocialShareButtons,
 } from "./image-editor";
+import { LinkedInSharePopup } from "./image-editor/LinkedInSharePopup";
 
 interface ImageEditorProps {
   template: Template;
@@ -50,7 +50,7 @@ export default function ImageEditor({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
-  const [showShareAnimation, setShowShareAnimation] = useState(false);
+  const [showLinkedInPopup, setShowLinkedInPopup] = useState(false);
 
   // Dynamic preview quality: higher on mobile / high-DPI screens
   const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
@@ -137,10 +137,8 @@ export default function ImageEditor({
           y: (frameHeight - scaledHeight) / 2,
         });
 
-        // Show share animation after upload
-        setShowShareAnimation(true);
-        const timer = setTimeout(() => setShowShareAnimation(false), 4000);
-        return () => clearTimeout(timer);
+        // Show LinkedIn share popup after upload
+        setShowLinkedInPopup(true);
       };
       img.src = userImage;
     } else {
@@ -315,12 +313,6 @@ export default function ImageEditor({
                 isMobile
               />
 
-              <SocialShareButtons
-                isMobile
-                onShareToLinkedIn={handleShareToLinkedIn}
-                isLoading={isCheckingLimit}
-                showAttentionAnimation={showShareAnimation}
-              />
 
               <CaptionsSection
                 captions={captions}
@@ -341,6 +333,14 @@ export default function ImageEditor({
               captionPreview={captions[0]?.caption_text}
             />
 
+            <LinkedInSharePopup
+              open={showLinkedInPopup}
+              onOpenChange={setShowLinkedInPopup}
+              onShareToLinkedIn={handleShareToLinkedIn}
+              isLoading={isCheckingLimit}
+              caption={captions[0]?.caption_text || ""}
+              onCaptionCopied={() => {}}
+            />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
           </div>
@@ -385,11 +385,6 @@ export default function ImageEditor({
                 onDownload={() => handleDownloadClick(isMobile)}
               />
 
-              <SocialShareButtons
-                onShareToLinkedIn={handleShareToLinkedIn}
-                isLoading={isCheckingLimit}
-                showAttentionAnimation={showShareAnimation}
-              />
 
               <CaptionsSection
                 captions={captions}
@@ -402,6 +397,14 @@ export default function ImageEditor({
 
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
 
+          <LinkedInSharePopup
+            open={showLinkedInPopup}
+            onOpenChange={setShowLinkedInPopup}
+            onShareToLinkedIn={handleShareToLinkedIn}
+            isLoading={isCheckingLimit}
+            caption={captions[0]?.caption_text || ""}
+            onCaptionCopied={() => {}}
+          />
         </div>
       )}
     </Card>
