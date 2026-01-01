@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Linkedin, Loader2, X } from "lucide-react";
-import { LinkedInShareGuide } from "./LinkedInShareGuide";
 import { cn } from "@/lib/utils";
 
 interface LinkedInSharePopupProps {
@@ -17,8 +16,6 @@ export function LinkedInSharePopup({
   onOpenChange,
   onShareToLinkedIn,
   isLoading,
-  caption,
-  onCaptionCopied,
 }: LinkedInSharePopupProps) {
   if (!open) return null;
 
@@ -66,12 +63,6 @@ export function LinkedInSharePopup({
         <p className="text-xs text-muted-foreground text-center">
           Opens LinkedIn with your image ready to paste
         </p>
-
-        {/* Divider */}
-        <div className="border-t border-border" />
-
-        {/* Step-by-step Guide */}
-        <LinkedInShareGuide caption={caption} onCaptionCopied={onCaptionCopied} />
       </div>
     </div>
   );
