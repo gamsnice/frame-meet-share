@@ -14,7 +14,6 @@ import {
   ActionButtons,
   CaptionsSection,
   DownloadDrawer,
-  LinkedInSharePopup,
   SocialShareButtons,
 } from "./image-editor";
 
@@ -51,7 +50,6 @@ export default function ImageEditor({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
-  const [showLinkedInPopup, setShowLinkedInPopup] = useState(false);
   const [showShareAnimation, setShowShareAnimation] = useState(false);
 
   // Dynamic preview quality: higher on mobile / high-DPI screens
@@ -139,8 +137,7 @@ export default function ImageEditor({
           y: (frameHeight - scaledHeight) / 2,
         });
 
-        // Show LinkedIn share popup and animation after upload
-        setShowLinkedInPopup(true);
+        // Show share animation after upload
         setShowShareAnimation(true);
         const timer = setTimeout(() => setShowShareAnimation(false), 4000);
         return () => clearTimeout(timer);
@@ -344,14 +341,6 @@ export default function ImageEditor({
               captionPreview={captions[0]?.caption_text}
             />
 
-            <LinkedInSharePopup
-              open={showLinkedInPopup}
-              onOpenChange={setShowLinkedInPopup}
-              onShareToLinkedIn={handleShareToLinkedIn}
-              isLoading={isCheckingLimit}
-              caption={captions[0]?.caption_text || ""}
-              onCaptionCopied={() => copyCaption(captions[0]?.caption_text || "")}
-            />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
           </div>
@@ -413,14 +402,6 @@ export default function ImageEditor({
 
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
 
-          <LinkedInSharePopup
-            open={showLinkedInPopup}
-            onOpenChange={setShowLinkedInPopup}
-            onShareToLinkedIn={handleShareToLinkedIn}
-            isLoading={isCheckingLimit}
-            caption={captions[0]?.caption_text || ""}
-            onCaptionCopied={() => copyCaption(captions[0]?.caption_text || "")}
-          />
         </div>
       )}
     </Card>
