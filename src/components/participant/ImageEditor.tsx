@@ -50,6 +50,7 @@ export default function ImageEditor({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
+  const [showShareAnimation, setShowShareAnimation] = useState(false);
 
   // Dynamic preview quality: higher on mobile / high-DPI screens
   const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
@@ -135,6 +136,10 @@ export default function ImageEditor({
           x: (frameWidth - scaledWidth) / 2,
           y: (frameHeight - scaledHeight) / 2,
         });
+
+        // Trigger attention animation for share button
+        setShowShareAnimation(true);
+        setTimeout(() => setShowShareAnimation(false), 4000);
       };
       img.src = userImage;
     } else {
@@ -309,7 +314,7 @@ export default function ImageEditor({
                 isMobile
               />
 
-              <SocialShareButtons isMobile onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} />
+              <SocialShareButtons isMobile onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} showAttentionAnimation={showShareAnimation} />
 
               <CaptionsSection
                 captions={captions}
@@ -373,7 +378,7 @@ export default function ImageEditor({
                 onDownload={() => handleDownloadClick(isMobile)}
               />
 
-              <SocialShareButtons onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} />
+              <SocialShareButtons onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} showAttentionAnimation={showShareAnimation} />
 
               <CaptionsSection
                 captions={captions}
