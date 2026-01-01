@@ -199,9 +199,7 @@ export default function TemplateSelector({
               </button>
               {/* Add Photo button below template */}
               <Button
-                variant="outline"
-                size="sm"
-                className="w-full gap-2"
+                className="w-full gap-2 min-h-[44px] font-medium"
                 onClick={() => handleTemplateClick(template)}
               >
                 <Camera className="h-4 w-4" />
