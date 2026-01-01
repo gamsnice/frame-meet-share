@@ -15,6 +15,7 @@ import {
   CaptionsSection,
   DownloadDrawer,
   LinkedInSharePopup,
+  SocialShareButtons,
 } from "./image-editor";
 
 interface ImageEditorProps {
@@ -51,6 +52,7 @@ export default function ImageEditor({
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
   const [showLinkedInPopup, setShowLinkedInPopup] = useState(false);
+  const [showShareAnimation, setShowShareAnimation] = useState(false);
 
   // Dynamic preview quality: higher on mobile / high-DPI screens
   const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
@@ -137,8 +139,11 @@ export default function ImageEditor({
           y: (frameHeight - scaledHeight) / 2,
         });
 
-        // Show LinkedIn share popup after upload
+        // Show LinkedIn share popup and animation after upload
         setShowLinkedInPopup(true);
+        setShowShareAnimation(true);
+        const timer = setTimeout(() => setShowShareAnimation(false), 4000);
+        return () => clearTimeout(timer);
       };
       img.src = userImage;
     } else {
@@ -313,13 +318,12 @@ export default function ImageEditor({
                 isMobile
               />
 
-              <Button
-                variant="ghost"
-                onClick={() => setShowLinkedInPopup(true)}
-                className="w-full text-[#0077B5] hover:text-[#005885] hover:bg-[#0077B5]/10"
-              >
-                <span className="text-sm">Share to LinkedIn</span>
-              </Button>
+              <SocialShareButtons
+                isMobile
+                onShareToLinkedIn={handleShareToLinkedIn}
+                isLoading={isCheckingLimit}
+                showAttentionAnimation={showShareAnimation}
+              />
 
               <CaptionsSection
                 captions={captions}
@@ -392,13 +396,11 @@ export default function ImageEditor({
                 onDownload={() => handleDownloadClick(isMobile)}
               />
 
-              <Button
-                variant="ghost"
-                onClick={() => setShowLinkedInPopup(true)}
-                className="w-full text-[#0077B5] hover:text-[#005885] hover:bg-[#0077B5]/10"
-              >
-                <span className="text-sm">Share to LinkedIn</span>
-              </Button>
+              <SocialShareButtons
+                onShareToLinkedIn={handleShareToLinkedIn}
+                isLoading={isCheckingLimit}
+                showAttentionAnimation={showShareAnimation}
+              />
 
               <CaptionsSection
                 captions={captions}

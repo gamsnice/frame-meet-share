@@ -1,7 +1,7 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Linkedin, Loader2, X } from "lucide-react";
 import { LinkedInShareGuide } from "./LinkedInShareGuide";
+import { cn } from "@/lib/utils";
 
 interface LinkedInSharePopupProps {
   open: boolean;
@@ -20,52 +20,59 @@ export function LinkedInSharePopup({
   caption,
   onCaptionCopied,
 }: LinkedInSharePopupProps) {
+  if (!open) return null;
+
   const handleShare = async () => {
     await onShareToLinkedIn();
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="relative">
-          <DialogTitle className="text-center pr-8">Share Your Visual</DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-0 top-0 h-8 w-8 rounded-full"
-            onClick={() => onOpenChange(false)}
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </Button>
-        </DialogHeader>
+    <div
+      className={cn(
+        "fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]",
+        "bg-card border border-border rounded-lg shadow-xl p-4",
+        "animate-slide-in-right"
+      )}
+    >
+      {/* Header with dismiss button */}
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-sm">Share Your Visual</h3>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 rounded-full -mr-1"
+          onClick={() => onOpenChange(false)}
+        >
+          <X className="h-3.5 w-3.5" />
+          <span className="sr-only">Close</span>
+        </Button>
+      </div>
 
-        <div className="flex flex-col gap-4">
-          {/* Primary Share Button */}
-          <Button
-            onClick={handleShare}
-            disabled={isLoading}
-            className="w-full min-h-[48px] text-base bg-[#0077B5] hover:bg-[#005885] text-white"
-          >
-            {isLoading ? (
-              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-            ) : (
-              <Linkedin className="h-5 w-5 mr-2" />
-            )}
-            Share directly to LinkedIn
-          </Button>
+      <div className="flex flex-col gap-3">
+        {/* Primary Share Button */}
+        <Button
+          onClick={handleShare}
+          disabled={isLoading}
+          className="w-full min-h-[44px] text-sm bg-[#0077B5] hover:bg-[#005885] text-white"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Linkedin className="h-4 w-4 mr-2" />
+          )}
+          Share directly to LinkedIn
+        </Button>
 
-          <p className="text-sm text-muted-foreground text-center">
-            Opens LinkedIn with your image ready to paste
-          </p>
+        <p className="text-xs text-muted-foreground text-center">
+          Opens LinkedIn with your image ready to paste
+        </p>
 
-          {/* Divider */}
-          <div className="border-t border-border" />
+        {/* Divider */}
+        <div className="border-t border-border" />
 
-          {/* Step-by-step Guide */}
-          <LinkedInShareGuide caption={caption} onCaptionCopied={onCaptionCopied} />
-        </div>
-      </DialogContent>
-    </Dialog>
+        {/* Step-by-step Guide */}
+        <LinkedInShareGuide caption={caption} onCaptionCopied={onCaptionCopied} />
+      </div>
+    </div>
   );
 }

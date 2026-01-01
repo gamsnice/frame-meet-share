@@ -19,24 +19,24 @@ export function ActionButtons({
       <div className="flex gap-2">
         <Button
           onClick={onChangePhoto}
-          variant="outline"
+          variant="secondary"
           size="sm"
-          className="flex-1 min-h-[32px] text-[10px]"
+          className="flex-1 min-h-[40px] text-xs"
         >
           Change Photo
         </Button>
         <Button 
           onClick={onDownload} 
-          variant="outline" 
+          variant="default" 
           size="sm" 
-          className="flex-1 min-h-[32px] text-[10px]"
+          className="flex-1 min-h-[40px] text-xs"
         >
-          <Download className="h-3 w-3 mr-1" />
+          <Download className="h-4 w-4 mr-1.5" />
           Download
         </Button>
         {onResetTemplate && (
-          <Button onClick={onResetTemplate} variant="ghost" size="sm" className="min-h-[32px] text-[10px] px-2">
-            <ArrowLeft className="h-3 w-3" />
+          <Button onClick={onResetTemplate} variant="ghost" size="sm" className="min-h-[40px] px-3">
+            <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -47,19 +47,19 @@ export function ActionButtons({
     <div className="flex gap-2">
       <Button
         onClick={onChangePhoto}
-        variant="outline"
+        variant="secondary"
         size="sm"
-        className="flex-1 min-h-[36px] text-xs"
+        className="flex-1 min-h-[44px] text-sm"
       >
         Change Photo
       </Button>
       <Button 
         onClick={onDownload} 
-        variant="outline" 
+        variant="default" 
         size="sm" 
-        className="flex-1 min-h-[36px] text-xs"
+        className="flex-1 min-h-[44px] text-sm"
       >
-        <Download className="mr-1.5 h-3 w-3" />
+        <Download className="mr-2 h-4 w-4" />
         Download
       </Button>
     </div>
