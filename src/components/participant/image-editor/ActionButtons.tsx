@@ -19,17 +19,17 @@ export function ActionButtons({
       <div className="flex gap-2">
         <Button
           onClick={onChangePhoto}
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="flex-1 min-h-[32px] text-[10px] text-muted-foreground hover:text-foreground"
+          className="flex-1 min-h-[32px] text-[10px]"
         >
           Change Photo
         </Button>
         <Button 
           onClick={onDownload} 
-          variant="ghost" 
+          variant="outline" 
           size="sm" 
-          className="flex-1 min-h-[32px] text-[10px] text-muted-foreground hover:text-foreground"
+          className="flex-1 min-h-[32px] text-[10px]"
         >
           <Download className="h-3 w-3 mr-1" />
           Download
@@ -47,17 +47,17 @@ export function ActionButtons({
     <div className="flex gap-2">
       <Button
         onClick={onChangePhoto}
-        variant="ghost"
+        variant="outline"
         size="sm"
-        className="flex-1 min-h-[36px] text-xs text-muted-foreground hover:text-foreground"
+        className="flex-1 min-h-[36px] text-xs"
       >
         Change Photo
       </Button>
       <Button 
         onClick={onDownload} 
-        variant="ghost" 
+        variant="outline" 
         size="sm" 
-        className="flex-1 min-h-[36px] text-xs text-muted-foreground hover:text-foreground"
+        className="flex-1 min-h-[36px] text-xs"
       >
         <Download className="mr-1.5 h-3 w-3" />
         Download
