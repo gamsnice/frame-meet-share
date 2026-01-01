@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
 import { trackDownloadWithLimit } from "@/lib/analytics";
 import { isMobileDevice } from "@/lib/utils";
-import { CaptionCopyToast } from "@/components/participant/image-editor/CaptionCopyToast";
+import { LinkedInShareGuide } from "@/components/participant/image-editor/LinkedInShareGuide";
 
 interface Position {
   x: number;
@@ -273,20 +273,14 @@ export function useImageExport({
       window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
 
       if (imageCopied) {
-        // Image in clipboard - show interactive toast with caption copy button
-        if (captionText) {
-          toast.success(
-            createElement(CaptionCopyToast, {
-              caption: captionText,
-              onCopy: () => toast.success("Caption copied!", { duration: 2000 })
-            }),
-            { duration: 15000 }
-          );
-        } else {
-          toast.success("Image copied! Press ⌘V (Ctrl+V) to paste in LinkedIn", {
-            duration: 6000,
-          });
-        }
+        // Image in clipboard - show step-by-step guide toast
+        toast.success(
+          createElement(LinkedInShareGuide, {
+            caption: captionText || "",
+            onCaptionCopied: () => {}
+          }),
+          { duration: 20000 }
+        );
       } else {
         // Fallback: download image and copy caption
         const url = URL.createObjectURL(blob);
@@ -300,13 +294,15 @@ export function useImageExport({
 
         if (captionText) {
           await navigator.clipboard.writeText(captionText);
-          toast.success("Image downloaded & caption copied! Attach it to your LinkedIn post.", {
-            duration: 5000,
-          });
+          toast.success(
+            "Image downloaded & caption copied! Click the image icon in LinkedIn to attach your visual.",
+            { duration: 6000 }
+          );
         } else {
-          toast.success("Image downloaded! Attach it to your LinkedIn post.", {
-            duration: 4000,
-          });
+          toast.success(
+            "Image downloaded! Click the image icon in LinkedIn to attach your visual.",
+            { duration: 5000 }
+          );
         }
       }
       
