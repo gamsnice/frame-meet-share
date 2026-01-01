@@ -309,6 +309,7 @@ export default function EventParticipantPage() {
                       helperText={event.helper_text}
                       eventSlug={slug || ""}
                       eventId={event.id}
+                      eventName={event.name}
                       isMobile={isMobile}
                     />
                   ) : (
@@ -355,6 +356,7 @@ export default function EventParticipantPage() {
                       helperText={event.helper_text}
                       eventSlug={slug || ""}
                       eventId={event.id}
+                      eventName={event.name}
                       isMobile={false}
                     />
                   )}

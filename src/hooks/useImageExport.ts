@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { FORMAT_DIMENSIONS, type Template } from "@/types";
+import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
 import { trackDownloadWithLimit } from "@/lib/analytics";
 
 interface Position {
@@ -16,6 +16,8 @@ interface UseImageExportProps {
   position: Position;
   eventSlug: string;
   eventId: string;
+  eventName?: string;
+  captions?: Caption[];
   onDownload: () => void;
   setIsDownloadDrawerOpen: (open: boolean) => void;
 }
@@ -25,7 +27,9 @@ interface UseImageExportReturn {
   handleDownloadAsFile: () => Promise<void>;
   handleSaveToPhotos: () => Promise<void>;
   handleDownloadClick: (isMobile: boolean) => void;
+  handleShareToLinkedIn: () => Promise<void>;
   isCheckingLimit: boolean;
+  getFilename: () => string;
 }
 
 export function useImageExport({
@@ -36,6 +40,8 @@ export function useImageExport({
   position,
   eventSlug,
   eventId,
+  eventName,
+  captions = [],
   onDownload,
   setIsDownloadDrawerOpen,
 }: UseImageExportProps): UseImageExportReturn {
@@ -199,11 +205,98 @@ export function useImageExport({
     [handleDownloadAsFile, setIsDownloadDrawerOpen, templateImageElement, userImageElement],
   );
 
+  const handleShareToLinkedIn = useCallback(async () => {
+    if (!userImageElement || !templateImageElement) {
+      toast.error("Please upload a photo first");
+      return;
+    }
+
+    const canDownload = await checkLimitAndDownload();
+    if (!canDownload) return;
+
+    const blob = await generateImageBlob();
+    if (!blob) {
+      toast.error("Failed to generate image");
+      return;
+    }
+
+    const filename = getFilename();
+    const file = new File([blob], filename, { type: "image/png" });
+    const captionText = captions[0]?.caption_text || "";
+
+    // Try Web Share API first (mobile - best experience)
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: eventName || "My Event Visual",
+          text: captionText,
+        });
+        toast.success("Shared successfully!");
+        onDownload();
+        setIsDownloadDrawerOpen(false);
+        return;
+      } catch (err: any) {
+        if (err.name === "AbortError") {
+          // User cancelled - don't show error
+          return;
+        }
+        console.error("Share failed:", err);
+      }
+    }
+
+    // Desktop fallback: download image, copy caption, open LinkedIn
+    try {
+      // Download the image
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      // Copy caption if available
+      if (captionText) {
+        await navigator.clipboard.writeText(captionText);
+        toast.success("Image downloaded & caption copied! Paste it in your LinkedIn post.", {
+          duration: 5000,
+        });
+      } else {
+        toast.success("Image downloaded! Attach it to your LinkedIn post.", {
+          duration: 4000,
+        });
+      }
+
+      // Open LinkedIn post composer
+      window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
+      
+      onDownload();
+      setIsDownloadDrawerOpen(false);
+    } catch (err) {
+      console.error("Desktop share failed:", err);
+      toast.error("Failed to prepare share. Please try downloading manually.");
+    }
+  }, [
+    userImageElement,
+    templateImageElement,
+    checkLimitAndDownload,
+    generateImageBlob,
+    getFilename,
+    captions,
+    eventName,
+    onDownload,
+    setIsDownloadDrawerOpen,
+  ]);
+
   return {
     generateImageBlob,
     handleDownloadAsFile,
     handleSaveToPhotos,
     handleDownloadClick,
+    handleShareToLinkedIn,
     isCheckingLimit,
+    getFilename,
   };
 }
