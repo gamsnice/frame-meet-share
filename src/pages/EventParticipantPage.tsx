@@ -100,6 +100,24 @@ export default function EventParticipantPage() {
     }
   };
 
+  const handleTemplateSelectWithUpload = async (template: Template, imageDataUrl: string) => {
+    setSelectedTemplate(template);
+    setUserImage(imageDataUrl);
+
+    // Track both template view and upload
+    if (event) {
+      await trackEvent(event.id, template.id, "view");
+      await trackEvent(event.id, template.id, "upload");
+    }
+
+    // Auto-scroll to editor on mobile
+    if (isMobile && editorRef.current) {
+      setTimeout(() => {
+        editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   const handleImageUpload = async (imageDataUrl: string) => {
     setUserImage(imageDataUrl);
     if (event && selectedTemplate) {
@@ -314,7 +332,7 @@ export default function EventParticipantPage() {
                     />
                   ) : (
                     <Card className="p-6 text-center bg-muted/50">
-                      <p className="text-sm text-muted-foreground mb-1">Select a frame below to get started</p>
+                      <p className="text-sm text-muted-foreground mb-1">Tap a frame below to add your photo</p>
                     </Card>
                   )}
                 </div>
@@ -324,6 +342,7 @@ export default function EventParticipantPage() {
                   templates={templates}
                   selectedTemplate={selectedTemplate}
                   onSelect={handleTemplateSelect}
+                  onSelectWithUpload={handleTemplateSelectWithUpload}
                   isMobile={isMobile}
                 />
               </div>
@@ -336,6 +355,7 @@ export default function EventParticipantPage() {
                     templates={templates}
                     selectedTemplate={selectedTemplate}
                     onSelect={handleTemplateSelect}
+                    onSelectWithUpload={handleTemplateSelectWithUpload}
                     isMobile={false}
                   />
                 </div>
@@ -344,8 +364,8 @@ export default function EventParticipantPage() {
                 <div className="sticky top-4 self-start">
                   {!selectedTemplate ? (
                     <Card className="p-12 text-center">
-                      <p className="text-muted-foreground mb-2">Choose your frame first</p>
-                      <p className="text-sm text-muted-foreground">Select a template from the left to get started</p>
+                      <p className="text-muted-foreground mb-2">Select a frame and add your photo</p>
+                      <p className="text-sm text-muted-foreground">Click on any template to upload your picture</p>
                     </Card>
                   ) : (
                     <ImageEditor
