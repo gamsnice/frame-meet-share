@@ -21,7 +21,7 @@ export function ActionButtons({
           onClick={onChangePhoto}
           variant="outline"
           size="sm"
-          className="flex-1 min-h-[40px] text-xs bg-muted/80 hover:bg-muted border-border"
+          className="flex-1 min-h-[34px] text-xs bg-muted/80 hover:bg-muted border-border"
         >
           Change Photo
         </Button>
@@ -29,14 +29,14 @@ export function ActionButtons({
           onClick={onDownload} 
           variant="default" 
           size="sm" 
-          className="flex-1 min-h-[40px] text-xs"
+          className="flex-1 min-h-[34px] text-xs"
         >
           <Download className="h-4 w-4 mr-1.5" />
           Download
         </Button>
         {onResetTemplate && (
-          <Button onClick={onResetTemplate} variant="ghost" size="sm" className="min-h-[40px] px-3">
-            <ArrowLeft className="h-4 w-4" />
+          <Button onClick={onResetTemplate} variant="ghost" size="sm" className="min-h-[34px] px-2">
+            <ArrowLeft className="h-3.5 w-3.5" />
           </Button>
         )}
       </div>
@@ -49,7 +49,7 @@ export function ActionButtons({
         onClick={onChangePhoto}
         variant="outline"
         size="sm"
-        className="flex-1 min-h-[44px] text-sm bg-muted/80 hover:bg-muted border-border"
+        className="flex-1 min-h-[36px] text-xs bg-muted/80 hover:bg-muted border-border"
       >
         Change Photo
       </Button>
@@ -57,7 +57,7 @@ export function ActionButtons({
         onClick={onDownload} 
         variant="default" 
         size="sm" 
-        className="flex-1 min-h-[44px] text-sm"
+        className="flex-1 min-h-[36px] text-xs"
       >
         <Download className="mr-2 h-4 w-4" />
         Download
