@@ -34,7 +34,7 @@ export function SocialShareButtons({
           ) : (
             <Linkedin className="h-5 w-5 mr-2" />
           )}
-          Share to LinkedIn
+          Share directly to LinkedIn
         </Button>
         <p className="text-[10px] text-muted-foreground text-center mt-2">
           {onShareToLinkedIn 
@@ -56,9 +56,9 @@ export function SocialShareButtons({
         {isLoading ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
         ) : (
-          <Linkedin className="h-4 w-4 mr-2" />
+            <Linkedin className="h-4 w-4 mr-2" />
         )}
-        Share to LinkedIn
+        Share directly to LinkedIn
       </Button>
       <p className="text-[10px] text-muted-foreground text-center mt-2">
         {onShareToLinkedIn 

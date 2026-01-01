@@ -15,7 +15,6 @@ import {
   SocialShareButtons,
   CaptionsSection,
   DownloadDrawer,
-  ShareGuideSection,
 } from "./image-editor";
 
 interface ImageEditorProps {
@@ -310,11 +309,6 @@ export default function ImageEditor({
                 isMobile
               />
 
-              <ShareGuideSection 
-                caption={captions[0]?.caption_text} 
-                isMobile 
-              />
-
               <SocialShareButtons isMobile onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} />
 
               <CaptionsSection
@@ -378,8 +372,6 @@ export default function ImageEditor({
                 onChangePhoto={triggerFileUpload}
                 onDownload={() => handleDownloadClick(isMobile)}
               />
-
-              <ShareGuideSection caption={captions[0]?.caption_text} />
 
               <SocialShareButtons onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} />
 
