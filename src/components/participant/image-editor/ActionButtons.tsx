@@ -19,9 +19,9 @@ export function ActionButtons({
       <div className="flex gap-2">
         <Button
           onClick={onChangePhoto}
-          variant="secondary"
+          variant="outline"
           size="sm"
-          className="flex-1 min-h-[40px] text-xs"
+          className="flex-1 min-h-[40px] text-xs bg-muted/80 hover:bg-muted border-border"
         >
           Change Photo
         </Button>
@@ -47,9 +47,9 @@ export function ActionButtons({
     <div className="flex gap-2">
       <Button
         onClick={onChangePhoto}
-        variant="secondary"
+        variant="outline"
         size="sm"
-        className="flex-1 min-h-[44px] text-sm"
+        className="flex-1 min-h-[44px] text-sm bg-muted/80 hover:bg-muted border-border"
       >
         Change Photo
       </Button>
