@@ -310,7 +310,6 @@ export default function ImageEditor({
                 onChangePhoto={triggerFileUpload}
                 onDownload={() => handleDownloadClick(isMobile)}
                 onResetTemplate={onResetTemplate}
-                onOpenLinkedInPopup={() => setShowLinkedInPopup(true)}
                 isMobile
               />
 
@@ -384,7 +383,6 @@ export default function ImageEditor({
               <ActionButtons
                 onChangePhoto={triggerFileUpload}
                 onDownload={() => handleDownloadClick(isMobile)}
-                onOpenLinkedInPopup={() => setShowLinkedInPopup(true)}
               />
 
 
