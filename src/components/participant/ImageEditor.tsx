@@ -12,9 +12,9 @@ import {
   EditorCanvas,
   ZoomControls,
   ActionButtons,
-  SocialShareButtons,
   CaptionsSection,
   DownloadDrawer,
+  LinkedInSharePopup,
 } from "./image-editor";
 
 interface ImageEditorProps {
@@ -50,7 +50,7 @@ export default function ImageEditor({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
-  const [showShareAnimation, setShowShareAnimation] = useState(false);
+  const [showLinkedInPopup, setShowLinkedInPopup] = useState(false);
 
   // Dynamic preview quality: higher on mobile / high-DPI screens
   const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
@@ -137,9 +137,8 @@ export default function ImageEditor({
           y: (frameHeight - scaledHeight) / 2,
         });
 
-        // Trigger attention animation for share button
-        setShowShareAnimation(true);
-        setTimeout(() => setShowShareAnimation(false), 4000);
+        // Show LinkedIn share popup after upload
+        setShowLinkedInPopup(true);
       };
       img.src = userImage;
     } else {
@@ -314,7 +313,13 @@ export default function ImageEditor({
                 isMobile
               />
 
-              <SocialShareButtons isMobile onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} showAttentionAnimation={showShareAnimation} />
+              <Button
+                variant="ghost"
+                onClick={() => setShowLinkedInPopup(true)}
+                className="w-full text-[#0077B5] hover:text-[#005885] hover:bg-[#0077B5]/10"
+              >
+                <span className="text-sm">Share to LinkedIn</span>
+              </Button>
 
               <CaptionsSection
                 captions={captions}
@@ -333,6 +338,15 @@ export default function ImageEditor({
               onShareToLinkedIn={handleShareToLinkedIn}
               isLoading={isCheckingLimit}
               captionPreview={captions[0]?.caption_text}
+            />
+
+            <LinkedInSharePopup
+              open={showLinkedInPopup}
+              onOpenChange={setShowLinkedInPopup}
+              onShareToLinkedIn={handleShareToLinkedIn}
+              isLoading={isCheckingLimit}
+              caption={captions[0]?.caption_text || ""}
+              onCaptionCopied={() => copyCaption(captions[0]?.caption_text || "")}
             />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -378,7 +392,13 @@ export default function ImageEditor({
                 onDownload={() => handleDownloadClick(isMobile)}
               />
 
-              <SocialShareButtons onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} showAttentionAnimation={showShareAnimation} />
+              <Button
+                variant="ghost"
+                onClick={() => setShowLinkedInPopup(true)}
+                className="w-full text-[#0077B5] hover:text-[#005885] hover:bg-[#0077B5]/10"
+              >
+                <span className="text-sm">Share to LinkedIn</span>
+              </Button>
 
               <CaptionsSection
                 captions={captions}
@@ -390,6 +410,15 @@ export default function ImageEditor({
           </div>
 
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+
+          <LinkedInSharePopup
+            open={showLinkedInPopup}
+            onOpenChange={setShowLinkedInPopup}
+            onShareToLinkedIn={handleShareToLinkedIn}
+            isLoading={isCheckingLimit}
+            caption={captions[0]?.caption_text || ""}
+            onCaptionCopied={() => copyCaption(captions[0]?.caption_text || "")}
+          />
         </div>
       )}
     </Card>
