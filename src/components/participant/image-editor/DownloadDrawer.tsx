@@ -43,7 +43,7 @@ export function DownloadDrawer({
                 )}
                 <div className="text-left">
                   <div className="font-medium">Share to LinkedIn</div>
-                  <div className="text-xs opacity-80">Post your visual with one tap</div>
+                  <div className="text-xs opacity-80">We'll copy it – just paste & post</div>
                 </div>
               </Button>
               {captionPreview && (

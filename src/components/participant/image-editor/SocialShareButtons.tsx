@@ -38,7 +38,7 @@ export function SocialShareButtons({
         </Button>
         <p className="text-[10px] text-muted-foreground text-center mt-2">
           {onShareToLinkedIn 
-            ? "Opens share sheet with your visual & caption"
+            ? "Opens share sheet with your visual"
             : "Download first, then share to LinkedIn"
           }
         </p>
@@ -62,7 +62,7 @@ export function SocialShareButtons({
       </Button>
       <p className="text-[10px] text-muted-foreground text-center mt-2">
         {onShareToLinkedIn 
-          ? "Downloads image, copies caption & opens LinkedIn"
+          ? "Opens LinkedIn with your image ready to paste"
           : "Download first, then share to LinkedIn"
         }
       </p>
