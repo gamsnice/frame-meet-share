@@ -26,6 +26,7 @@ interface ImageEditorProps {
   helperText?: string;
   eventSlug: string;
   eventId?: string;
+  eventName?: string;
   isMobile?: boolean;
 }
 
@@ -38,6 +39,7 @@ export default function ImageEditor({
   helperText,
   eventSlug,
   eventId,
+  eventName,
   isMobile = false,
 }: ImageEditorProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -81,7 +83,7 @@ export default function ImageEditor({
     setPosition,
   });
 
-  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick, isCheckingLimit } = useImageExport({
+  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick, handleShareToLinkedIn, isCheckingLimit } = useImageExport({
     template,
     userImageElement,
     templateImageElement,
@@ -89,6 +91,8 @@ export default function ImageEditor({
     position,
     eventSlug,
     eventId: eventId || '',
+    eventName,
+    captions,
     onDownload,
     setIsDownloadDrawerOpen,
   });
@@ -305,7 +309,7 @@ export default function ImageEditor({
                 isMobile
               />
 
-              <SocialShareButtons isMobile />
+              <SocialShareButtons isMobile onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} />
 
               <CaptionsSection
                 captions={captions}
@@ -321,6 +325,9 @@ export default function ImageEditor({
               onOpenChange={setIsDownloadDrawerOpen}
               onSaveToPhotos={handleSaveToPhotos}
               onDownloadAsFile={handleDownloadAsFile}
+              onShareToLinkedIn={handleShareToLinkedIn}
+              isLoading={isCheckingLimit}
+              captionPreview={captions[0]?.caption_text}
             />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -366,7 +373,7 @@ export default function ImageEditor({
                 onDownload={() => handleDownloadClick(isMobile)}
               />
 
-              <SocialShareButtons />
+              <SocialShareButtons onShareToLinkedIn={handleShareToLinkedIn} isLoading={isCheckingLimit} />
 
               <CaptionsSection
                 captions={captions}
