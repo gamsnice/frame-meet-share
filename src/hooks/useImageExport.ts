@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
 import { trackDownloadWithLimit } from "@/lib/analytics";
+import { isMobileDevice } from "@/lib/utils";
 
 interface Position {
   x: number;
@@ -224,8 +225,11 @@ export function useImageExport({
     const file = new File([blob], filename, { type: "image/png" });
     const captionText = captions[0]?.caption_text || "";
 
-    // Try Web Share API first (mobile - best experience)
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    // Only use Web Share API on actual mobile devices (iOS/Android)
+    // Desktop browsers may support it but the share sheet won't include LinkedIn
+    const isMobile = isMobileDevice();
+    
+    if (isMobile && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({
           files: [file],
