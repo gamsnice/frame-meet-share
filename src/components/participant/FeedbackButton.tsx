@@ -183,7 +183,7 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
   // Mobile: Use Drawer
   if (isMobile) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 left-4 z-50">
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
           <DrawerTrigger asChild>{MobileTriggerButton}</DrawerTrigger>
           <DrawerContent>
@@ -200,10 +200,10 @@ export default function FeedbackButton({ eventId, eventSlug }: FeedbackButtonPro
 
   // Desktop: Use Popover
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>{DesktopTriggerButton}</PopoverTrigger>
-        <PopoverContent side="top" align="end" className="w-80 p-4" sideOffset={12}>
+        <PopoverContent side="top" align="start" className="w-80 p-4" sideOffset={12}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="font-semibold">Send Feedback</h3>
