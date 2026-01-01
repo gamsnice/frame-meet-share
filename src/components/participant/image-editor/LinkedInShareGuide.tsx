@@ -37,9 +37,9 @@ export function LinkedInShareGuide({ caption, onCaptionCopied }: LinkedInShareGu
           1
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm">Paste your image</p>
+          <p className="font-medium text-sm">Your image is copied</p>
           <p className="text-xs text-muted-foreground">
-            Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-[11px] font-mono">{shortcutKey}</kbd> in LinkedIn
+            In LinkedIn, press <kbd className="px-1.5 py-0.5 bg-muted rounded text-[11px] font-mono">{shortcutKey}</kbd> to paste it
           </p>
         </div>
         <Image className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
