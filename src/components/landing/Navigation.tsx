@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 export default function Navigation() {
   const navigate = useNavigate();
@@ -9,6 +10,9 @@ export default function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-secondary/80">
+              <Sparkles className="h-5 w-5 text-primary-foreground" />
+            </div>
             <span className="text-xl font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</span>
             <span className="hidden md:inline text-xs text-muted-foreground/60">|</span>
             <span className="hidden md:inline text-xs text-muted-foreground">Visual Creator for Event Marketing</span>
