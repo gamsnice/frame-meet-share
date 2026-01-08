@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Linkedin, Loader2, X } from "lucide-react";
 import { LinkedInShareGuide } from "./LinkedInShareGuide";
@@ -20,6 +21,14 @@ export function LinkedInSharePopup({
   caption,
   onCaptionCopied,
 }: LinkedInSharePopupProps) {
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setHasAnimated(true);
+    }
+  }, [open]);
+
   if (!open) return null;
 
   const handleShare = async () => {
@@ -31,7 +40,7 @@ export function LinkedInSharePopup({
       className={cn(
         "fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]",
         "bg-card border border-border rounded-lg shadow-xl p-4",
-        "animate-slide-in-right"
+        !hasAnimated && "animate-slide-in-right"
       )}
     >
       {/* Header with dismiss button */}
