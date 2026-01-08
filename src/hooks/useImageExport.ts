@@ -1,9 +1,8 @@
-import { useCallback, useState, createElement } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FORMAT_DIMENSIONS, type Template, type Caption } from "@/types";
 import { trackDownloadWithLimit } from "@/lib/analytics";
 import { isMobileDevice } from "@/lib/utils";
-import { LinkedInShareGuide } from "@/components/participant/image-editor/LinkedInShareGuide";
 
 interface Position {
   x: number;
@@ -272,16 +271,7 @@ export function useImageExport({
       // Open LinkedIn post composer
       window.open("https://www.linkedin.com/feed/?shareActive=true", "_blank");
 
-      if (imageCopied) {
-        // Image in clipboard - show step-by-step guide toast
-        toast.success(
-          createElement(LinkedInShareGuide, {
-            caption: captionText || "",
-            onCaptionCopied: () => {}
-          }),
-          { duration: 20000 }
-        );
-      } else {
+      if (!imageCopied) {
         // Fallback: download image and copy caption
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
