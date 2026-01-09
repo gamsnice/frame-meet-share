@@ -84,7 +84,7 @@ export default function ImageEditor({
     setPosition,
   });
 
-  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick, handleShareToLinkedIn, isCheckingLimit } = useImageExport({
+  const { handleDownloadAsFile, handleSaveToPhotos, handleDownloadClick, handleShareToLinkedIn, isCheckingLimit, generateImageBlob } = useImageExport({
     template,
     userImageElement,
     templateImageElement,
@@ -340,6 +340,8 @@ export default function ImageEditor({
               isLoading={isCheckingLimit}
               caption={captions[0]?.caption_text || ""}
               onCaptionCopied={() => {}}
+              captions={captions}
+              generateImageBlob={generateImageBlob}
             />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -404,6 +406,8 @@ export default function ImageEditor({
             isLoading={isCheckingLimit}
             caption={captions[0]?.caption_text || ""}
             onCaptionCopied={() => {}}
+            captions={captions}
+            generateImageBlob={generateImageBlob}
           />
         </div>
       )}
