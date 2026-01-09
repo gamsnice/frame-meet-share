@@ -4,7 +4,8 @@ import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen, Sparkles } from "lucide-react";
+import { LogOut, LayoutDashboard, Calendar, Settings, Menu, BookOpen } from "lucide-react";
+import meetmeIcon from "@/assets/meetme-icon.png";
 import { toast } from "sonner";
 import DashboardHome from "@/components/admin/DashboardHome";
 import EventsList from "@/components/admin/EventsList";
@@ -82,9 +83,7 @@ export default function AdminDashboard() {
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b">
                     <Link to="/admin" className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-gradient-accent flex items-center justify-center">
-                        <Sparkles className="h-4 w-4 text-primary-foreground" />
-                      </div>
+                      <img src={meetmeIcon} alt="meetme" className="h-8 w-8 rounded-full" />
                       <div>
                         <h1 className="text-lg font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</h1>
                         <p className="text-xs text-muted-foreground">Admin Dashboard</p>
@@ -140,9 +139,7 @@ export default function AdminDashboard() {
             </Sheet>
 
             <Link to="/admin" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-gradient-accent flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary-foreground" />
-              </div>
+              <img src={meetmeIcon} alt="meetme" className="h-8 w-8 rounded-full" />
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold bg-gradient-accent bg-clip-text text-transparent">meetme</h1>
                 <p className="text-xs text-muted-foreground">Admin Dashboard</p>
