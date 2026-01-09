@@ -5,3 +5,6 @@ export { SocialShareButtons } from "./SocialShareButtons";
 export { CaptionsSection } from "./CaptionsSection";
 export { DownloadDrawer } from "./DownloadDrawer";
 export { LinkedInSharePopup } from "./LinkedInSharePopup";
+export { LinkedInConnectCard } from "./LinkedInConnectCard";
+export { LinkedInDirectPost } from "./LinkedInDirectPost";
+export { CaptionSelector } from "./CaptionSelector";

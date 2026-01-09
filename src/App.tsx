@@ -16,6 +16,7 @@ import EventParticipantPage from "./pages/EventParticipantPage";
 import NotFound from "./pages/NotFound";
 import CheckoutSuccess from "./pages/checkout/CheckoutSuccess";
 import CheckoutCancel from "./pages/checkout/CheckoutCancel";
+import LinkedInCallback from "./pages/LinkedInCallback";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/super-admin/*" element={<SuperAdminDashboard />} />
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/checkout/cancel" element={<CheckoutCancel />} />
+          <Route path="/linkedin/callback" element={<LinkedInCallback />} />
           <Route path="/:slug" element={<EventParticipantPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

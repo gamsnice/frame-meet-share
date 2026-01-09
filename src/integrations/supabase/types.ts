@@ -361,6 +361,63 @@ export type Database = {
           },
         ]
       }
+      linkedin_oauth_states: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          redirect_uri: string
+          session_id: string
+          state: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          redirect_uri: string
+          session_id: string
+          state: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          redirect_uri?: string
+          session_id?: string
+          state?: string
+        }
+        Relationships: []
+      }
+      linkedin_tokens: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          linkedin_name: string | null
+          linkedin_urn: string
+          session_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          linkedin_name?: string | null
+          linkedin_urn: string
+          session_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          linkedin_name?: string | null
+          linkedin_urn?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
       placeholder_images: {
         Row: {
           created_at: string | null

@@ -5,3 +5,18 @@ verify_jwt = false
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.linkedin-auth-init]
+verify_jwt = false
+
+[functions.linkedin-auth-callback]
+verify_jwt = false
+
+[functions.linkedin-status]
+verify_jwt = false
+
+[functions.linkedin-post]
+verify_jwt = false
+
+[functions.linkedin-disconnect]
+verify_jwt = false
