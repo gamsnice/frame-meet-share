@@ -92,8 +92,6 @@ export function LinkedInPostPreview({
                     : "border-border text-muted-foreground hover:border-foreground/30"
                 )}
               >
-                No caption
-              </button>
             </div>
           )}
 
