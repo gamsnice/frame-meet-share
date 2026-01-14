@@ -289,7 +289,7 @@ export default function PricingSection() {
               <ul className="mb-7 space-y-3">
                 {enterprise ? (
                   [
-                    `Custom Visual Downloads (> ${maxProDownloads} or unlimited)`,
+                    `Custom Visual Downloads (up to unlimited)`,
                     isUnlimited(enterprise.events_limit)
                       ? "Unlimited events"
                       : `Custom events (from ${enterprise.events_limit}+)`,
