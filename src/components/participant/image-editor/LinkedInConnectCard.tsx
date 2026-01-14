@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Linkedin, Loader2, CheckCircle, LogOut } from "lucide-react";
+import { Linkedin, Loader2, CheckCircle, LogOut, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface LinkedInConnectCardProps {
@@ -7,8 +7,10 @@ interface LinkedInConnectCardProps {
   linkedInName: string | null;
   isLoading: boolean;
   isConnecting: boolean;
+  error?: string | null;
   onConnect: () => void;
   onDisconnect: () => void;
+  onRetry?: () => void;
   className?: string;
 }
 
@@ -17,8 +19,10 @@ export function LinkedInConnectCard({
   linkedInName,
   isLoading,
   isConnecting,
+  error,
   onConnect,
   onDisconnect,
+  onRetry,
   className,
 }: LinkedInConnectCardProps) {
   if (isLoading) {
@@ -45,6 +49,25 @@ export function LinkedInConnectCard({
           className="flex-shrink-0 h-8 px-2 text-muted-foreground hover:text-foreground"
         >
           <LogOut className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    );
+  }
+
+  // Show error state with retry option
+  if (error) {
+    return (
+      <div className={cn("space-y-3", className)}>
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm">
+          <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+          <span className="text-destructive/90">{error}</span>
+        </div>
+        <Button
+          onClick={onRetry || onConnect}
+          className="w-full min-h-[44px] bg-[#0077B5] hover:bg-[#005885] text-white"
+        >
+          <Linkedin className="h-4 w-4 mr-2" />
+          Try Again
         </Button>
       </div>
     );
