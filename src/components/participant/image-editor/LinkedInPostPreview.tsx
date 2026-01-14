@@ -55,9 +55,7 @@ export function LinkedInPostPreview({
           <Linkedin className="h-5 w-5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground truncate">
-            {linkedInName || "Your LinkedIn Profile"}
-          </p>
+          <p className="font-medium text-foreground truncate">{linkedInName || "Your LinkedIn Profile"}</p>
           <p className="text-xs text-muted-foreground">Posting to LinkedIn</p>
         </div>
       </div>
@@ -77,21 +75,12 @@ export function LinkedInPostPreview({
                     "px-3 py-1 text-xs rounded-full border transition-colors",
                     caption === c.caption_text
                       ? "border-[#0077B5] bg-[#0077B5]/10 text-[#0077B5]"
-                      : "border-border text-muted-foreground hover:border-foreground/30"
+                      : "border-border text-muted-foreground hover:border-foreground/30",
                   )}
                 >
                   Caption {index + 1}
                 </button>
               ))}
-              <button
-                onClick={() => onCaptionChange("")}
-                className={cn(
-                  "px-3 py-1 text-xs rounded-full border transition-colors",
-                  caption === ""
-                    ? "border-[#0077B5] bg-[#0077B5]/10 text-[#0077B5]"
-                    : "border-border text-muted-foreground hover:border-foreground/30"
-                )}
-              >
             </div>
           )}
 
@@ -105,7 +94,7 @@ export function LinkedInPostPreview({
             placeholder="Write something about your event visual..."
             className={cn(
               "min-h-[80px] resize-none border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-sm",
-              isFocused && "placeholder:text-muted-foreground/50"
+              isFocused && "placeholder:text-muted-foreground/50",
             )}
             disabled={isPosting}
           />
@@ -117,7 +106,7 @@ export function LinkedInPostPreview({
                 "text-xs",
                 isOverLimit && "text-destructive font-medium",
                 isNearLimit && !isOverLimit && "text-amber-500",
-                !isNearLimit && !isOverLimit && "text-muted-foreground"
+                !isNearLimit && !isOverLimit && "text-muted-foreground",
               )}
             >
               {caption.length}/{MAX_CAPTION_LENGTH}
