@@ -9,3 +9,4 @@ export { LinkedInConnectCard } from "./LinkedInConnectCard";
 export { LinkedInDirectPost } from "./LinkedInDirectPost";
 export { LinkedInPostPreview } from "./LinkedInPostPreview";
 export { CaptionSelector } from "./CaptionSelector";
+export { LinkedInSharingSection } from "./LinkedInSharingSection";

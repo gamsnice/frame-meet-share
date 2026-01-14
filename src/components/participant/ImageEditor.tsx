@@ -12,10 +12,9 @@ import {
   EditorCanvas,
   ZoomControls,
   ActionButtons,
-  CaptionsSection,
   DownloadDrawer,
+  LinkedInSharingSection,
 } from "./image-editor";
-import { LinkedInSharePopup } from "./image-editor/LinkedInSharePopup";
 
 interface ImageEditorProps {
   template: Template;
@@ -50,7 +49,6 @@ export default function ImageEditor({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [initialScale, setInitialScale] = useState(1);
   const [isDownloadDrawerOpen, setIsDownloadDrawerOpen] = useState(false);
-  const [showLinkedInPopup, setShowLinkedInPopup] = useState(false);
 
   // Dynamic preview quality: higher on mobile / high-DPI screens
   const devicePixelRatioSafe = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
@@ -58,8 +56,8 @@ export default function ImageEditor({
     ? Math.min(devicePixelRatioSafe * 1.2, 3)
     : Math.min(devicePixelRatioSafe, 2);
 
-  // Use extracted hooks
-  const { captions, captionsExpanded, setCaptionsExpanded, copyCaption } = useCaptions({
+  // Use extracted hooks for captions
+  const { captions } = useCaptions({
     templateId: template.id,
     eventId,
     isMobile,
@@ -136,9 +134,6 @@ export default function ImageEditor({
           x: (frameWidth - scaledWidth) / 2,
           y: (frameHeight - scaledHeight) / 2,
         });
-
-        // Show LinkedIn share popup after upload
-        setShowLinkedInPopup(true);
       };
       img.src = userImage;
     } else {
@@ -313,12 +308,11 @@ export default function ImageEditor({
                 isMobile
               />
 
-
-              <CaptionsSection
+              <LinkedInSharingSection
                 captions={captions}
-                captionsExpanded={captionsExpanded}
-                onToggleExpand={() => setCaptionsExpanded(!captionsExpanded)}
-                onCopyCaption={copyCaption}
+                generateImageBlob={generateImageBlob}
+                onShareToLinkedIn={handleShareToLinkedIn}
+                isLoading={isCheckingLimit}
                 isMobile
               />
             </div>
@@ -331,17 +325,6 @@ export default function ImageEditor({
               onShareToLinkedIn={handleShareToLinkedIn}
               isLoading={isCheckingLimit}
               captionPreview={captions[0]?.caption_text}
-            />
-
-            <LinkedInSharePopup
-              open={showLinkedInPopup}
-              onOpenChange={setShowLinkedInPopup}
-              onShareToLinkedIn={handleShareToLinkedIn}
-              isLoading={isCheckingLimit}
-              caption={captions[0]?.caption_text || ""}
-              onCaptionCopied={() => {}}
-              captions={captions}
-              generateImageBlob={generateImageBlob}
             />
 
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -387,28 +370,16 @@ export default function ImageEditor({
                 onDownload={() => handleDownloadClick(isMobile)}
               />
 
-
-              <CaptionsSection
+              <LinkedInSharingSection
                 captions={captions}
-                captionsExpanded={captionsExpanded}
-                onToggleExpand={() => setCaptionsExpanded(!captionsExpanded)}
-                onCopyCaption={copyCaption}
+                generateImageBlob={generateImageBlob}
+                onShareToLinkedIn={handleShareToLinkedIn}
+                isLoading={isCheckingLimit}
               />
             </div>
           </div>
 
           <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-
-          <LinkedInSharePopup
-            open={showLinkedInPopup}
-            onOpenChange={setShowLinkedInPopup}
-            onShareToLinkedIn={handleShareToLinkedIn}
-            isLoading={isCheckingLimit}
-            caption={captions[0]?.caption_text || ""}
-            onCaptionCopied={() => {}}
-            captions={captions}
-            generateImageBlob={generateImageBlob}
-          />
         </div>
       )}
     </Card>
