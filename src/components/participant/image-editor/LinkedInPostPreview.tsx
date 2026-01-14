@@ -62,6 +62,17 @@ export function LinkedInPostPreview({
 
       {/* Post Preview Card */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
+        {/* Image Preview - Above Caption */}
+        {imagePreviewUrl && (
+          <div className="border-b border-border">
+            <img
+              src={imagePreviewUrl}
+              alt="Post preview"
+              className="w-full h-auto object-contain max-h-[250px] bg-muted/30"
+            />
+          </div>
+        )}
+
         {/* Caption Input Area */}
         <div className="p-4">
           {/* Quick-switch pills (if multiple captions) */}
@@ -113,17 +124,6 @@ export function LinkedInPostPreview({
             </span>
           </div>
         </div>
-
-        {/* Image Preview */}
-        {imagePreviewUrl && (
-          <div className="border-t border-border">
-            <img
-              src={imagePreviewUrl}
-              alt="Post preview"
-              className="w-full h-auto object-contain max-h-[300px] bg-muted/30"
-            />
-          </div>
-        )}
       </div>
 
       {/* Post Button */}
