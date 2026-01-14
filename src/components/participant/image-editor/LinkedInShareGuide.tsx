@@ -1,19 +1,37 @@
 import { Copy, Check, Image, MessageSquare, Send } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { Caption } from "@/types";
 
 interface LinkedInShareGuideProps {
   caption: string;
   onCaptionCopied: () => void;
+  captions?: Caption[];
+  selectedCaptionIndex?: number;
+  onCaptionChange?: (index: number) => void;
+  imagePreviewUrl?: string | null;
 }
 
-export function LinkedInShareGuide({ caption, onCaptionCopied }: LinkedInShareGuideProps) {
+export function LinkedInShareGuide({ 
+  caption, 
+  onCaptionCopied,
+  captions = [],
+  selectedCaptionIndex = 0,
+  onCaptionChange,
+  imagePreviewUrl,
+}: LinkedInShareGuideProps) {
   const [captionCopied, setCaptionCopied] = useState(false);
   const [isMac, setIsMac] = useState(false);
 
   useEffect(() => {
     setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
   }, []);
+
+  // Reset copied state when caption changes
+  useEffect(() => {
+    setCaptionCopied(false);
+  }, [caption]);
 
   const handleCopyCaption = () => {
     navigator.clipboard.writeText(caption);
@@ -23,12 +41,25 @@ export function LinkedInShareGuide({ caption, onCaptionCopied }: LinkedInShareGu
 
   const shortcutKey = isMac ? "⌘V" : "Ctrl+V";
 
-  const truncatedCaption = caption.length > 80 
-    ? caption.substring(0, 80) + "..." 
+  const truncatedCaption = caption.length > 100 
+    ? caption.substring(0, 100) + "..." 
     : caption;
+
+  const hasMultipleCaptions = captions.length > 1;
 
   return (
     <div className="flex flex-col gap-3 py-1">
+      {/* Image Preview */}
+      {imagePreviewUrl && (
+        <div className="rounded-lg overflow-hidden bg-muted/30 border border-border">
+          <img 
+            src={imagePreviewUrl} 
+            alt="Post preview" 
+            className="w-full h-auto max-h-[180px] object-contain"
+          />
+        </div>
+      )}
+
       <p className="font-semibold text-[15px] text-[#0077B5]">Ready to post on LinkedIn</p>
       
       {/* Step 1 */}
@@ -53,26 +84,48 @@ export function LinkedInShareGuide({ caption, onCaptionCopied }: LinkedInShareGu
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm">Add your caption</p>
           {caption ? (
-            <div className="mt-1.5 space-y-1.5">
+            <div className="mt-1.5 space-y-2">
+              {/* Caption quick-switch pills */}
+              {hasMultipleCaptions && onCaptionChange && (
+                <div className="flex flex-wrap gap-1.5">
+                  {captions.map((c, index) => (
+                    <button
+                      key={c.id}
+                      onClick={() => onCaptionChange(index)}
+                      className={cn(
+                        "px-2.5 py-1 text-[11px] rounded-full border transition-all",
+                        "hover:border-foreground/30",
+                        index === selectedCaptionIndex
+                          ? "border-[#0077B5] bg-[#0077B5]/10 text-[#0077B5] font-medium"
+                          : "border-border text-muted-foreground"
+                      )}
+                    >
+                      Caption {index + 1}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
               <p className="text-xs text-muted-foreground line-clamp-2 italic">"{truncatedCaption}"</p>
               <Button 
                 size="sm" 
                 onClick={handleCopyCaption}
                 disabled={captionCopied}
-                className={`h-7 text-xs w-full ${
+                className={cn(
+                  "h-8 text-xs w-full font-medium",
                   captionCopied 
                     ? "bg-green-600 hover:bg-green-600 text-white" 
                     : "bg-[#0077B5] hover:bg-[#005885] text-white"
-                }`}
+                )}
               >
                 {captionCopied ? (
                   <>
-                    <Check className="w-3 h-3 mr-1.5" />
+                    <Check className="w-3.5 h-3.5 mr-1.5" />
                     Copied! Paste in LinkedIn
                   </>
                 ) : (
                   <>
-                    <Copy className="w-3 h-3 mr-1.5" />
+                    <Copy className="w-3.5 h-3.5 mr-1.5" />
                     Copy Caption
                   </>
                 )}
