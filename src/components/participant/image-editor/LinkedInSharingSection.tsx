@@ -29,6 +29,7 @@ export function LinkedInSharingSection({
   const [selectedCaptionIndex, setSelectedCaptionIndex] = useState(0);
   const [editedCaption, setEditedCaption] = useState("");
   const [captionCopied, setCaptionCopied] = useState(false);
+  const [manualExpanded, setManualExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const {
@@ -45,50 +46,28 @@ export function LinkedInSharingSection({
 
   const { post, isPosting, postError, postUrl } = useLinkedInPost();
 
-  // Initialize caption from selected index
   useEffect(() => {
     if (captions.length > 0) {
       setEditedCaption(captions[selectedCaptionIndex]?.caption_text || "");
+      setManualExpanded(false);
     }
   }, [captions, selectedCaptionIndex]);
 
-  // Reset copied state when caption changes
   useEffect(() => {
     setCaptionCopied(false);
-  }, [editedCaption, selectedCaptionIndex]);
+  }, [editedCaption]);
 
-  // Auto-resize textarea - run on mount and when caption changes
   useEffect(() => {
-    const resizeTextarea = () => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-      }
-    };
-    
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(resizeTextarea, 0);
-    return () => clearTimeout(timer);
-  }, [editedCaption, isConnected, activeTab]);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [editedCaption, activeTab, isConnected]);
 
   const handlePost = async () => {
-    try {
-      const blob = await generateImageBlob();
-      if (!blob) {
-        console.error("Failed to generate image");
-        return;
-      }
-
-      const result = await post(blob, editedCaption);
-      
-      if (result.success) {
-        // Success is handled by postUrl state
-      } else if (result.reconnect) {
-        await checkStatus();
-      }
-    } catch (error) {
-      console.error("Failed to post to LinkedIn:", error);
-    }
+    const blob = await generateImageBlob();
+    if (!blob) return;
+    await post(blob, editedCaption);
   };
 
   const handleCopyCaption = () => {
@@ -102,60 +81,32 @@ export function LinkedInSharingSection({
 
   const charactersRemaining = MAX_CAPTION_LENGTH - editedCaption.length;
   const isOverLimit = charactersRemaining < 0;
-  const isNearLimit = charactersRemaining < 200 && charactersRemaining >= 0;
 
-  // Detect platform for keyboard shortcut
-  const [isMac, setIsMac] = useState(false);
-  useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
-  }, []);
-  const shortcutKey = isMac ? "⌘V" : "Ctrl+V";
-
-  // Caption Pills Component
-  const CaptionPills = () => {
-    if (captions.length <= 1) return null;
-    
-    return (
+  const CaptionPills = () =>
+    captions.length > 1 ? (
       <div className="flex flex-wrap gap-2 mb-3">
         {captions.map((c, index) => (
           <button
             key={c.id}
             onClick={() => setSelectedCaptionIndex(index)}
             className={cn(
-              "px-3 py-1.5 text-xs rounded-full border transition-all font-medium",
-              "hover:border-foreground/30",
+              "px-3 py-1.5 text-xs rounded-full border font-medium transition-all",
               index === selectedCaptionIndex
                 ? "border-[#0077B5] bg-[#0077B5]/10 text-[#0077B5]"
-                : "border-border text-muted-foreground"
+                : "border-border text-muted-foreground hover:border-foreground/30",
             )}
           >
             Caption {index + 1}
           </button>
         ))}
       </div>
-    );
-  };
+    ) : null;
 
-  // Success State
   if (postUrl) {
     return (
-      <div className="rounded-xl border border-[#0077B5]/20 bg-gradient-to-b from-card to-card/50 p-4 mt-4">
-        <div className="text-center py-4">
-          <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-3">
-            <Check className="h-6 w-6 text-green-500" />
-          </div>
-          <p className="font-medium text-foreground">Posted to LinkedIn!</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Your event visual is now live
-          </p>
-        </div>
-        
-        <Button
-          variant="outline"
-          className="w-full min-h-[44px]"
-          onClick={() => window.open(postUrl, "_blank")}
-        >
-          <ExternalLink className="h-4 w-4 mr-2" />
+      <div className="rounded-xl border p-4 mt-4 text-center">
+        <Check className="mx-auto mb-2 text-green-500" />
+        <Button onClick={() => window.open(postUrl, "_blank")} variant="outline">
           View on LinkedIn
         </Button>
       </div>
@@ -163,242 +114,74 @@ export function LinkedInSharingSection({
   }
 
   return (
-    <div className="rounded-xl border border-[#0077B5]/20 bg-gradient-to-b from-card to-card/50 p-4 mt-4">
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-[#0077B5] flex items-center justify-center">
-          <Linkedin className="h-4 w-4 text-white" />
-        </div>
-        <span className="font-semibold text-foreground">Share to LinkedIn</span>
+    <div className="rounded-xl border p-4 mt-4">
+      {/* Tabs */}
+      <div className="flex gap-1 mb-4 bg-muted/50 p-1 rounded-lg">
+        {["direct", "manual"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab as any)}
+            className={cn(
+              "flex-1 py-2 text-sm rounded-md",
+              activeTab === tab ? "bg-background shadow-sm" : "text-muted-foreground",
+            )}
+          >
+            {tab === "direct" ? "Direct Post" : "Manual Share"}
+          </button>
+        ))}
       </div>
 
-      {/* Tab Switcher */}
-      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg mb-4">
-        <button
-          onClick={() => setActiveTab("direct")}
-          className={cn(
-            "flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all",
-            activeTab === "direct"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          Direct Post
-        </button>
-        <button
-          onClick={() => setActiveTab("manual")}
-          className={cn(
-            "flex-1 py-2 px-3 text-sm font-medium rounded-md transition-all",
-            activeTab === "manual"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          Manual Share
-        </button>
-      </div>
-
-      {/* Direct Post Tab */}
-      {activeTab === "direct" && (
-        <div className="space-y-4">
-          {!isConnected ? (
-            <>
-              <LinkedInConnectCard
-                isConnected={isConnected}
-                linkedInName={linkedInName}
-                isLoading={isAuthLoading}
-                isConnecting={isConnecting}
-                error={authError}
-                onConnect={connect}
-                onDisconnect={disconnect}
-                onRetry={() => {
-                  clearError();
-                  connect();
-                }}
-              />
-              {!isAuthLoading && (
-                <p className="text-xs text-muted-foreground text-center">
-                  Connect once to post directly. Your connection stays active for 60 days.
-                </p>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Connected Header */}
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-6 h-6 rounded-full bg-[#0077B5]/10 flex items-center justify-center">
-                  <Check className="h-3.5 w-3.5 text-[#0077B5]" />
-                </div>
-                <span className="text-muted-foreground">
-                  Connected as <span className="text-foreground font-medium">{linkedInName}</span>
-                </span>
-              </div>
-
-              {/* Error Message */}
-              {postError && (
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-                  <p className="text-sm text-destructive">{postError}</p>
-                </div>
-              )}
-
-              {/* Caption Pills */}
-              <CaptionPills />
-
-              {/* Caption Textarea */}
-              <div className="rounded-lg border border-border bg-card p-3">
-                <Textarea
-                  ref={textareaRef}
-                  value={editedCaption}
-                  onChange={(e) => setEditedCaption(e.target.value)}
-                  placeholder="Write something about your event visual..."
-                  className={cn(
-                    "min-h-[80px] resize-none border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-sm"
-                  )}
-                  disabled={isPosting}
-                />
-                <div className="flex justify-end mt-2">
-                  <span
-                    className={cn(
-                      "text-xs",
-                      isOverLimit && "text-destructive font-medium",
-                      isNearLimit && !isOverLimit && "text-amber-500",
-                      !isNearLimit && !isOverLimit && "text-muted-foreground",
-                    )}
-                  >
-                    {editedCaption.length}/{MAX_CAPTION_LENGTH}
-                  </span>
-                </div>
-              </div>
-
-              {/* Post Button */}
-              <Button
-                onClick={handlePost}
-                disabled={isPosting || isOverLimit || !editedCaption}
-                className="w-full min-h-[48px] bg-[#0077B5] hover:bg-[#005885] text-white font-medium"
-              >
-                {isPosting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Posting...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Post to LinkedIn
-                  </>
-                )}
-              </Button>
-
-              {isOverLimit && (
-                <p className="text-xs text-destructive text-center">
-                  Caption exceeds LinkedIn's {MAX_CAPTION_LENGTH} character limit
-                </p>
-              )}
-
-              {/* Disconnect option */}
-              <button
-                onClick={disconnect}
-                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
-              >
-                Disconnect LinkedIn
-              </button>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Manual Share Tab */}
+      {/* MANUAL SHARE */}
       {activeTab === "manual" && (
         <div className="space-y-4">
-          {/* Step 1 - Open LinkedIn */}
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0077B5] text-white flex items-center justify-center text-xs font-bold">
-              1
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm">Copy image & open LinkedIn</p>
-              <p className="text-xs text-muted-foreground mb-2">
-                Image will be copied. Paste with <kbd className="px-1.5 py-0.5 bg-muted rounded text-[11px] font-mono">{shortcutKey}</kbd>
-              </p>
-              <Button
-                onClick={handleManualShare}
-                disabled={isLoading}
-                className="w-full min-h-[44px] bg-[#0077B5] hover:bg-[#005885] text-white"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                )}
-                Open LinkedIn to Share
-              </Button>
-            </div>
-            <Image className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-          </div>
+          {/* Step 1 */}
+          <Button onClick={handleManualShare} className="w-full">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Open LinkedIn
+          </Button>
 
-          {/* Step 2 - Caption */}
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0077B5] text-white flex items-center justify-center text-xs font-bold">
-              2
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm">Add your caption</p>
-              
-              {captions.length > 0 ? (
-                <div className="mt-2 space-y-2">
-                  {/* Caption Pills */}
-                  <CaptionPills />
-                  
-                  {/* Caption Preview */}
-                  <div className="rounded-lg border border-border bg-card/50 p-3">
-                    <p className="text-xs text-muted-foreground line-clamp-3 italic">
-                      "{editedCaption.length > 150 ? editedCaption.substring(0, 150) + "..." : editedCaption}"
-                    </p>
-                  </div>
-                  
-                  {/* Copy Button */}
-                  <Button 
-                    size="sm" 
-                    onClick={handleCopyCaption}
-                    disabled={captionCopied || !editedCaption}
-                    className={cn(
-                      "w-full h-9 text-xs font-medium",
-                      captionCopied 
-                        ? "bg-green-600 hover:bg-green-600 text-white" 
-                        : "bg-[#0077B5] hover:bg-[#005885] text-white"
-                    )}
-                  >
-                    {captionCopied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 mr-1.5" />
-                        Copied! Paste in LinkedIn
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5 mr-1.5" />
-                        Copy Caption
-                      </>
-                    )}
-                  </Button>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">Write something about your experience</p>
+          {/* Step 2 */}
+          <div>
+            <p className="font-medium text-sm mb-2">Add your caption</p>
+            <CaptionPills />
+
+            {/* LinkedIn-style caption preview */}
+            <div className="relative rounded-lg border bg-card/50 p-3">
+              <p
+                className={cn(
+                  "text-xs italic whitespace-pre-wrap break-words transition-all",
+                  !manualExpanded && "line-clamp-3",
+                )}
+              >
+                {editedCaption}
+              </p>
+
+              {!manualExpanded && (
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card/90 to-transparent" />
+              )}
+
+              {editedCaption.length > 180 && (
+                <button
+                  onClick={() => setManualExpanded(!manualExpanded)}
+                  className="mt-1 text-[11px] font-medium text-[#0077B5] hover:underline"
+                >
+                  {manualExpanded ? "See less" : "See more"}
+                </button>
               )}
             </div>
-            <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+
+            <Button
+              size="sm"
+              onClick={handleCopyCaption}
+              disabled={captionCopied}
+              className={cn("w-full mt-2", captionCopied ? "bg-green-600 text-white" : "bg-[#0077B5] text-white")}
+            >
+              {captionCopied ? "Copied!" : "Copy Caption"}
+            </Button>
           </div>
 
-          {/* Step 3 - Post */}
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0077B5] text-white flex items-center justify-center text-xs font-bold">
-              3
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm">Click "Post" on LinkedIn</p>
-              <p className="text-xs text-muted-foreground">Share with your network</p>
-            </div>
-            <Send className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
-          </div>
+          {/* Step 3 */}
+          <p className="text-xs text-muted-foreground text-center">Paste caption & click “Post” on LinkedIn</p>
         </div>
       )}
     </div>
