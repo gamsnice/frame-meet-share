@@ -73,12 +73,43 @@ serve(async (req) => {
 
         console.log("Tier config:", tierConfig);
 
+        // Get current subscription to calculate remaining downloads
+        const { data: currentSub, error: currentSubError } = await supabaseAdmin
+          .from("subscriptions")
+          .select("downloads_limit, downloads_used")
+          .eq("user_id", userId)
+          .single();
+
+        if (currentSubError) {
+          console.error("Failed to get current subscription:", currentSubError);
+          break;
+        }
+
+        // Calculate remaining downloads from current subscription
+        const currentRemaining = currentSub.downloads_limit === -1 
+          ? 0 // If unlimited, don't add anything
+          : Math.max(0, currentSub.downloads_limit - currentSub.downloads_used);
+
+        // New limit = new tier's downloads + remaining downloads from current plan
+        // If new tier is unlimited (-1), keep it unlimited
+        const newDownloadsLimit = tierConfig.downloads_limit === -1 
+          ? -1 
+          : tierConfig.downloads_limit + currentRemaining;
+
+        console.log("Download calculation:", {
+          currentLimit: currentSub.downloads_limit,
+          currentUsed: currentSub.downloads_used,
+          currentRemaining,
+          tierDownloads: tierConfig.downloads_limit,
+          newLimit: newDownloadsLimit
+        });
+
         // Calculate period dates (1 year from now)
         const now = new Date();
         const oneYearFromNow = new Date(now);
         oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
 
-        // Update subscription
+        // Update subscription - add new tier downloads to remaining downloads
         const { error: updateError } = await supabaseAdmin
           .from("subscriptions")
           .update({
@@ -86,8 +117,8 @@ serve(async (req) => {
             status: "active",
             stripe_customer_id: customerId,
             stripe_subscription_id: session.id, // Using session ID for one-time payments
-            downloads_limit: tierConfig.downloads_limit,
-            downloads_used: 0, // Reset downloads on new subscription
+            downloads_limit: newDownloadsLimit,
+            downloads_used: 0, // Reset used count since remaining is now in the limit
             events_limit: tierConfig.events_limit,
             templates_limit: tierConfig.templates_limit,
             current_period_start: now.toISOString(),
@@ -99,7 +130,7 @@ serve(async (req) => {
         if (updateError) {
           console.error("Failed to update subscription:", updateError);
         } else {
-          console.log("Subscription updated successfully for user:", userId);
+          console.log("Subscription updated successfully for user:", userId, "New download limit:", newDownloadsLimit);
         }
         break;
       }
