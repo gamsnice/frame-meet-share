@@ -57,13 +57,19 @@ export function LinkedInSharingSection({
     setCaptionCopied(false);
   }, [editedCaption, selectedCaptionIndex]);
 
-  // Auto-resize textarea
+  // Auto-resize textarea - run on mount and when caption changes
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  }, [editedCaption]);
+    const resizeTextarea = () => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    };
+    
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(resizeTextarea, 0);
+    return () => clearTimeout(timer);
+  }, [editedCaption, isConnected, activeTab]);
 
   const handlePost = async () => {
     try {
