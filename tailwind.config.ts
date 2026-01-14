@@ -119,15 +119,31 @@ export default {
         },
         "bounce-subtle": {
           "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-5px)" }
+          "50%": { transform: "translateY(-5px)" },
         },
         "pulse-glow": {
           "0%, 100%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" },
-          "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" }
+          "50%": { boxShadow: "0 0 40px hsl(var(--primary) / 0.5)" },
         },
         "slide-in-right": {
           "0%": { transform: "translateX(100%)", opacity: "0" },
-          "100%": { transform: "translateX(0)", opacity: "1" }
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "slide-up-fade": {
+          "0%": { opacity: "0", transform: "translateY(40px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-in-left": {
+          "0%": { opacity: "0", transform: "translateX(-40px)" },
+          "100%": { opacity: "1", transform: "translateX(0)" },
+        },
+        "zoom-in-fade": {
+          "0%": { opacity: "0", transform: "scale(0.92)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "blur-in": {
+          "0%": { opacity: "0", filter: "blur(8px)" },
+          "100%": { opacity: "1", filter: "blur(0)" },
         },
       },
       animation: {
@@ -137,12 +153,16 @@ export default {
         "scale-in": "scale-in 0.2s ease-out",
         "float": "float 6s ease-in-out infinite",
         "float-delayed": "float-delayed 7s ease-in-out infinite",
-      "glow-pulse": "glow-pulse 3s ease-in-out infinite",
-      "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
-      "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "slide-up": "slide-up 0.6s ease-out",
         "rotate-slow": "rotate-slow 20s linear infinite",
         "slide-in-right": "slide-in-right 0.3s ease-out forwards",
+        "slide-up-fade": "slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "slide-in-left": "slide-in-left 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "zoom-in-fade": "zoom-in-fade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "blur-in": "blur-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
       },
     },
   },
