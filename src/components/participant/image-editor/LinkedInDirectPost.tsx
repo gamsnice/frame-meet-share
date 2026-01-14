@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, ExternalLink, AlertCircle, Send } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { LinkedInConnectCard } from "./LinkedInConnectCard";
-import { CaptionSelector } from "./CaptionSelector";
+import { LinkedInPostPreview } from "./LinkedInPostPreview";
 import { useLinkedInAuth } from "@/hooks/useLinkedInAuth";
 import { useLinkedInPost } from "@/hooks/useLinkedInPost";
 import { cn } from "@/lib/utils";
@@ -35,17 +35,61 @@ export function LinkedInDirectPost({
 
   const { post, isPosting, postError, postUrl } = useLinkedInPost();
 
-  // Auto-select first caption if available
-  const [selectedCaption, setSelectedCaption] = useState<string>(() => {
-    return captions.length > 0 ? captions[0].caption_text : "";
-  });
+  // Editable caption state
+  const [editedCaption, setEditedCaption] = useState<string>("");
+  
+  // Image preview URL
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
-  // Update selected caption when captions change
+  // Initialize caption when connected or captions change
   useEffect(() => {
-    if (captions.length > 0 && !selectedCaption) {
-      setSelectedCaption(captions[0].caption_text);
+    if (isConnected && captions.length > 0 && !editedCaption) {
+      setEditedCaption(captions[0].caption_text);
     }
-  }, [captions, selectedCaption]);
+  }, [isConnected, captions, editedCaption]);
+
+  // Generate preview image when connected
+  useEffect(() => {
+    let mounted = true;
+    let objectUrl: string | null = null;
+
+    const generatePreview = async () => {
+      if (isConnected && !previewUrl && !isGeneratingPreview) {
+        setIsGeneratingPreview(true);
+        try {
+          const blob = await generateImageBlob();
+          if (blob && mounted) {
+            objectUrl = URL.createObjectURL(blob);
+            setPreviewUrl(objectUrl);
+          }
+        } catch (error) {
+          console.error("Failed to generate preview:", error);
+        } finally {
+          if (mounted) {
+            setIsGeneratingPreview(false);
+          }
+        }
+      }
+    };
+
+    generatePreview();
+
+    return () => {
+      mounted = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [isConnected, generateImageBlob, previewUrl, isGeneratingPreview]);
+
+  // Reset state when disconnected
+  useEffect(() => {
+    if (!isConnected) {
+      setPreviewUrl(null);
+      setEditedCaption("");
+    }
+  }, [isConnected]);
 
   const handlePost = async () => {
     try {
@@ -55,7 +99,7 @@ export function LinkedInDirectPost({
         return;
       }
 
-      const result = await post(blob, selectedCaption);
+      const result = await post(blob, editedCaption);
       
       if (result.success) {
         onSuccess?.();
@@ -94,67 +138,60 @@ export function LinkedInDirectPost({
     );
   }
 
+  // Not connected - show connect card
+  if (!isConnected) {
+    return (
+      <div className={cn("space-y-4", className)}>
+        <LinkedInConnectCard
+          isConnected={isConnected}
+          linkedInName={linkedInName}
+          isLoading={isAuthLoading}
+          isConnecting={isConnecting}
+          error={authError}
+          onConnect={connect}
+          onDisconnect={disconnect}
+          onRetry={() => {
+            clearError();
+            connect();
+          }}
+        />
+
+        {!isAuthLoading && (
+          <p className="text-xs text-muted-foreground text-center">
+            Connect once to post directly. Your connection stays active for 60 days.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Connected - show post preview
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Connection Status */}
-      <LinkedInConnectCard
-        isConnected={isConnected}
-        linkedInName={linkedInName}
-        isLoading={isAuthLoading}
-        isConnecting={isConnecting}
-        error={authError}
-        onConnect={connect}
-        onDisconnect={disconnect}
-        onRetry={() => {
-          clearError();
-          connect();
-        }}
-      />
-
-      {/* Caption Selection (only when connected) */}
-      {isConnected && captions.length > 1 && (
-        <CaptionSelector
-          captions={captions}
-          selectedCaption={selectedCaption}
-          onSelectCaption={setSelectedCaption}
-        />
-      )}
-
       {/* Error Message */}
       {postError && (
         <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
-          <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
           <p className="text-sm text-destructive">{postError}</p>
         </div>
       )}
 
-      {/* Post Button (only when connected) */}
-      {isConnected && (
-        <Button
-          onClick={handlePost}
-          disabled={isPosting}
-          className="w-full min-h-[44px] bg-[#0077B5] hover:bg-[#005885] text-white"
-        >
-          {isPosting ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Posting to LinkedIn...
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4 mr-2" />
-              Post to LinkedIn
-            </>
-          )}
-        </Button>
-      )}
+      <LinkedInPostPreview
+        linkedInName={linkedInName}
+        imagePreviewUrl={previewUrl}
+        caption={editedCaption}
+        onCaptionChange={setEditedCaption}
+        onPost={handlePost}
+        isPosting={isPosting}
+        captions={captions}
+      />
 
-      {/* Helper text */}
-      {!isConnected && !isAuthLoading && (
-        <p className="text-xs text-muted-foreground text-center">
-          Connect once to post directly. Your connection stays active for 60 days.
-        </p>
-      )}
+      {/* Disconnect option */}
+      <button
+        onClick={disconnect}
+        className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
+      >
+        Connected as {linkedInName} · Disconnect
+      </button>
     </div>
   );
 }
