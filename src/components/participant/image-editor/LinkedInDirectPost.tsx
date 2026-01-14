@@ -52,23 +52,26 @@ export function LinkedInDirectPost({
   // Generate preview image when connected
   useEffect(() => {
     let mounted = true;
-    let objectUrl: string | null = null;
 
     const generatePreview = async () => {
-      if (isConnected && !previewUrl && !isGeneratingPreview) {
-        setIsGeneratingPreview(true);
-        try {
-          const blob = await generateImageBlob();
-          if (blob && mounted) {
-            objectUrl = URL.createObjectURL(blob);
-            setPreviewUrl(objectUrl);
+      if (!isConnected) return;
+      
+      setIsGeneratingPreview(true);
+      try {
+        const blob = await generateImageBlob();
+        if (blob && mounted) {
+          // Revoke old URL if exists
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
           }
-        } catch (error) {
-          console.error("Failed to generate preview:", error);
-        } finally {
-          if (mounted) {
-            setIsGeneratingPreview(false);
-          }
+          const newUrl = URL.createObjectURL(blob);
+          setPreviewUrl(newUrl);
+        }
+      } catch (error) {
+        console.error("Failed to generate preview:", error);
+      } finally {
+        if (mounted) {
+          setIsGeneratingPreview(false);
         }
       }
     };
@@ -77,11 +80,9 @@ export function LinkedInDirectPost({
 
     return () => {
       mounted = false;
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
     };
-  }, [isConnected, generateImageBlob, previewUrl, isGeneratingPreview]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected]);
 
   // Reset state when disconnected
   useEffect(() => {
