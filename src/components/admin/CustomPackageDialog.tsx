@@ -178,6 +178,7 @@ ${formData.message || "No additional message provided."}`;
                   value={formData.company}
                   onChange={(e) => setFormData((prev) => ({ ...prev, company: e.target.value }))}
                   placeholder="Company name"
+                  required
                 />
               </div>
               <div className="space-y-1.5">
@@ -188,6 +189,7 @@ ${formData.message || "No additional message provided."}`;
                   value={formData.phone}
                   onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
                   placeholder="+49 123 456789"
+                  required
                 />
               </div>
             </div>
@@ -201,7 +203,10 @@ ${formData.message || "No additional message provided."}`;
               <Label htmlFor="eventType">
                 Event Type <span className="text-destructive">*</span>
               </Label>
-              <Select value={formData.eventType} onValueChange={(v) => setFormData((prev) => ({ ...prev, eventType: v }))}>
+              <Select
+                value={formData.eventType}
+                onValueChange={(v) => setFormData((prev) => ({ ...prev, eventType: v }))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select event type" />
                 </SelectTrigger>
@@ -220,7 +225,10 @@ ${formData.message || "No additional message provided."}`;
                 <Label htmlFor="downloads">
                   Downloads/Year <span className="text-destructive">*</span>
                 </Label>
-                <Select value={formData.downloads} onValueChange={(v) => setFormData((prev) => ({ ...prev, downloads: v }))}>
+                <Select
+                  value={formData.downloads}
+                  onValueChange={(v) => setFormData((prev) => ({ ...prev, downloads: v }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select range" />
                   </SelectTrigger>
