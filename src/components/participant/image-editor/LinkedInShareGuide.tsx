@@ -1,4 +1,4 @@
-import { Copy, Check, Image, MessageSquare, Send } from "lucide-react";
+import { Copy, Check, Image, MessageSquare, Send, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,8 +12,8 @@ interface LinkedInShareGuideProps {
   onCaptionChange?: (index: number) => void;
 }
 
-export function LinkedInShareGuide({ 
-  caption, 
+export function LinkedInShareGuide({
+  caption,
   onCaptionCopied,
   captions = [],
   selectedCaptionIndex = 0,
@@ -21,14 +21,16 @@ export function LinkedInShareGuide({
 }: LinkedInShareGuideProps) {
   const [captionCopied, setCaptionCopied] = useState(false);
   const [isMac, setIsMac] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
+    setIsMac(navigator.platform.toUpperCase().includes("MAC"));
   }, []);
 
-  // Reset copied state when caption changes
+  // Reset copied + collapsed state when caption changes
   useEffect(() => {
     setCaptionCopied(false);
+    setExpanded(false);
   }, [caption]);
 
   const handleCopyCaption = () => {
@@ -38,17 +40,13 @@ export function LinkedInShareGuide({
   };
 
   const shortcutKey = isMac ? "⌘V" : "Ctrl+V";
-
-  const truncatedCaption = caption.length > 100 
-    ? caption.substring(0, 100) + "..." 
-    : caption;
-
   const hasMultipleCaptions = captions.length > 1;
+  const shouldCollapse = caption.length > 160;
 
   return (
     <div className="flex flex-col gap-3 py-1">
       <p className="font-semibold text-[15px] text-[#0077B5]">Ready to post on LinkedIn</p>
-      
+
       {/* Step 1 */}
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0077B5] text-white flex items-center justify-center text-xs font-bold">
@@ -57,10 +55,11 @@ export function LinkedInShareGuide({
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm">Your image is copied</p>
           <p className="text-xs text-muted-foreground">
-            In LinkedIn, press <kbd className="px-1.5 py-0.5 bg-muted rounded text-[11px] font-mono">{shortcutKey}</kbd> to paste it
+            In LinkedIn, press <kbd className="px-1.5 py-0.5 bg-muted rounded text-[11px] font-mono">{shortcutKey}</kbd>{" "}
+            to paste it
           </p>
         </div>
-        <Image className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+        <Image className="w-4 h-4 text-muted-foreground mt-0.5" />
       </div>
 
       {/* Step 2 */}
@@ -68,11 +67,13 @@ export function LinkedInShareGuide({
         <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0077B5] text-white flex items-center justify-center text-xs font-bold">
           2
         </div>
+
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm">Add your caption</p>
+
           {caption ? (
             <div className="mt-1.5 space-y-2">
-              {/* Caption quick-switch pills */}
+              {/* Caption selector */}
               {hasMultipleCaptions && onCaptionChange && (
                 <div className="flex flex-wrap gap-1.5">
                   {captions.map((c, index) => (
@@ -81,10 +82,9 @@ export function LinkedInShareGuide({
                       onClick={() => onCaptionChange(index)}
                       className={cn(
                         "px-2.5 py-1 text-[11px] rounded-full border transition-all",
-                        "hover:border-foreground/30",
                         index === selectedCaptionIndex
                           ? "border-[#0077B5] bg-[#0077B5]/10 text-[#0077B5] font-medium"
-                          : "border-border text-muted-foreground"
+                          : "border-border text-muted-foreground hover:border-foreground/30",
                       )}
                     >
                       Caption {index + 1}
@@ -92,17 +92,46 @@ export function LinkedInShareGuide({
                   ))}
                 </div>
               )}
-              
-              <p className="text-xs text-muted-foreground line-clamp-2 italic">"{truncatedCaption}"</p>
-              <Button 
-                size="sm" 
+
+              {/* Caption preview */}
+              <div className="relative">
+                <p
+                  className={cn(
+                    "text-xs text-muted-foreground italic whitespace-pre-wrap break-words transition-all duration-300",
+                    !expanded && shouldCollapse && "line-clamp-2",
+                  )}
+                >
+                  "{caption}"
+                </p>
+
+                {shouldCollapse && (
+                  <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="mt-1 flex items-center gap-1 text-[11px] font-medium text-[#0077B5] hover:underline"
+                  >
+                    {expanded ? (
+                      <>
+                        Show less <ChevronUp className="w-3 h-3" />
+                      </>
+                    ) : (
+                      <>
+                        Show more <ChevronDown className="w-3 h-3" />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Copy button */}
+              <Button
+                size="sm"
                 onClick={handleCopyCaption}
                 disabled={captionCopied}
                 className={cn(
                   "h-8 text-xs w-full font-medium",
-                  captionCopied 
-                    ? "bg-green-600 hover:bg-green-600 text-white" 
-                    : "bg-[#0077B5] hover:bg-[#005885] text-white"
+                  captionCopied
+                    ? "bg-green-600 hover:bg-green-600 text-white"
+                    : "bg-[#0077B5] hover:bg-[#005885] text-white",
                 )}
               >
                 {captionCopied ? (
@@ -122,7 +151,8 @@ export function LinkedInShareGuide({
             <p className="text-xs text-muted-foreground">Write something about your experience</p>
           )}
         </div>
-        <MessageSquare className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+
+        <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5" />
       </div>
 
       {/* Step 3 */}
@@ -134,7 +164,7 @@ export function LinkedInShareGuide({
           <p className="font-medium text-sm">Click "Post" on LinkedIn</p>
           <p className="text-xs text-muted-foreground">Share with your network</p>
         </div>
-        <Send className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+        <Send className="w-4 h-4 text-muted-foreground mt-0.5" />
       </div>
     </div>
   );
