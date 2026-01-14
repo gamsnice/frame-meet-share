@@ -26,9 +26,11 @@ export function LinkedInDirectPost({
     linkedInName,
     isLoading: isAuthLoading,
     isConnecting,
+    error: authError,
     connect,
     disconnect,
     checkStatus,
+    clearError,
   } = useLinkedInAuth();
 
   const { post, isPosting, postError, postUrl } = useLinkedInPost();
@@ -100,8 +102,13 @@ export function LinkedInDirectPost({
         linkedInName={linkedInName}
         isLoading={isAuthLoading}
         isConnecting={isConnecting}
+        error={authError}
         onConnect={connect}
         onDisconnect={disconnect}
+        onRetry={() => {
+          clearError();
+          connect();
+        }}
       />
 
       {/* Caption Selection (only when connected) */}

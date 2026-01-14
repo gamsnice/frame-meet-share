@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getLinkedInSessionId, clearLinkedInSession } from "@/lib/linkedin-session";
+import { toast } from "@/hooks/use-toast";
 
 interface LinkedInStatus {
   connected: boolean;
@@ -13,9 +14,40 @@ interface UseLinkedInAuthReturn {
   linkedInName: string | null;
   isLoading: boolean;
   isConnecting: boolean;
+  error: string | null;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   checkStatus: () => Promise<void>;
+  clearError: () => void;
+}
+
+// User-friendly error messages for common OAuth errors
+function getOAuthErrorMessage(error: string, description?: string): string {
+  const errorLower = error.toLowerCase();
+  const descLower = description?.toLowerCase() || "";
+  
+  if (errorLower.includes("redirect_uri") || descLower.includes("redirect_uri") || descLower.includes("does not match")) {
+    return "LinkedIn connection failed: The app's redirect URL is not configured correctly. Please contact the event organizer.";
+  }
+  
+  if (errorLower === "access_denied" || errorLower === "user_cancelled_authorize") {
+    return "You cancelled the LinkedIn authorization.";
+  }
+  
+  if (errorLower === "unauthorized_client") {
+    return "LinkedIn connection failed: The app is not authorized. Please contact the event organizer.";
+  }
+  
+  if (errorLower === "invalid_scope") {
+    return "LinkedIn connection failed: Invalid permissions requested. Please contact the event organizer.";
+  }
+  
+  if (errorLower === "server_error" || errorLower === "temporarily_unavailable") {
+    return "LinkedIn is temporarily unavailable. Please try again later.";
+  }
+  
+  // Return the description if available, otherwise a generic message
+  return description || "Failed to connect to LinkedIn. Please try again.";
 }
 
 export function useLinkedInAuth(): UseLinkedInAuthReturn {
@@ -23,19 +55,14 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
   const [linkedInName, setLinkedInName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const clearError = useCallback(() => setError(null), []);
 
   const checkStatus = useCallback(async () => {
     try {
       const sessionId = getLinkedInSessionId();
-      const { data, error } = await supabase.functions.invoke("linkedin-status", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: null,
-      });
 
-      // Use fetch directly since invoke doesn't support query params well for GET
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/linkedin-status?session_id=${encodeURIComponent(sessionId)}`,
         {
@@ -53,8 +80,8 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
         setIsConnected(false);
         setLinkedInName(null);
       }
-    } catch (error) {
-      console.error("Failed to check LinkedIn status:", error);
+    } catch (err) {
+      console.error("Failed to check LinkedIn status:", err);
       setIsConnected(false);
       setLinkedInName(null);
     } finally {
@@ -64,20 +91,21 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
 
   const connect = useCallback(async () => {
     setIsConnecting(true);
+    setError(null);
+    
     try {
       const sessionId = getLinkedInSessionId();
-      // Redirect URI should point to our callback page
       const redirectUri = `${window.location.origin}/linkedin/callback`;
 
-      const { data, error } = await supabase.functions.invoke("linkedin-auth-init", {
+      const { data, error: invokeError } = await supabase.functions.invoke("linkedin-auth-init", {
         body: {
           session_id: sessionId,
           redirect_uri: redirectUri,
         },
       });
 
-      if (error) {
-        throw new Error(error.message);
+      if (invokeError) {
+        throw new Error(invokeError.message);
       }
 
       if (!data?.auth_url) {
@@ -106,8 +134,22 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
           if (event.data.success) {
             setIsConnected(true);
             setLinkedInName(event.data.name || "LinkedIn User");
+            setError(null);
+            toast({
+              title: "LinkedIn Connected",
+              description: `Signed in as ${event.data.name || "LinkedIn User"}`,
+            });
           } else {
-            console.error("LinkedIn OAuth failed:", event.data.error);
+            const errorMsg = getOAuthErrorMessage(
+              event.data.errorCode || event.data.error || "unknown",
+              event.data.error
+            );
+            setError(errorMsg);
+            toast({
+              variant: "destructive",
+              title: "Connection Failed",
+              description: errorMsg,
+            });
           }
           
           setIsConnecting(false);
@@ -116,18 +158,24 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
 
       window.addEventListener("message", handleMessage);
 
-      // Poll for popup close (in case user closes without completing)
+      // Poll for popup close
       const pollTimer = setInterval(() => {
         if (popup?.closed) {
           clearInterval(pollTimer);
           window.removeEventListener("message", handleMessage);
           setIsConnecting(false);
-          // Check status in case OAuth completed
           checkStatus();
         }
       }, 500);
-    } catch (error) {
-      console.error("Failed to initiate LinkedIn OAuth:", error);
+    } catch (err) {
+      console.error("Failed to initiate LinkedIn OAuth:", err);
+      const errorMsg = "Failed to start LinkedIn connection. Please try again.";
+      setError(errorMsg);
+      toast({
+        variant: "destructive",
+        title: "Connection Failed",
+        description: errorMsg,
+      });
       setIsConnecting(false);
     }
   }, [checkStatus]);
@@ -142,12 +190,21 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
 
       setIsConnected(false);
       setLinkedInName(null);
-    } catch (error) {
-      console.error("Failed to disconnect LinkedIn:", error);
+      setError(null);
+      toast({
+        title: "LinkedIn Disconnected",
+        description: "Your LinkedIn account has been disconnected.",
+      });
+    } catch (err) {
+      console.error("Failed to disconnect LinkedIn:", err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to disconnect LinkedIn. Please try again.",
+      });
     }
   }, []);
 
-  // Check status on mount
   useEffect(() => {
     checkStatus();
   }, [checkStatus]);
@@ -157,8 +214,10 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
     linkedInName,
     isLoading,
     isConnecting,
+    error,
     connect,
     disconnect,
     checkStatus,
+    clearError,
   };
 }

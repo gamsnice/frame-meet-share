@@ -1,10 +1,57 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+
+// User-friendly error messages for common OAuth errors
+function getOAuthErrorMessage(error: string, description?: string): { title: string; message: string } {
+  const errorLower = error.toLowerCase();
+  const descLower = description?.toLowerCase() || "";
+  
+  if (errorLower.includes("redirect_uri") || descLower.includes("redirect_uri") || descLower.includes("does not match")) {
+    return {
+      title: "Configuration Error",
+      message: "The app's redirect URL is not configured correctly in LinkedIn. Please contact the event organizer.",
+    };
+  }
+  
+  if (errorLower === "access_denied" || errorLower === "user_cancelled_authorize") {
+    return {
+      title: "Authorization Cancelled",
+      message: "You cancelled the LinkedIn authorization.",
+    };
+  }
+  
+  if (errorLower === "unauthorized_client") {
+    return {
+      title: "App Not Authorized",
+      message: "This app is not authorized to connect with LinkedIn. Please contact the event organizer.",
+    };
+  }
+  
+  if (errorLower === "invalid_scope") {
+    return {
+      title: "Invalid Permissions",
+      message: "The app requested invalid LinkedIn permissions. Please contact the event organizer.",
+    };
+  }
+  
+  if (errorLower === "server_error" || errorLower === "temporarily_unavailable") {
+    return {
+      title: "LinkedIn Unavailable",
+      message: "LinkedIn is temporarily unavailable. Please try again later.",
+    };
+  }
+  
+  return {
+    title: "Connection Failed",
+    message: description || "Failed to connect to LinkedIn. Please try again.",
+  };
+}
 
 export default function LinkedInCallback() {
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error" | "cancelled">("loading");
   const [message, setMessage] = useState("Connecting to LinkedIn...");
+  const [errorTitle, setErrorTitle] = useState("Connection Failed");
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -15,26 +62,41 @@ export default function LinkedInCallback() {
       const errorDescription = urlParams.get("error_description");
 
       if (error) {
-        setStatus("error");
-        setMessage(errorDescription || "LinkedIn authorization was denied");
+        const { title, message } = getOAuthErrorMessage(error, errorDescription || undefined);
+        setErrorTitle(title);
+        setMessage(message);
+        setStatus(error === "access_denied" || error === "user_cancelled_authorize" ? "cancelled" : "error");
         
-        // Notify opener window
+        // Notify opener window with error details
         if (window.opener) {
           window.opener.postMessage(
-            { type: "linkedin-oauth-callback", success: false, error: errorDescription || error },
+            { 
+              type: "linkedin-oauth-callback", 
+              success: false, 
+              error: message,
+              errorCode: error,
+            },
             window.location.origin
           );
         }
         
-        // Auto-close after delay
-        setTimeout(() => window.close(), 2000);
+        setTimeout(() => window.close(), 3000);
         return;
       }
 
       if (!code || !state) {
+        setErrorTitle("Missing Parameters");
+        setMessage("The authorization response is incomplete. Please try again.");
         setStatus("error");
-        setMessage("Missing authorization parameters");
-        setTimeout(() => window.close(), 2000);
+        
+        if (window.opener) {
+          window.opener.postMessage(
+            { type: "linkedin-oauth-callback", success: false, error: "Missing authorization parameters" },
+            window.location.origin
+          );
+        }
+        
+        setTimeout(() => window.close(), 3000);
         return;
       }
 
@@ -53,7 +115,6 @@ export default function LinkedInCallback() {
         setStatus("success");
         setMessage(`Connected as ${data.name || "LinkedIn User"}`);
 
-        // Notify opener window
         if (window.opener) {
           window.opener.postMessage(
             { type: "linkedin-oauth-callback", success: true, name: data.name },
@@ -61,22 +122,22 @@ export default function LinkedInCallback() {
           );
         }
 
-        // Auto-close after delay
         setTimeout(() => window.close(), 1500);
       } catch (err) {
         console.error("LinkedIn callback error:", err);
+        const errorMsg = err instanceof Error ? err.message : "Failed to connect to LinkedIn";
+        setErrorTitle("Connection Failed");
+        setMessage(errorMsg);
         setStatus("error");
-        setMessage(err instanceof Error ? err.message : "Failed to connect to LinkedIn");
         
-        // Notify opener window
         if (window.opener) {
           window.opener.postMessage(
-            { type: "linkedin-oauth-callback", success: false, error: message },
+            { type: "linkedin-oauth-callback", success: false, error: errorMsg },
             window.location.origin
           );
         }
         
-        setTimeout(() => window.close(), 2000);
+        setTimeout(() => window.close(), 3000);
       }
     };
 
@@ -85,7 +146,7 @@ export default function LinkedInCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center p-8">
+      <div className="text-center p-8 max-w-md">
         {status === "loading" && (
           <>
             <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
@@ -101,11 +162,21 @@ export default function LinkedInCallback() {
           </>
         )}
         
+        {status === "cancelled" && (
+          <>
+            <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+            <p className="text-foreground font-medium">{errorTitle}</p>
+            <p className="text-sm text-muted-foreground mt-2">{message}</p>
+            <p className="text-xs text-muted-foreground mt-4">This window will close automatically...</p>
+          </>
+        )}
+        
         {status === "error" && (
           <>
             <XCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <p className="text-foreground font-medium">Connection Failed</p>
+            <p className="text-foreground font-medium">{errorTitle}</p>
             <p className="text-sm text-muted-foreground mt-2">{message}</p>
+            <p className="text-xs text-muted-foreground mt-4">This window will close automatically...</p>
           </>
         )}
       </div>
