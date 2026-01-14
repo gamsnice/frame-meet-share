@@ -10,7 +10,6 @@ interface LinkedInShareGuideProps {
   captions?: Caption[];
   selectedCaptionIndex?: number;
   onCaptionChange?: (index: number) => void;
-  imagePreviewUrl?: string | null;
 }
 
 export function LinkedInShareGuide({ 
@@ -19,7 +18,6 @@ export function LinkedInShareGuide({
   captions = [],
   selectedCaptionIndex = 0,
   onCaptionChange,
-  imagePreviewUrl,
 }: LinkedInShareGuideProps) {
   const [captionCopied, setCaptionCopied] = useState(false);
   const [isMac, setIsMac] = useState(false);
@@ -49,17 +47,6 @@ export function LinkedInShareGuide({
 
   return (
     <div className="flex flex-col gap-3 py-1">
-      {/* Image Preview */}
-      {imagePreviewUrl && (
-        <div className="rounded-lg overflow-hidden bg-muted/30 border border-border">
-          <img 
-            src={imagePreviewUrl} 
-            alt="Post preview" 
-            className="w-full h-auto max-h-[180px] object-contain"
-          />
-        </div>
-      )}
-
       <p className="font-semibold text-[15px] text-[#0077B5]">Ready to post on LinkedIn</p>
       
       {/* Step 1 */}

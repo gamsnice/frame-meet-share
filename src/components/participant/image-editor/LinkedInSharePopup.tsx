@@ -152,14 +152,13 @@ export function LinkedInSharePopup({
               {/* Divider */}
               <div className="border-t border-border" />
 
-              {/* Step-by-step Guide with image preview and caption selection */}
+              {/* Step-by-step Guide with caption selection */}
               <LinkedInShareGuide 
                 caption={selectedCaption} 
                 onCaptionCopied={onCaptionCopied}
                 captions={captions}
                 selectedCaptionIndex={selectedCaptionIndex}
                 onCaptionChange={setSelectedCaptionIndex}
-                imagePreviewUrl={imagePreviewUrl}
               />
             </div>
           </TabsContent>
@@ -192,7 +191,6 @@ export function LinkedInSharePopup({
             captions={captions}
             selectedCaptionIndex={selectedCaptionIndex}
             onCaptionChange={setSelectedCaptionIndex}
-            imagePreviewUrl={imagePreviewUrl}
           />
         </div>
       )}
