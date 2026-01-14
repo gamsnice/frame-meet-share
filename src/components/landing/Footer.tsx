@@ -13,11 +13,8 @@ export default function Footer() {
             <p className="text-sm text-muted-foreground">© 2025 meetme. All rights reserved.</p>
           </div>
           <div className="flex items-center gap-6">
-            <Link 
-              to="/imprint" 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Imprint
+            <Link to="/imprint" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Legal Notice
             </Link>
             <Instagram className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
             <Linkedin className="h-6 w-6 text-muted-foreground hover:text-secondary cursor-pointer transition-colors" />
