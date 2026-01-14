@@ -1,4 +1,5 @@
 import { Instagram, Linkedin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -11,7 +12,13 @@ export default function Footer() {
             </div>
             <p className="text-sm text-muted-foreground">© 2025 meetme. All rights reserved.</p>
           </div>
-          <div className="flex gap-6">
+          <div className="flex items-center gap-6">
+            <Link 
+              to="/imprint" 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Imprint
+            </Link>
             <Instagram className="h-6 w-6 text-muted-foreground hover:text-primary cursor-pointer transition-colors" />
             <Linkedin className="h-6 w-6 text-muted-foreground hover:text-secondary cursor-pointer transition-colors" />
           </div>
