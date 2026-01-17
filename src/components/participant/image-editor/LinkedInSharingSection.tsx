@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Linkedin, Copy, Check, ExternalLink, Image, MessageSquare } from "lucide-react";
+import { Loader2, Send, Linkedin, Copy, Check, ExternalLink, Image, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkedInConnectCard } from "./LinkedInConnectCard";
 import { useLinkedInAuth } from "@/hooks/useLinkedInAuth";
@@ -33,6 +33,7 @@ export function LinkedInSharingSection({
   const [selectedCaptionIndex, setSelectedCaptionIndex] = useState(0);
   const [editedCaption, setEditedCaption] = useState("");
   const [captionCopied, setCaptionCopied] = useState(false);
+  const [captionExpanded, setCaptionExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const {
@@ -56,9 +57,10 @@ export function LinkedInSharingSection({
     }
   }, [captions, selectedCaptionIndex]);
 
-  // Reset copied state when caption changes
+  // Reset copied and expanded state when caption changes
   useEffect(() => {
     setCaptionCopied(false);
+    setCaptionExpanded(false);
   }, [editedCaption, selectedCaptionIndex]);
 
   // Auto-resize textarea - run on mount and when caption changes
@@ -355,9 +357,30 @@ export function LinkedInSharingSection({
                   
                   {/* Caption Preview */}
                   <div className="rounded-lg border border-border bg-card/50 p-3">
-                    <p className="text-xs text-muted-foreground line-clamp-3 italic">
-                      "{editedCaption.length > 150 ? editedCaption.substring(0, 150) + "..." : editedCaption}"
+                    <p className={cn(
+                      "text-xs text-muted-foreground italic whitespace-pre-wrap",
+                      !captionExpanded && "line-clamp-3"
+                    )}>
+                      "{editedCaption}"
                     </p>
+                    {editedCaption.length > 150 && (
+                      <button
+                        onClick={() => setCaptionExpanded(!captionExpanded)}
+                        className="text-xs text-[#0077B5] hover:text-[#005885] font-medium mt-2 flex items-center gap-1 transition-colors"
+                      >
+                        {captionExpanded ? (
+                          <>
+                            Show less
+                            <ChevronUp className="w-3 h-3" />
+                          </>
+                        ) : (
+                          <>
+                            Show more
+                            <ChevronDown className="w-3 h-3" />
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                   
                   {/* Copy Button */}
