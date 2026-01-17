@@ -12,6 +12,7 @@ import FeedbackButton from "@/components/participant/FeedbackButton";
 import { trackEvent } from "@/lib/analytics";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EventPublic, Template } from "@/types";
+import { getEditorState, clearEditorState } from "@/lib/editor-session";
 
 export default function EventParticipantPage() {
   const { slug } = useParams();
@@ -28,6 +29,32 @@ export default function EventParticipantPage() {
       loadEventData();
     }
   }, [slug]);
+
+  // Restore editor state after LinkedIn OAuth redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const linkedInConnected = params.get("linkedin_connected");
+
+    if (linkedInConnected && templates.length > 0) {
+      const savedState = getEditorState();
+      if (savedState) {
+        // Find the template by ID
+        const template = templates.find((t) => t.id === savedState.templateId);
+        if (template) {
+          setSelectedTemplate(template);
+          setUserImage(savedState.userImage);
+
+          // Auto-scroll to editor on mobile
+          if (isMobile && editorRef.current) {
+            setTimeout(() => {
+              editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+          }
+        }
+        clearEditorState();
+      }
+    }
+  }, [templates, isMobile]);
 
   // Set dynamic favicon
   useEffect(() => {

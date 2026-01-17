@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getLinkedInSessionId, clearLinkedInSession } from "@/lib/linkedin-session";
+import { saveEditorState } from "@/lib/editor-session";
 import { toast } from "@/hooks/use-toast";
 
 interface LinkedInStatus {
@@ -9,13 +10,18 @@ interface LinkedInStatus {
   expires_at?: string;
 }
 
+interface EditorStateForOAuth {
+  templateId: string;
+  userImage: string;
+}
+
 interface UseLinkedInAuthReturn {
   isConnected: boolean;
   linkedInName: string | null;
   isLoading: boolean;
   isConnecting: boolean;
   error: string | null;
-  connect: () => Promise<void>;
+  connect: (editorState?: EditorStateForOAuth) => Promise<void>;
   disconnect: () => Promise<void>;
   checkStatus: () => Promise<void>;
   clearError: () => void;
@@ -137,7 +143,7 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
     }
   }, []);
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (editorState?: EditorStateForOAuth) => {
     setIsConnecting(true);
     setError(null);
 
@@ -179,6 +185,12 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
       if (isMobile) {
         // Mobile: Store return URL and redirect in same window
         sessionStorage.setItem("linkedin_return_url", window.location.href);
+        
+        // Save editor state if provided (for restoring after OAuth redirect)
+        if (editorState) {
+          saveEditorState(editorState.templateId, editorState.userImage);
+        }
+        
         window.location.href = data.auth_url;
         return; // Page will navigate away
       }

@@ -14,6 +14,8 @@ interface LinkedInSharingSectionProps {
   onShareToLinkedIn: () => Promise<void>;
   isLoading: boolean;
   isMobile?: boolean;
+  templateId?: string;
+  userImage?: string;
 }
 
 const MAX_CAPTION_LENGTH = 3000;
@@ -24,6 +26,8 @@ export function LinkedInSharingSection({
   onShareToLinkedIn,
   isLoading,
   isMobile = false,
+  templateId,
+  userImage,
 }: LinkedInSharingSectionProps) {
   const [activeTab, setActiveTab] = useState<"direct" | "manual">("direct");
   const [selectedCaptionIndex, setSelectedCaptionIndex] = useState(0);
@@ -209,11 +213,11 @@ export function LinkedInSharingSection({
                 isLoading={isAuthLoading}
                 isConnecting={isConnecting}
                 error={authError}
-                onConnect={connect}
+                onConnect={() => connect(templateId && userImage ? { templateId, userImage } : undefined)}
                 onDisconnect={disconnect}
                 onRetry={() => {
                   clearError();
-                  connect();
+                  connect(templateId && userImage ? { templateId, userImage } : undefined);
                 }}
               />
               {!isAuthLoading && (

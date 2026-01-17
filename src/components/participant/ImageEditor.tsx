@@ -314,6 +314,8 @@ export default function ImageEditor({
                 onShareToLinkedIn={handleShareToLinkedIn}
                 isLoading={isCheckingLimit}
                 isMobile
+                templateId={template.id}
+                userImage={userImage || ""}
               />
             </div>
 
@@ -375,6 +377,8 @@ export default function ImageEditor({
                 generateImageBlob={generateImageBlob}
                 onShareToLinkedIn={handleShareToLinkedIn}
                 isLoading={isCheckingLimit}
+                templateId={template.id}
+                userImage={userImage || ""}
               />
             </div>
           </div>
