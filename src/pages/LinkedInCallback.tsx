@@ -48,6 +48,46 @@ function getOAuthErrorMessage(error: string, description?: string): { title: str
   };
 }
 
+// Check if we're in a popup (has opener) or redirect flow (no opener)
+function isPopupFlow(): boolean {
+  try {
+    return !!window.opener && window.opener !== window;
+  } catch {
+    // Cross-origin access to opener will throw
+    return false;
+  }
+}
+
+// Redirect back to original page with parameters (for mobile redirect flow)
+function redirectToReturnUrl(params: Record<string, string>) {
+  const returnUrl = sessionStorage.getItem("linkedin_return_url");
+  sessionStorage.removeItem("linkedin_return_url");
+
+  if (returnUrl) {
+    try {
+      const url = new URL(returnUrl);
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+      window.location.href = url.toString();
+    } catch {
+      // Invalid URL, fallback to root
+      const fallbackUrl = new URL(window.location.origin);
+      Object.entries(params).forEach(([key, value]) => {
+        fallbackUrl.searchParams.set(key, value);
+      });
+      window.location.href = fallbackUrl.toString();
+    }
+  } else {
+    // No return URL stored, redirect to root with params
+    const fallbackUrl = new URL(window.location.origin);
+    Object.entries(params).forEach(([key, value]) => {
+      fallbackUrl.searchParams.set(key, value);
+    });
+    window.location.href = fallbackUrl.toString();
+  }
+}
+
 export default function LinkedInCallback() {
   const [status, setStatus] = useState<"loading" | "success" | "error" | "cancelled">("loading");
   const [message, setMessage] = useState("Connecting to LinkedIn...");
@@ -61,14 +101,16 @@ export default function LinkedInCallback() {
       const error = urlParams.get("error");
       const errorDescription = urlParams.get("error_description");
 
+      const inPopup = isPopupFlow();
+
       if (error) {
         const { title, message } = getOAuthErrorMessage(error, errorDescription || undefined);
         setErrorTitle(title);
         setMessage(message);
         setStatus(error === "access_denied" || error === "user_cancelled_authorize" ? "cancelled" : "error");
         
-        // Notify opener window with error details
-        if (window.opener) {
+        if (inPopup) {
+          // Popup flow: notify opener
           window.opener.postMessage(
             { 
               type: "linkedin-oauth-callback", 
@@ -78,25 +120,33 @@ export default function LinkedInCallback() {
             },
             window.location.origin
           );
+          setTimeout(() => window.close(), 3000);
+        } else {
+          // Redirect flow: go back to original page with error
+          setTimeout(() => {
+            redirectToReturnUrl({ linkedin_error: message });
+          }, 2000);
         }
-        
-        setTimeout(() => window.close(), 3000);
         return;
       }
 
       if (!code || !state) {
+        const errorMsg = "The authorization response is incomplete. Please try again.";
         setErrorTitle("Missing Parameters");
-        setMessage("The authorization response is incomplete. Please try again.");
+        setMessage(errorMsg);
         setStatus("error");
         
-        if (window.opener) {
+        if (inPopup) {
           window.opener.postMessage(
-            { type: "linkedin-oauth-callback", success: false, error: "Missing authorization parameters" },
+            { type: "linkedin-oauth-callback", success: false, error: errorMsg },
             window.location.origin
           );
+          setTimeout(() => window.close(), 3000);
+        } else {
+          setTimeout(() => {
+            redirectToReturnUrl({ linkedin_error: errorMsg });
+          }, 2000);
         }
-        
-        setTimeout(() => window.close(), 3000);
         return;
       }
 
@@ -115,14 +165,22 @@ export default function LinkedInCallback() {
         setStatus("success");
         setMessage(`Connected as ${data.name || "LinkedIn User"}`);
 
-        if (window.opener) {
+        if (inPopup) {
+          // Popup flow: notify opener and close
           window.opener.postMessage(
             { type: "linkedin-oauth-callback", success: true, name: data.name },
             window.location.origin
           );
+          setTimeout(() => window.close(), 1500);
+        } else {
+          // Redirect flow: go back to original page with success
+          setTimeout(() => {
+            redirectToReturnUrl({
+              linkedin_connected: "true",
+              linkedin_name: data.name || "LinkedIn User",
+            });
+          }, 1500);
         }
-
-        setTimeout(() => window.close(), 1500);
       } catch (err) {
         console.error("LinkedIn callback error:", err);
         const errorMsg = err instanceof Error ? err.message : "Failed to connect to LinkedIn";
@@ -130,14 +188,17 @@ export default function LinkedInCallback() {
         setMessage(errorMsg);
         setStatus("error");
         
-        if (window.opener) {
+        if (inPopup) {
           window.opener.postMessage(
             { type: "linkedin-oauth-callback", success: false, error: errorMsg },
             window.location.origin
           );
+          setTimeout(() => window.close(), 3000);
+        } else {
+          setTimeout(() => {
+            redirectToReturnUrl({ linkedin_error: errorMsg });
+          }, 2000);
         }
-        
-        setTimeout(() => window.close(), 3000);
       }
     };
 
@@ -158,7 +219,7 @@ export default function LinkedInCallback() {
           <>
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
             <p className="text-foreground font-medium">{message}</p>
-            <p className="text-sm text-muted-foreground mt-2">This window will close automatically...</p>
+            <p className="text-sm text-muted-foreground mt-2">Redirecting...</p>
           </>
         )}
         
@@ -167,7 +228,7 @@ export default function LinkedInCallback() {
             <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
             <p className="text-foreground font-medium">{errorTitle}</p>
             <p className="text-sm text-muted-foreground mt-2">{message}</p>
-            <p className="text-xs text-muted-foreground mt-4">This window will close automatically...</p>
+            <p className="text-xs text-muted-foreground mt-4">Redirecting...</p>
           </>
         )}
         
@@ -176,7 +237,7 @@ export default function LinkedInCallback() {
             <XCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <p className="text-foreground font-medium">{errorTitle}</p>
             <p className="text-sm text-muted-foreground mt-2">{message}</p>
-            <p className="text-xs text-muted-foreground mt-4">This window will close automatically...</p>
+            <p className="text-xs text-muted-foreground mt-4">Redirecting...</p>
           </>
         )}
       </div>
