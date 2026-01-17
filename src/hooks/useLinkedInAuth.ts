@@ -21,6 +21,13 @@ interface UseLinkedInAuthReturn {
   clearError: () => void;
 }
 
+// Detect mobile devices for redirect-based OAuth flow
+function isMobileDevice(): boolean {
+  return /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+}
+
 // User-friendly error messages for common OAuth errors
 function getOAuthErrorMessage(error: string, description?: string): string {
   const errorLower = error.toLowerCase();
@@ -89,9 +96,66 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
     }
   }, []);
 
+  // Handle URL parameters from mobile redirect flow
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const connected = params.get("linkedin_connected");
+    const linkedInNameParam = params.get("linkedin_name");
+    const errorParam = params.get("linkedin_error");
+
+    if (connected === "true") {
+      setIsConnected(true);
+      setLinkedInName(linkedInNameParam || "LinkedIn User");
+      setIsLoading(false);
+      toast({
+        title: "LinkedIn Connected",
+        description: `Signed in as ${linkedInNameParam || "LinkedIn User"}`,
+      });
+
+      // Clean URL parameters
+      params.delete("linkedin_connected");
+      params.delete("linkedin_name");
+      const newUrl = params.toString()
+        ? `${window.location.pathname}?${params}`
+        : window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+    } else if (errorParam) {
+      setError(errorParam);
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Connection Failed",
+        description: errorParam,
+      });
+
+      // Clean URL parameters
+      params.delete("linkedin_error");
+      const newUrl = params.toString()
+        ? `${window.location.pathname}?${params}`
+        : window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, []);
+
   const connect = useCallback(async () => {
     setIsConnecting(true);
     setError(null);
+
+    const isMobile = isMobileDevice();
+
+    // On desktop, open popup immediately (before async call) to avoid popup blockers
+    let popup: Window | null = null;
+    if (!isMobile) {
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      popup = window.open(
+        "about:blank",
+        "linkedin-oauth",
+        `width=${width},height=${height},left=${left},top=${top},popup=1`
+      );
+    }
     
     try {
       const sessionId = getLinkedInSessionId();
@@ -112,17 +176,19 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
         throw new Error("No authorization URL received");
       }
 
-      // Open popup for OAuth
-      const width = 600;
-      const height = 700;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
+      if (isMobile) {
+        // Mobile: Store return URL and redirect in same window
+        sessionStorage.setItem("linkedin_return_url", window.location.href);
+        window.location.href = data.auth_url;
+        return; // Page will navigate away
+      }
 
-      const popup = window.open(
-        data.auth_url,
-        "linkedin-oauth",
-        `width=${width},height=${height},left=${left},top=${top},popup=1`
-      );
+      // Desktop: Navigate the pre-opened popup to the auth URL
+      if (popup && !popup.closed) {
+        popup.location.href = data.auth_url;
+      } else {
+        throw new Error("Popup was blocked. Please allow popups for this site.");
+      }
 
       // Listen for callback message from popup
       const handleMessage = async (event: MessageEvent) => {
@@ -169,7 +235,7 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
       }, 500);
     } catch (err) {
       console.error("Failed to initiate LinkedIn OAuth:", err);
-      const errorMsg = "Failed to start LinkedIn connection. Please try again.";
+      const errorMsg = err instanceof Error ? err.message : "Failed to start LinkedIn connection. Please try again.";
       setError(errorMsg);
       toast({
         variant: "destructive",
@@ -177,6 +243,10 @@ export function useLinkedInAuth(): UseLinkedInAuthReturn {
         description: errorMsg,
       });
       setIsConnecting(false);
+      // Close popup if it was opened
+      if (popup && !popup.closed) {
+        popup.close();
+      }
     }
   }, [checkStatus]);
 
